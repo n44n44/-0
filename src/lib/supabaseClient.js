@@ -4,7 +4,11 @@ import { createClient } from '@supabase/supabase-js';
 const STORAGE_URL_KEY = 'ghaym_supabase_url';
 const STORAGE_KEY_KEY = 'ghaym_supabase_anon_key';
 
-// Read from env or localStorage
+// Default project credentials configured by owner
+export const DEFAULT_SUPABASE_URL = 'https://cwefmpzazvwtdnhxvnif.supabase.co';
+export const DEFAULT_SUPABASE_KEY = 'sb_publishable_ukIo1D9Gu-hCCIzcsDSwgg_PK_EDL7j';
+
+// Read from env, localStorage, or preconfigured default
 export function getSupabaseConfig() {
   const envUrl = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_SUPABASE_URL : '';
   const envKey = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_SUPABASE_ANON_KEY : '';
@@ -12,8 +16,8 @@ export function getSupabaseConfig() {
   const localUrl = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_URL_KEY) || '' : '';
   const localKey = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_KEY) || '' : '';
 
-  const url = (localUrl || envUrl || '').trim();
-  const anonKey = (localKey || envKey || '').trim();
+  const url = (localUrl || envUrl || DEFAULT_SUPABASE_URL).trim();
+  const anonKey = (localKey || envKey || DEFAULT_SUPABASE_KEY).trim();
 
   const isConfigured = Boolean(
     url &&
@@ -27,7 +31,7 @@ export function getSupabaseConfig() {
     url,
     anonKey,
     isConfigured,
-    source: localUrl ? 'localStorage' : envUrl ? 'env' : 'none',
+    source: localUrl ? 'localStorage' : envUrl ? 'env' : 'default',
   };
 }
 
@@ -131,6 +135,7 @@ export async function syncLocalDataToSupabase(db) {
       avatar_url: s.avatar || '',
       description: s.description || '',
       is_verified: Boolean(s.isVerified ?? true),
+      is_demo: Boolean(s.isDemo ?? true),
     }));
 
     const { error: storeErr } = await client.from('stores').upsert(storesPayload, { onConflict: 'id' });
@@ -153,6 +158,7 @@ export async function syncLocalDataToSupabase(db) {
       badge: p.badge || null,
       description: p.description || '',
       in_stock: Number(p.inStock || 10),
+      is_demo: Boolean(p.isDemo ?? true),
     }));
 
     const { error: prodErr } = await client.from('products').upsert(productsPayload, { onConflict: 'id' });

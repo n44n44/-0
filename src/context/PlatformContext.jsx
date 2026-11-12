@@ -13,6 +13,7 @@ import {
   getSupabaseClient,
   pushOrderToSupabase,
   fetchLiveSupabaseData,
+  cleanDemoDataFromSupabase,
 } from '../lib/supabaseClient';
 
 const PlatformContext = createContext(null);
@@ -2517,7 +2518,16 @@ export function PlatformProvider({ children }) {
     };
   };
 
-  const resetToCleanProductionMode = () => {
+  const resetToCleanProductionMode = async () => {
+    // If Supabase is connected, clean demo records in cloud database as well
+    if (isSupabaseConnected) {
+      try {
+        await cleanDemoDataFromSupabase();
+      } catch (err) {
+        console.warn('Failed to clean Supabase demo records:', err);
+      }
+    }
+
     setDb((prev) => ({
       ...prev,
       isProductionMode: true,
@@ -2532,7 +2542,7 @@ export function PlatformProvider({ children }) {
           'CLEAN_PRODUCTION_MODE',
           'المشرف العام',
           'admin',
-          'تم تفعيل وضع الإنتاج الحقيقي الفارغ (0 متاجر، 0 منتجات، 0 طلبات).'
+          'تم تفعيل وضع الإنتاج الحقيقي وتفريغ المتاجر والمنتجات الوهمية (0 متاجر، 0 منتجات، 0 طلبات).'
         ),
         ...prev.auditLogs,
       ],
@@ -2540,7 +2550,7 @@ export function PlatformProvider({ children }) {
         {
           id: `notif-${Date.now()}`,
           title: 'وضع الإنتاج الحقيقي مفعّل 🚀',
-          message: 'المنصة جاهزة الآن للعمل الحقيقي، بانتظار تسجيل أول متجر حقيقي وإضافة المنتجات.',
+          message: 'المنصة وقاعدة البيانات جاهزة الآن للعمل الحقيقي، بانتظار تسجيل أول متجر حقيقي.',
           time: 'الآن',
           unread: true,
           type: 'system',

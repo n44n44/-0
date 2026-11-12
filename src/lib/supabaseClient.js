@@ -245,3 +245,25 @@ export async function pushOrderToSupabase(order) {
   }
 }
 
+// Clean and delete all demo/dummy stores and products from Supabase on official launch
+export async function cleanDemoDataFromSupabase() {
+  const client = getSupabaseClient();
+  if (!client) throw new Error('سوبابيز غير متصل.');
+
+  try {
+    // 1. Delete all demo products
+    const { error: prodErr } = await client.from('products').delete().eq('is_demo', true);
+    if (prodErr) console.warn('Supabase clean demo products error:', prodErr.message);
+
+    // 2. Delete all demo stores
+    const { error: storeErr } = await client.from('stores').delete().eq('is_demo', true);
+    if (storeErr) console.warn('Supabase clean demo stores error:', storeErr.message);
+
+    return { success: !prodErr && !storeErr };
+  } catch (err) {
+    console.warn('Supabase cleanDemoData exception:', err);
+    throw err;
+  }
+}
+
+

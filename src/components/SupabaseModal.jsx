@@ -11,6 +11,7 @@ import {
   Check,
   ShieldCheck,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 import {
   getSupabaseConfig,
@@ -18,6 +19,7 @@ import {
   clearSupabaseConfig,
   testSupabaseConnection,
   syncLocalDataToSupabase,
+  cleanDemoDataFromSupabase,
 } from '../lib/supabaseClient';
 import { usePlatform } from '../context/PlatformContext';
 
@@ -29,8 +31,32 @@ export default function SupabaseModal({ isOpen, onClose }) {
   const [statusMessage, setStatusMessage] = useState(null);
   const [isTesting, setIsTesting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isCleaning, setIsCleaning] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
   const [activeTab, setActiveTab] = useState('settings'); // 'settings' | 'sql' | 'guide'
+
+  const handleCleanDemoData = async () => {
+    if (!confirm('تأكيد الإطلاق: هل ترغب بحذف كافة المتاجر والمنتجات الوهمية (Demo) من قاعدة بيانات سوبابيز نهائياً؟ ستبقى المتاجر الحقيقية المسجلة فقط.')) {
+      return;
+    }
+    setIsCleaning(true);
+    setStatusMessage(null);
+    try {
+      await cleanDemoDataFromSupabase();
+      setStatusMessage({
+        type: 'success',
+        text: 'تم حذف وتفريغ كافة المتاجر والمنتجات الوهمية من قاعدة بيانات Supabase بنجاح! المنصة الآن نظيفة ومجهزة للإنتاج.',
+      });
+      if (refreshFromSupabase) await refreshFromSupabase();
+    } catch (err) {
+      setStatusMessage({
+        type: 'error',
+        text: `فشل حذف المتاجر الوهمية: ${err.message || 'تأكد من وجود الجداول وصلاحيات الحذف.'}`,
+      });
+    } finally {
+      setIsCleaning(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -405,6 +431,28 @@ ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, price = EXCLUDED.price, des
                     فصل الاتصال
                   </button>
                 )}
+              </div>
+
+              {/* Clean Launch Tool */}
+              <div className="p-4 rounded-2xl bg-red-950/20 border border-red-500/30 space-y-2 mt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Trash2 className="w-4 h-4 text-red-400 shrink-0" />
+                    <span className="text-xs font-bold text-red-200">تنظيف وإلغاء المتاجر الوهمية عند الإطلاق الرسمي</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCleanDemoData}
+                    disabled={isCleaning}
+                    className="px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-[11px] font-bold transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0"
+                  >
+                    {isCleaning ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                    <span>{isCleaning ? 'جاري التنظيف...' : 'حذف الوهميين من سوبابيز الآن'}</span>
+                  </button>
+                </div>
+                <p className="text-[11px] text-red-300/70 leading-relaxed">
+                  يقوم بحذف جميع المتاجر والمنتجات التي تحمل وسم (Demo) من قاعدة بيانات سوبابيز مباشرة بضغطة زر مع الإبقاء على أي متجر أو تاجر حقيقي سجّل في المنصة.
+                </p>
               </div>
             </form>
           )}

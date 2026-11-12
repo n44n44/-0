@@ -1,0 +1,594 @@
+<!DOCTYPE html><html dir="rtl" lang="ar"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>إتمام الطلب - غيم سبيس Ghaym Space</title>
+<!-- Google Fonts: Manrope, Outfit, & Tajawal for Arabic aesthetics -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Outfit:wght@500;600;700;800&amp;family=Tajawal:wght@400;500;700;800&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Design System Tailwind Configuration -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-fixed": "#00174b",
+            "surface-bright": "#faf8ff",
+            "on-secondary-fixed-variant": "#264191",
+            "surface-container-high": "#e2e7ff",
+            "on-error-container": "#93000a",
+            "surface-container-low": "#f2f3ff",
+            "tertiary": "#00569c",
+            "outline": "#737686",
+            "secondary-container": "#8fa7fe",
+            "on-secondary": "#ffffff",
+            "secondary": "#4059aa",
+            "tertiary-fixed-dim": "#a4c9ff",
+            "primary-fixed-dim": "#b4c5ff",
+            "secondary-fixed": "#dce1ff",
+            "surface-container": "#eaedff",
+            "surface-variant": "#dae2fd",
+            "on-tertiary": "#ffffff",
+            "on-surface": "#131b2e",
+            "on-primary": "#ffffff",
+            "on-tertiary-fixed": "#001c39",
+            "inverse-on-surface": "#eef0ff",
+            "background": "#faf8ff",
+            "surface-dim": "#d2d9f4",
+            "primary-fixed": "#dbe1ff",
+            "on-tertiary-container": "#ebf1ff",
+            "on-secondary-container": "#1d3989",
+            "inverse-primary": "#b4c5ff",
+            "secondary-fixed-dim": "#b6c4ff",
+            "on-error": "#ffffff",
+            "primary-container": "#2563eb",
+            "surface-container-lowest": "#ffffff",
+            "on-background": "#131b2e",
+            "inverse-surface": "#283044",
+            "on-tertiary-fixed-variant": "#004883",
+            "on-primary-container": "#eeefff",
+            "surface": "#faf8ff",
+            "on-primary-fixed-variant": "#003ea8",
+            "surface-tint": "#0053db",
+            "tertiary-fixed": "#d4e3ff",
+            "error-container": "#ffdad6",
+            "outline-variant": "#c3c6d7",
+            "error": "#ba1a1a",
+            "surface-container-highest": "#dae2fd",
+            "on-secondary-fixed": "#00164e",
+            "on-surface-variant": "#434655",
+            "primary": "#004ac6",
+            "tertiary-container": "#196fc0"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-sm": "0.5rem",
+            "gutter-desktop": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-xl": "2.5rem",
+            "margin": "1rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "gutter": "1rem",
+            "margin-desktop": "2rem"
+          },
+          "fontFamily": {
+            "body-sm": ["Tajawal", "Manrope", "sans-serif"],
+            "display-hero": ["Outfit", "Tajawal", "sans-serif"],
+            "label-md": ["Tajawal", "Manrope", "sans-serif"],
+            "display-hero-mobile": ["Outfit", "Tajawal", "sans-serif"],
+            "label-sm": ["Tajawal", "Manrope", "sans-serif"],
+            "label-lg": ["Tajawal", "Manrope", "sans-serif"],
+            "headline-lg": ["Outfit", "Tajawal", "sans-serif"],
+            "body-md": ["Tajawal", "Manrope", "sans-serif"],
+            "headline-md": ["Outfit", "Tajawal", "sans-serif"],
+            "headline-xl": ["Outfit", "Tajawal", "sans-serif"],
+            "headline-xl-mobile": ["Outfit", "Tajawal", "sans-serif"],
+            "body-lg": ["Tajawal", "Manrope", "sans-serif"]
+          },
+          "fontSize": {
+            "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "display-hero": ["44px", { "lineHeight": "56px", "fontWeight": "700" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "display-hero-mobile": ["32px", { "lineHeight": "42px", "fontWeight": "700" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "fontWeight": "600" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "headline-lg": ["22px", { "lineHeight": "30px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "headline-md": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+            "headline-xl": ["30px", { "lineHeight": "40px", "fontWeight": "600" }],
+            "headline-xl-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Cloud subtle backdrop and glow styling */
+    .cloud-canvas {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F0F7FF 50%, #DBEAFE 100%);
+      min-height: 100vh;
+    }
+    .cloud-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(226, 232, 240, 0.85);
+      box-shadow: 0 8px 24px -4px rgba(37, 99, 235, 0.08);
+    }
+    .cloud-glass {
+      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 20px 40px -12px rgba(30, 58, 138, 0.12);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased font-body-md min-h-screen flex flex-col justify-between selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- ================= TOP NAV BAR COMPONENT (Source of Truth JSON) ================= -->
+<header class="w-full bg-[#0c1938] text-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 md:px-8">
+    <div class="flex items-center justify-between py-3 gap-3 md:gap-6">
+      <!-- Right: Brand Logo -->
+      <a href="#" class="flex items-center gap-2.5 select-none shrink-0 text-white hover:opacity-95 transition-opacity">
+        <div class="relative flex items-center justify-center"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL9SB-b1JgknAQ3dIpNnEIlKip6i4X5swig97f8JrMY0wnJX2Gh6lTj87EQ7z5QBHBBedFRvlfhoWPqj5oFnc9JMfEHBS19H1qd8zANPIBoAA6xEPkBhkBMrDLO6TzEhrFm0L2Ri2v9VpciNjguu1rLhne-610_NuW4mMH62blt2k5IMW9whjH-ASgGBC4wYlDQcQe-PuFlPAfHtnWYkFOhgZUfqSmoR42cnRCCY9vHbcl_gEPRpHX" alt="غيم سبيس - Ghaym Space" class="h-10 md:h-12 w-auto object-contain rounded-lg drop-shadow-sm"></div>
+        <div class="flex flex-col text-right leading-tight">
+          <span class="font-extrabold text-base md:text-lg tracking-tight text-white">غيم سبيس</span>
+          <span class="text-[10px] text-blue-200 tracking-wider font-medium uppercase">Ghaym Space</span>
+        </div>
+      </a>
+
+      <!-- Center/Right: Search bar -->
+      <div class="flex-1 max-w-xl mx-2 md:mx-4 hidden sm:block">
+        <div class="relative w-full">
+          <input type="text" placeholder="ابحث عن منتجات، متاجر، أو حرفيين..." class="w-full py-2 pr-10 pl-4 text-sm rounded-full bg-white text-gray-900 placeholder-gray-400 border-none focus:ring-2 focus:ring-blue-500 outline-none text-right shadow-inner">
+          <span class="material-symbols-outlined absolute right-3 top-2.5 text-gray-400 text-lg pointer-events-none">search</span>
+        </div>
+      </div>
+
+      <!-- Left: Location & Icons Group -->
+      <div class="flex items-center gap-1.5 md:gap-3">
+        <!-- Delivery Location Dropdown -->
+        <div class="hidden lg:flex items-center gap-1 text-xs text-blue-100 hover:text-white px-2.5 py-1.5 rounded-lg bg-white/10 cursor-pointer transition-colors">
+          <span class="material-symbols-outlined text-base text-blue-300">location_on</span>
+          <span class="font-medium truncate max-w-[110px]">أدخل موقع التوصيل</span>
+          <span class="material-symbols-outlined text-sm">expand_more</span>
+        </div>
+
+        <!-- User Account Icon -->
+        <a href="#" aria-label="الحساب" class="w-9 h-9 rounded-full flex items-center justify-center text-blue-100 hover:text-white hover:bg-white/10 transition-colors duration-150">
+          <span class="material-symbols-outlined text-xl">person</span>
+        </a>
+        <!-- Wishlist Icon -->
+        <a href="#" aria-label="المفضلة" class="w-9 h-9 rounded-full flex items-center justify-center text-blue-100 hover:text-white hover:bg-white/10 transition-colors duration-150">
+          <span class="material-symbols-outlined text-xl">favorite</span>
+        </a>
+        <!-- Notifications -->
+        <a href="#" aria-label="الإشعارات" class="w-9 h-9 rounded-full flex items-center justify-center text-blue-100 hover:text-white hover:bg-white/10 transition-colors duration-150 relative">
+          <span class="material-symbols-outlined text-xl">notifications</span>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-[#0c1938]"></span>
+        </a>
+        <!-- Cart with badge -->
+        <a href="#" aria-label="سلة التسوق" class="w-9 h-9 rounded-full flex items-center justify-center text-blue-100 hover:text-white hover:bg-white/10 transition-colors duration-150 relative">
+          <span class="material-symbols-outlined text-xl">shopping_cart</span>
+          <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-[#0c1938]">2</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Mobile Search Bar (small screens) -->
+    <div class="sm:hidden pb-3">
+      <div class="relative w-full">
+        <input type="text" placeholder="ابحث عن منتجات، متاجر، أو حرفيين..." class="w-full py-1.5 pr-9 pl-3 text-xs rounded-full bg-white text-gray-900 placeholder-gray-400 border-none focus:ring-2 focus:ring-blue-500 outline-none text-right">
+        <span class="material-symbols-outlined absolute right-2.5 top-2 text-gray-400 text-base pointer-events-none">search</span>
+      </div>
+    </div>
+
+    <!-- Sub-navigation links strip -->
+    <nav class="flex items-center justify-start md:justify-end gap-4 md:gap-7 pt-1.5 pb-2 text-xs md:text-sm font-medium border-t border-white/10 overflow-x-auto whitespace-nowrap scrollbar-none">
+      <a href="#" class="text-blue-200 hover:text-white transition-colors duration-150">تواصل معنا</a>
+      <a href="#" class="text-blue-200 hover:text-white transition-colors duration-150">من نحن</a>
+      <a href="#" class="text-blue-200 hover:text-white transition-colors duration-150">تصنيفات المنتجات</a>
+      <a href="#" class="text-blue-200 hover:text-white transition-colors duration-150">جميع المتاجر</a>
+      <a href="#" class="text-blue-200 hover:text-white transition-colors duration-150">الرئيسية</a>
+    </nav>
+  </div>
+</header>
+<!-- ================= MAIN CHECKOUT CONTENT CANVAS ================= -->
+<main class="cloud-canvas flex-1 py-8 px-4 md:px-8">
+<div class="max-w-7xl mx-auto space-y-6">
+<!-- Breadcrumb Bar & Back Pill Navigation (Matching visual snapshot) -->
+<div class="flex items-center justify-between">
+<a class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-lowest rounded-full border border-outline-variant/60 shadow-sm text-primary hover:bg-surface-container-low transition-all duration-200 font-label-lg active:scale-95" href="#">
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+<span class="">رجوع</span>
+</a>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="">معاملة مشفرة وآمنة تماماً</span>
+</div>
+</div>
+<!-- Checkout Title Header with Step Indicator -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-surface-variant">
+<div>
+<h1 class="text-headline-xl font-headline-xl text-on-background flex items-center gap-3">
+<span class="">إتمام الطلب</span>
+<span class="material-symbols-outlined text-primary-container text-2xl">credit_card</span>
+</h1>
+<p class="text-body-md font-body-md text-on-surface-variant mt-1">أكمل تفاصيل الشحن واختر وسيلة الدفع المفضلة لتأكيد طلبك</p>
+</div>
+<!-- Checkout Steps Ribbon -->
+<div class="flex items-center gap-2 sm:gap-3 bg-surface-container-lowest px-4 py-2 rounded-full border border-outline-variant/40 shadow-sm text-body-sm">
+<div class="flex items-center gap-1.5 text-primary font-bold">
+<span class="w-6 h-6 rounded-full bg-primary-fixed flex items-center justify-center text-label-sm font-label-sm text-primary font-bold">✓</span>
+<span class="hidden sm:inline">السلة</span>
+</div>
+<span class="text-outline-variant text-xs">◀</span>
+<div class="flex items-center gap-1.5 text-primary-container font-bold">
+<span class="w-6 h-6 rounded-full bg-primary-container text-surface-container-lowest flex items-center justify-center text-label-sm font-label-sm font-bold">2</span>
+<span class="">الشحن والدفع</span>
+</div>
+<span class="text-outline-variant text-xs">◀</span>
+<div class="flex items-center gap-1.5 text-outline">
+<span class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-label-sm font-label-sm">3</span>
+<span class="hidden sm:inline">التأكيد</span>
+</div>
+</div>
+</div>
+<!-- Main Layout Grid (2 Columns: Shipping on Right, Payment & Summary on Left for RTL) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- ================= RIGHT COLUMN: SHIPPING INFORMATION ================= -->
+<section class="lg:col-span-7 space-y-6">
+<!-- Shipping Form Card -->
+<div class="cloud-card rounded-2xl p-6 md:p-8 space-y-6">
+<div class="flex items-center justify-between border-b border-surface-container pb-4">
+<h2 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+<span class="">معلومات الشحن</span>
+</h2>
+<span class="text-label-sm font-label-sm text-primary bg-primary-fixed px-3 py-1 rounded-full">توصيل منزلي سريع</span>
+</div>
+<!-- Form Elements -->
+<form class="space-y-4" onsubmit="event.preventDefault();">
+<!-- Full Name Field -->
+<div>
+<label class="block text-label-lg font-label-lg text-on-surface mb-1.5">الاسم الكامل <span class="text-error">*</span></label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-3 px-4 text-body-md text-on-surface focus:border-primary-container focus:ring-4 focus:ring-primary-container/15 transition-all text-right pr-11" placeholder="أدخل اسم المستلم الثلاثي" required="" type="text" value="سارة عبد العزيز الشمري">
+<span class="material-symbols-outlined absolute right-3.5 top-3 text-outline text-xl pointer-events-none">person</span>
+</div>
+</div>
+<!-- Phone Number with Country Code -->
+<div>
+<label class="block text-label-lg font-label-lg text-on-surface mb-1.5">رقم الجوال <span class="text-error">*</span></label>
+<div class="flex gap-2 direction-ltr">
+<div class="relative flex-1">
+<input class="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-3 px-4 text-body-md text-on-surface focus:border-primary-container focus:ring-4 focus:ring-primary-container/15 transition-all text-left" placeholder="5X XXX XXXX" required="" type="tel" value="501234567">
+</div>
+<div class="px-4 py-3 bg-surface-container border border-outline-variant/80 rounded-xl text-body-md font-bold text-on-surface flex items-center gap-1.5">
+<span class="">🇸🇦</span>
+<span class="font-mono">+966</span>
+</div>
+</div>
+</div>
+<!-- City and Region Selectors (2 columns) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-label-lg font-label-lg text-on-surface mb-1.5">المدينة <span class="text-error">*</span></label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-3 px-4 text-body-md text-on-surface focus:border-primary-container focus:ring-4 focus:ring-primary-container/15 transition-all appearance-none pr-10 cursor-pointer">
+<option selected="">الرياض</option>
+<option>جدة</option>
+<option>الدمام</option>
+<option>مكة المكرمة</option>
+<option>المدينة المنورة</option>
+<option>الخبر</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-outline text-xl pointer-events-none">location_city</span>
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline text-xl pointer-events-none">expand_more</span>
+</div>
+</div>
+<div>
+<label class="block text-label-lg font-label-lg text-on-surface mb-1.5">المنطقة / الحي <span class="text-error">*</span></label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-3 px-4 text-body-md text-on-surface focus:border-primary-container focus:ring-4 focus:ring-primary-container/15 transition-all appearance-none pr-10 cursor-pointer">
+<option selected="">حي النرجس</option>
+<option>حي الياسمين</option>
+<option>حي الملقا</option>
+<option>حي العقيق</option>
+<option>حي الصحافة</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-outline text-xl pointer-events-none">map</span>
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline text-xl pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Detailed Address -->
+<div>
+<label class="block text-label-lg font-label-lg text-on-surface mb-1.5">العنوان بالتفصيل <span class="text-error">*</span></label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-3 px-4 text-body-md text-on-surface focus:border-primary-container focus:ring-4 focus:ring-primary-container/15 transition-all text-right pr-11" placeholder="اسم الشارع، رقم المبنى، الرمز البريدي" required="" type="text" value="شارع عثمان بن عفان، فيلا رقم 42">
+<span class="material-symbols-outlined absolute right-3.5 top-3 text-outline text-xl pointer-events-none">home_pin</span>
+</div>
+</div>
+<!-- Delivery Notes Field -->
+<div>
+<label class="block text-label-lg font-label-lg text-on-surface mb-1.5">ملاحظات التوصيل (اختياري)</label>
+<div class="relative">
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-2.5 px-4 text-body-md text-on-surface focus:border-primary-container focus:ring-4 focus:ring-primary-container/15 transition-all text-right" placeholder="أضف أي تعليمات خاصة لمندوب التوصيل (مثل: الاتصال عند الباب)" rows="2"></textarea>
+</div>
+</div>
+<!-- Save address toggle -->
+<label class="flex items-center gap-3 cursor-pointer pt-1">
+<input checked="" class="w-5 h-5 text-primary-container rounded border-outline-variant focus:ring-primary-container" type="checkbox">
+<span class="text-body-md text-on-surface">حفظ هذا العنوان في قائمة عناويني الدائمة للطلبات القادمة</span>
+</label>
+</form>
+</div>
+<!-- Trust Badges & Delivery Guarantee Card -->
+<div class="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/50 flex flex-wrap items-center justify-around gap-4 text-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-2xl">verified_user</span>
+<div class="text-right">
+<div class="font-headline-md text-on-surface text-sm">دفع آمن ومحمي 100%</div>
+<div class="text-label-sm text-on-surface-variant">تشفير بمعيار SSL 256-bit</div>
+</div>
+</div>
+<div class="w-px h-8 bg-surface-container hidden sm:block"></div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-2xl">published_with_changes</span>
+<div class="text-right">
+<div class="font-headline-md text-on-surface text-sm">ضمان الاسترجاع</div>
+<div class="text-label-sm text-on-surface-variant">خلال 7 أيام من الاستلام</div>
+</div>
+</div>
+<div class="w-px h-8 bg-surface-container hidden sm:block"></div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl">rocket_launch</span>
+<div class="text-right">
+<div class="font-headline-md text-on-surface text-sm">توصيل سريع</div>
+<div class="text-label-sm text-on-surface-variant">خلال 24 إلى 48 ساعة</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= LEFT COLUMN: PAYMENT METHOD & SUMMARY ================= -->
+<section class="lg:col-span-5 space-y-6">
+<!-- Payment Method Card -->
+<div class="cloud-card rounded-2xl p-6 md:p-8 space-y-6"><div class="flex items-center justify-between border-b border-surface-container pb-4">
+  <h2 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2">
+    <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">payments</span>
+    <span class="">طريقة الدفع</span>
+  </h2>
+  <span class="text-label-sm font-label-sm text-primary font-bold bg-primary-fixed px-3 py-1 rounded-full">الدفع بالريال اليمني (ر.ي)</span>
+</div>
+
+<div class="space-y-3">
+  <!-- Option 1: Yemeni E-Wallets (Active by default) -->
+  <div class="border-2 border-primary-container bg-surface-container-low rounded-xl p-4 transition-all duration-200">
+    <label class="flex items-start justify-between cursor-pointer">
+      <div class="flex items-center gap-3">
+        <input checked="" class="w-4 h-4 text-primary-container border-outline-variant focus:ring-primary-container mt-1" name="payment_method" type="radio">
+        <div>
+          <span class="block font-headline-md text-on-surface text-base font-bold">محافظ إلكترونية يمنية</span>
+          <span class="block text-body-sm text-on-surface-variant">دفع فوري وسهل عبر المحافظ الرقمية المعتمدة في اليمن</span>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-primary-container text-2xl">account_balance_wallet</span>
+    </label>
+    
+    <!-- E-wallet options badges -->
+    <div class="mt-3 pt-3 border-t border-outline-variant/30">
+      <p class="text-label-sm text-on-surface-variant mb-2">اختر المحفظة الإلكترونية للدفع:</p>
+      <div class="grid grid-cols-3 gap-2">
+        <label class="flex items-center justify-center p-2 rounded-lg bg-surface-container-lowest border border-primary-container text-xs font-bold text-primary cursor-pointer shadow-sm">
+          <input type="radio" name="wallet_choice" checked="" class="sr-only">
+          <span class="">جوالي (Jawwali)</span>
+        </label>
+        <label class="flex items-center justify-center p-2 rounded-lg bg-surface-container-lowest border border-outline-variant/60 hover:border-primary-container text-xs font-medium text-on-surface cursor-pointer">
+          <input type="radio" name="wallet_choice" class="sr-only">
+          <span class="">ون كاش (OneCash)</span>
+        </label>
+        <label class="flex items-center justify-center p-2 rounded-lg bg-surface-container-lowest border border-outline-variant/60 hover:border-primary-container text-xs font-medium text-on-surface cursor-pointer">
+          <input type="radio" name="wallet_choice" class="sr-only">
+          <span class="">فلوسك (كريمي)</span>
+        </label>
+        <label class="flex items-center justify-center p-2 rounded-lg bg-surface-container-lowest border border-outline-variant/60 hover:border-primary-container text-xs font-medium text-on-surface cursor-pointer">
+          <input type="radio" name="wallet_choice" class="sr-only">
+          <span class="">كاش (Cash)</span>
+        </label>
+        <label class="flex items-center justify-center p-2 rounded-lg bg-surface-container-lowest border border-outline-variant/60 hover:border-primary-container text-xs font-medium text-on-surface cursor-pointer">
+          <input type="radio" name="wallet_choice" class="sr-only">
+          <span class="">محفظتي (بنك التضامن)</span>
+        </label>
+        <label class="flex items-center justify-center p-2 rounded-lg bg-surface-container-lowest border border-outline-variant/60 hover:border-primary-container text-xs font-medium text-on-surface cursor-pointer">
+          <input type="radio" name="wallet_choice" class="sr-only">
+          <span class="">بيس (Pyes)</span>
+        </label>
+      </div>
+      <div class="mt-3">
+        <label class="block text-label-sm font-label-sm text-on-surface mb-1">رقم المحفظة / رقم الهاتف المرتبط</label>
+        <div class="relative">
+          <input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2 px-3 text-body-sm font-mono text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 text-right pr-9" placeholder="7XXXXXXXX" type="tel" value="771234567">
+          <span class="material-symbols-outlined absolute right-2.5 top-2 text-outline text-lg pointer-events-none">phone_iphone</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option 2: Yemeni Banks Transfer -->
+  <div class="border border-outline-variant/70 bg-surface-container-lowest hover:bg-surface-container-low rounded-xl p-4 transition-all duration-200">
+    <label class="flex items-start justify-between cursor-pointer">
+      <div class="flex items-center gap-3">
+        <input class="w-4 h-4 text-primary-container border-outline-variant focus:ring-primary-container mt-1" name="payment_method" type="radio">
+        <div>
+          <span class="block font-headline-md text-on-surface text-base font-bold">حساب بنكي / تحويل مصرفي يمني</span>
+          <span class="block text-body-sm text-on-surface-variant">بنك الكريمي الإسلامي، بنk اليمن والكويت، بنك التضامن، بنك القطيبي</span>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-outline text-2xl">account_balance</span>
+    </label>
+  </div>
+
+  <!-- Option 3: Cash on Delivery in YER -->
+  <div class="border border-outline-variant/70 bg-surface-container-lowest hover:bg-surface-container-low rounded-xl p-4 transition-all duration-200">
+    <label class="flex items-center justify-between cursor-pointer">
+      <div class="flex items-center gap-3">
+        <input class="w-4 h-4 text-primary-container border-outline-variant focus:ring-primary-container" name="payment_method" type="radio">
+        <div>
+          <span class="block font-headline-md text-on-surface text-base font-bold">الدفع عند الاستلام (COD) بالريال اليمني</span>
+          <span class="block text-body-sm text-on-surface-variant">سدد نقدياً بالريال اليمني (ر.ي) لمندوب التوصيل عند استلام الطلب</span>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-outline text-2xl">local_atm</span>
+    </label>
+  </div>
+
+  <!-- Option 4: Cards & Banking Network -->
+  <div class="border border-outline-variant/70 bg-surface-container-lowest hover:bg-surface-container-low rounded-xl p-4 transition-all duration-200">
+    <label class="flex items-center justify-between cursor-pointer">
+      <div class="flex items-center gap-3">
+        <input class="w-4 h-4 text-primary-container border-outline-variant focus:ring-primary-container" name="payment_method" type="radio">
+        <div>
+          <span class="block font-headline-md text-on-surface text-base font-bold">بطاقات مصرفية / شبكة بنكك وفيزا وماستركارد</span>
+          <span class="block text-body-sm text-on-surface-variant">بطاقات الدفع الإلكتروني المصرفية وبطاقات الائتمان الدولية</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded border border-outline-variant/40">
+        <span class="font-mono text-label-sm font-bold text-tertiary">VISA</span>
+        <span class="material-symbols-outlined text-primary text-base">credit_card</span>
+      </div>
+    </label>
+  </div>
+</div></div>
+<!-- Order Summary Card (As shown in screenshot) -->
+<div class="cloud-card rounded-2xl p-6 md:p-8 space-y-6">
+<h2 class="text-headline-md font-headline-md text-on-surface flex items-center justify-between border-b border-surface-container pb-4">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+<span class="">ملخص الطلب</span>
+</span>
+<span class="text-body-sm text-primary font-bold">2 منتجات</span>
+</h2>
+<!-- Purchased Mini Product Previews -->
+<div class="space-y-3 pb-3 border-b border-surface-container">
+<!-- Item 1: Birthday Cake -->
+<div class="flex items-center justify-between gap-3 bg-surface-container-low p-2.5 rounded-xl">
+<div class="flex items-center gap-3">
+<img class="w-14 h-14 rounded-lg object-cover border border-outline-variant/60 shadow-sm" data-alt="A delicate artisan strawberry birthday cake decorated with pastel pink frosting, miniature rabbit sugar figurine, and elegant pastel ribbons set against an airy soft white boutique background with subtle warm lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKjrX53-Zjmh-4i4rYw1gimCkuwQbFbypgpC5dpEdcb0kKgU_S66tvan9wKnmd6rdh1AUVMYWIGzgYXXFmppZQzgvyDm3bKEJxb8UCBlk3676Mp0hf9gcI9O7f7XaMuRKd5CB70lhYOuzY0DdAx3eOQrvc4O1xCxZne3yfC3S_DgThzUopbCm_cYvqLdewKY1t_PlqkEJHW76MYtydU-JkicjEFVVDCz-PidVao7Y">
+<div>
+<h3 class="font-headline-md text-on-surface text-sm">كيكة عيد ميلاد مميزة</h3>
+<p class="text-body-sm text-on-surface-variant">الحجم: وسط • الكمية: 1</p>
+</div>
+</div>
+<div class="text-left">
+<span class="font-headline-md text-primary font-bold text-base">149</span>
+<span class="text-label-sm text-on-surface-variant">ر.س</span>
+</div>
+</div>
+<!-- Item 2: Pink Rose Bouquet -->
+<div class="flex items-center justify-between gap-3 bg-surface-container-low p-2.5 rounded-xl">
+<div class="flex items-center gap-3">
+<img class="w-14 h-14 rounded-lg object-cover border border-outline-variant/60 shadow-sm" data-alt="A luxurious round arrangement bouquet of fresh pink roses tied with delicate satin ribbons resting on a clean marble surface bathed in serene soft daylight with high-end boutique aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-QhkNQaxZ4nHUgeVoqxz1-xGDwAmpIJOofcoZj8jAgqOzptXiEmr1_75QUbptpxdQfq6F4qA6L_Gvta0T3FhmTiVPrXfSRV_W3f2SYl3WkDWxboHPcykVxkjyJ8AGgYMwTM0TjHcEEvVYkdUHrKnx9qH2CREqKxiNKz4rAtWovolMQo6GCkxisK53WhImaKcnDZOPFN3FNj1g71Gr-7UAPfi8dV3LCl9ZZQ2ijSs">
+<div>
+<h3 class="font-headline-md text-on-surface text-sm">باقة ورد وردية</h3>
+<p class="text-body-sm text-on-surface-variant">طبيعي فاخر • الكمية: 1</p>
+</div>
+</div>
+<div class="text-left">
+<span class="font-headline-md text-primary font-bold text-base">99</span>
+<span class="text-label-sm text-on-surface-variant">ر.س</span>
+</div>
+</div>
+<!-- Item 3: Soft Teddy Bear -->
+<div class="flex items-center justify-between gap-3 bg-surface-container-low p-2.5 rounded-xl">
+<div class="flex items-center gap-3">
+<img class="w-14 h-14 rounded-lg object-cover border border-outline-variant/60 shadow-sm" data-alt="An adorable fluffy plush teddy bear toy with soft honey-brown fur sitting against a minimalist bright azure and cream studio setting, modern gift aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTnhQkkIjy7fyInjpcBmKwej2iWE-wZzOuH1srOisFpw1rL8HO-KGsEIKecjcCYgNq2RYYoes1Hz2HM8BnngFGpJc8b5GbaxWwYL4qlQQy1ZN7-v7hUXsRfqe5ZlxM0_PUMlcN6WPz3UBVvG0oLzuN8UrH3qcSzbPLIKE_LwAR7WJb819YrSphEt0oOfaoFd3OSo3_OikgKBzD_F94KYCr2OlryK-xZW1_yE2LNOs">
+<div>
+<h3 class="font-headline-md text-on-surface text-sm">دب لطيف قطني</h3>
+<p class="text-body-sm text-on-surface-variant">هدية مرافقة • الكمية: 1</p>
+</div>
+</div>
+<div class="text-left">
+<span class="font-headline-md text-primary font-bold text-base">69</span>
+<span class="text-label-sm text-on-surface-variant">ر.س</span>
+</div>
+</div>
+</div>
+<!-- Discount Voucher Coupon Field -->
+<div class="flex gap-2">
+<input class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-xl py-2 px-3 text-body-sm text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 text-right" placeholder="كود الخصم (مثال: GHAYM20)" type="text">
+<button class="px-4 py-2 bg-secondary-fixed text-on-secondary-fixed hover:bg-secondary-container transition-colors rounded-xl text-label-md font-bold" type="button">تطبيق</button>
+</div>
+<!-- Financial Calculations Breakdown (Matched to screenshot totals) -->
+<div class="space-y-2.5 text-body-md pt-2">
+<div class="flex justify-between text-on-surface-variant">
+<span class="">المجموع الفرعي</span>
+<span class="font-semibold text-on-surface">317 ر.س</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span class="">الشحن والتوصيل السريع</span>
+<span class="font-semibold text-on-surface">25 ر.س</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span class="">ضريبة القيمة المضافة (15% مشمولة)</span>
+<span class="text-body-sm text-on-surface-variant">مضمنة في الأسعار</span>
+</div>
+<div class="w-full h-px bg-surface-container my-2"></div>
+<div class="flex justify-between items-baseline text-on-surface pt-1">
+<span class="text-headline-md font-headline-md">الإجمالي الكلي</span>
+<div class="text-left">
+<span class="text-display-hero-mobile font-headline-xl text-primary font-bold">342</span>
+<span class="text-headline-md text-primary font-bold mr-1">ر.س</span>
+</div>
+</div>
+</div>
+<!-- Main Confirmation & Pay CTA Button -->
+<button class="w-full py-4 px-6 bg-on-background hover:bg-primary-container text-surface-container-lowest rounded-xl font-headline-md flex items-center justify-center gap-2 shadow-lg shadow-primary-container/20 transition-all duration-200 active:scale-95 group" type="button">
+<span class="material-symbols-outlined text-xl transition-transform group-hover:rotate-12" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="">تأكيد وإتمام الدفع (342 ر.س)</span>
+</button>
+<!-- Policy reassurance notice -->
+<p class="text-center text-label-sm font-label-sm text-on-surface-variant">
+              بالضغط على تأكيد، أنت توافق على <a class="text-primary underline" href="#">شروط الخدمة</a> وسياسة الاسترجاع في غيم سبيس.
+            </p>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- ================= FOOTER COMPONENT (Source of Truth JSON) ================= -->
+<footer class="relative w-full overflow-hidden pb-12" style="background-color: rgb(5, 19, 41);">
+  <div class="w-full">
+    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSfuXImjb30TIqkWLaQWpKi4oNOqWnerlo9T1DrJ9l20qXeEEMFe4zXr_Afo3NMZbWOehT-C8QAIKyc3-VEMRv-Dnxfu2nuBtF6bpTnJwVbUMxFGwTyQWLYFZo_GJ8es1ZVAMvE2gCPRcEEQhN_mRXPDnWDHkhBt_tP0RiYaOtpt9uFmltRcq1PWD42m5-fg4aHQVLHQ1UB8zCcMXm_nBjYKLYk6bBHTeBooSa7S7omciM3CveT3mQ" alt="Ghaym Space Footer" class="w-full h-auto block select-none pointer-events-auto" style="min-height: 180px; object-fit: cover; object-position: center bottom;">
+  </div>
+</footer>
+
+
+</body></html>

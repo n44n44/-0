@@ -1,0 +1,618 @@
+<!DOCTYPE html><html dir="rtl" lang="ar"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>غيم سبيس | Ghaym Space - منصة الحرفيين والأسر المنتجة</title>
+<!-- Google Font: Cairo -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<!-- FontAwesome Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              950: '#030816',
+              900: '#071228',
+              850: '#0b1936',
+              800: '#0f2249',
+              700: '#163168',
+            },
+            accent: {
+              gold: '#eab839',
+              goldHover: '#d9a72b',
+              sky: '#38bdf8',
+            }
+          }
+        }
+      }
+    };
+  </script>
+<style data-purpose="custom-typography">
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #f7f9fc;
+    }
+  </style>
+<style data-purpose="layout-enhancements">
+    .custom-scroll-hidden::-webkit-scrollbar {
+      display: none;
+    }
+    .custom-scroll-hidden {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Seamless Logo Blending without harsh borders */
+    .blend-hero-logo {
+      mix-blend-mode: screen;
+      -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 58%, rgba(0,0,0,0.8) 72%, transparent 92%);
+      mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 58%, rgba(0,0,0,0.8) 72%, transparent 92%);
+    }
+
+    /* Fluid Organic Cloud Animations */
+    @keyframes cloudFloat1 {
+      0%, 100% {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+      50% {
+        transform: translate3d(14px, -10px, 0) scale(1.04);
+      }
+    }
+
+    @keyframes cloudFloat2 {
+      0%, 100% {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+      50% {
+        transform: translate3d(-14px, 10px, 0) scale(0.96);
+      }
+    }
+
+    @keyframes cloudGlow {
+      0%, 100% {
+        opacity: 0.35;
+      }
+      50% {
+        opacity: 0.55;
+      }
+    }
+
+    .anim-cloud-float-1 {
+      animation: cloudFloat1 7s ease-in-out infinite;
+    }
+
+    .anim-cloud-float-2 {
+      animation: cloudFloat2 9s ease-in-out infinite;
+    }
+
+    .anim-cloud-glow {
+      animation: cloudGlow 6s ease-in-out infinite;
+    }
+
+    .parallax-layer {
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      will-change: transform;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .anim-cloud-float-1,
+      .anim-cloud-float-2,
+      .anim-cloud-glow {
+        animation: none !important;
+      }
+      .parallax-layer {
+        transform: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#f8fafc] text-gray-800 antialiased min-h-screen flex flex-col justify-between">
+<!-- BEGIN: MainHeader -->
+<header class="w-full bg-[#07132b] text-white sticky top-0 z-50 shadow-md relative overflow-hidden">
+<!-- Volumetric 3D Organic Clouds in Header around Search and Top Area -->
+<div class="absolute -top-10 right-1/4 w-48 h-20 bg-gradient-to-b from-sky-400/20 via-sky-300/10 to-transparent rounded-full blur-2xl pointer-events-none anim-cloud-float-1"></div>
+<div class="absolute -bottom-8 left-1/3 w-64 h-24 bg-gradient-to-t from-sky-500/15 via-blue-400/10 to-transparent rounded-full blur-2xl pointer-events-none anim-cloud-float-2"></div>
+<svg class="absolute top-0 right-10 w-44 h-16 opacity-15 pointer-events-none text-sky-200 fill-current blur-[1px]" viewBox="0 0 24 24">
+<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"></path>
+</svg>
+<svg class="absolute bottom-1 left-20 w-36 h-14 opacity-20 pointer-events-none text-sky-300 fill-current blur-[0.5px]" viewBox="0 0 24 24">
+<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"></path>
+</svg>
+<!-- Top Action Bar -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+<div class="flex items-center justify-between h-20 border-b border-[#142346] gap-4">
+<!-- Right: Logo & Slogan -->
+<div class="flex items-center gap-3 shrink-0">
+<a class="flex items-center gap-2 group" href="#">
+<div class="relative w-12 h-12 flex items-center justify-center overflow-hidden">
+<img alt="غيم سبيس | Ghaym Space" class="w-full h-full object-contain filter drop-shadow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0kTwyrOgVt1UikZzjl_8adoPbACflThuS0OAMs1NBAxfhdj0d6U5zy__p3zH1LwwSEoGCf-TrnUeEI9e7ofTlwvzBEkjkRq7dWVa2VM8YYzl6qDAYySLO14czo6P79cFjMAhBjFyf9NEde5r2LsURP2LZTDBAFNk7WWjYNfTnw_OMambwfjlKjSD-giwosQLJIjXhF6XEZHmA2tjH6DDME6VgOoNX5agZVPKSTOwWd7WRKHY8-450">
+</div>
+<div class="flex flex-col">
+<span class="text-xl font-bold tracking-tight text-white leading-tight">غيم سبيس</span>
+<span class="text-[11px] font-semibold text-sky-400 tracking-wider">Ghaym Space</span>
+</div>
+</a>
+</div>
+<!-- Center: Search Input Bar surrounded by soft ambient glow -->
+<div class="flex-1 max-w-2xl mx-2 md:mx-6 relative">
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-sky-400/20 rounded-full blur-xl pointer-events-none"></div>
+<div class="relative">
+<input class="w-full py-2.5 pr-11 pl-4 rounded-full bg-white text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 border-none shadow-sm placeholder-gray-400 text-right" placeholder="ابحث عن منتجات، متاجر، أو حرفيين..." type="text">
+<div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400 text-sm">
+<i class="fa-solid fa-magnifying-glass"></i>
+</div>
+</div>
+</div>
+<!-- Left: User Actions & Delivery Location -->
+<div class="flex items-center gap-4 shrink-0">
+<!-- Notification Bell -->
+<button aria-label="الإشعارات" class="text-gray-300 hover:text-white relative p-2 transition-colors" type="button">
+<i class="fa-regular fa-bell text-lg"></i>
+<span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+</button>
+<!-- Wishlist Heart -->
+<button aria-label="المفضلة" class="text-gray-300 hover:text-white p-2 transition-colors" type="button">
+<i class="fa-regular fa-heart text-lg"></i>
+</button>
+<!-- Shopping Cart Icon -->
+<button aria-label="سلة التسوق" class="text-gray-300 hover:text-white relative p-2 transition-colors" type="button">
+<i class="fa-solid fa-cart-shopping text-lg"></i>
+<span class="absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+</button>
+<!-- User Profile & Delivery Location Dropdown Container -->
+<div class="relative group">
+<button class="flex items-center gap-2 bg-[#122245] hover:bg-[#1a2f5e] py-1.5 px-3 rounded-full text-xs transition border border-[#233b70]" type="button">
+<i class="fa-solid fa-location-dot text-sky-400 text-xs"></i>
+<div class="text-right leading-none">
+<span class="block text-[10px] text-gray-300">موقع التوصيل</span>
+<span class="font-bold text-white">المكلا</span>
+</div>
+<i class="fa-solid fa-chevron-down text-[10px] text-gray-400 mr-1"></i>
+</button>
+<!-- Dropdown Menu -->
+<div class="absolute left-0 mt-2 w-44 bg-white rounded-xl shadow-xl py-2 hidden group-hover:block border border-gray-100 text-gray-800 z-50 text-right">
+<div class="px-3 py-1.5 text-[11px] font-bold text-gray-400 border-b border-gray-100">اختر موقع التوصيل</div>
+<a class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-sky-700 bg-sky-50" href="#">
+<span class="">المكلا</span>
+<i class="fa-solid fa-check text-xs"></i>
+</a>
+<a class="block px-3 py-2 text-xs hover:bg-gray-50 text-gray-700" href="#">الريان</a>
+<a class="block px-3 py-2 text-xs hover:bg-gray-50 text-gray-700" href="#">فوة</a>
+<a class="block px-3 py-2 text-xs hover:bg-gray-50 text-gray-700" href="#">الديس</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Navigation Links Row -->
+<nav class="flex items-center justify-start space-x-reverse space-x-8 py-3 text-sm font-semibold overflow-x-auto custom-scroll-hidden">
+<a class="text-white border-b-2 border-amber-400 pb-1 px-1 transition-colors" href="#">الرئيسية</a>
+<a class="text-gray-300 hover:text-white pb-1 px-1 transition-colors" href="#">جميع المتاجر</a>
+<a class="text-gray-300 hover:text-white pb-1 px-1 transition-colors" href="#">تصنيفات المنتجات</a>
+<a class="text-gray-300 hover:text-white pb-1 px-1 transition-colors" href="#">من نحن</a>
+<a class="text-gray-300 hover:text-white pb-1 px-1 transition-colors" href="#">تواصل معنا</a>
+</nav>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: MainContent -->
+<main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-10">
+<!-- BEGIN: HeroBannerSection with Seamless Blended Logo -->
+<section class="relative rounded-3xl bg-gradient-to-l from-[#07132b] via-[#0d2046] to-[#07132b] text-white p-6 sm:p-10 overflow-hidden shadow-xl border border-[#1b3160]" data-purpose="hero-carousel" id="hero-banner">
+<!-- Volumetric Background Cloud Auras -->
+<div class="parallax-layer absolute -top-16 -left-16 w-80 h-80 bg-gradient-to-br from-sky-400/25 to-blue-600/10 rounded-full blur-3xl pointer-events-none anim-cloud-glow" data-parallax-factor="0.04"></div>
+<div class="parallax-layer absolute top-1/2 -right-20 w-96 h-80 bg-gradient-to-tl from-indigo-500/20 via-sky-300/15 to-transparent rounded-full blur-3xl pointer-events-none anim-cloud-float-2" data-parallax-factor="-0.035"></div>
+<div class="parallax-layer absolute -bottom-16 left-1/4 w-[30rem] h-48 bg-sky-400/15 rounded-full blur-2xl pointer-events-none anim-cloud-float-1" data-parallax-factor="0.025"></div>
+<!-- Floating Ambient 3D Cloud Shapes -->
+<div class="parallax-layer absolute top-8 left-16 w-20 h-20 rounded-full bg-gradient-to-b from-white/20 via-sky-400/15 to-transparent backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(56,189,248,0.2)] pointer-events-none hidden md:block anim-cloud-float-1" data-parallax-factor="0.06"></div>
+<div class="parallax-layer absolute bottom-10 right-24 w-28 h-28 rounded-full bg-gradient-to-t from-sky-400/20 via-indigo-500/15 to-transparent backdrop-blur-md border border-white/15 pointer-events-none hidden md:block anim-cloud-float-2" data-parallax-factor="-0.05"></div>
+<!-- Carousel Navigation Arrows -->
+<button aria-label="السابق" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center backdrop-blur-md border border-white/20 shadow-md transition z-20">
+<i class="fa-solid fa-chevron-right text-sm"></i>
+</button>
+<button aria-label="التالي" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center backdrop-blur-md border border-white/20 shadow-md transition z-20">
+<i class="fa-solid fa-chevron-left text-sm"></i>
+</button>
+<!-- Banner Content Grid -->
+<div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10 px-4 sm:px-6">
+<!-- Cloud Logo Seamlessly Blended into Banner -->
+<div class="parallax-layer md:col-span-5 flex justify-center order-2 md:order-1 relative" data-parallax-factor="-0.045">
+<div class="absolute inset-0 bg-sky-400/30 rounded-full blur-3xl scale-125 pointer-events-none anim-cloud-glow"></div>
+<div class="relative w-64 h-52 sm:w-80 sm:h-64 flex items-center justify-center anim-cloud-float-1">
+<img alt="شعار غيم سبيس السحابي" class="w-full h-full object-contain blend-hero-logo drop-shadow-[0_15px_30px_rgba(56,189,248,0.4)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0kTwyrOgVt1UikZzjl_8adoPbACflThuS0OAMs1NBAxfhdj0d6U5zy__p3zH1LwwSEoGCf-TrnUeEI9e7ofTlwvzBEkjkRq7dWVa2VM8YYzl6qDAYySLO14czo6P79cFjMAhBjFyf9NEde5r2LsURP2LZTDBAFNk7WWjYNfTnw_OMambwfjlKjSD-giwosQLJIjXhF6XEZHmA2tjH6DDME6VgOoNX5agZVPKSTOwWd7WRKHY8-450">
+</div>
+</div>
+<!-- Headline & CTA -->
+<div class="parallax-layer md:col-span-7 text-center md:text-right space-y-4 order-1 md:order-2" data-parallax-factor="0.02">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs text-sky-200 font-semibold mb-1 shadow-sm">
+<span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+<span class="">مهرجان الإبداع الحضرمي ☁️</span>
+</div>
+<h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-snug drop-shadow-md">
+      عروض غيم سبيس -
+      <span class="block text-2xl sm:text-3xl lg:text-4xl text-sky-300 font-bold mt-1">لدعم الحرفيين والأسر المنتجة</span>
+</h1>
+<p class="text-base sm:text-lg text-gray-200 font-medium max-w-xl leading-relaxed">
+      اكتشف إبداع المكلا.. منتجات مصنوعة بكل حب وحرفية بأيادٍ محلية مبدعة وبخصومات تصل إلى 50%
+    </p>
+<div class="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
+<a class="inline-flex items-center gap-2 bg-[#eab839] hover:bg-[#d9a72b] text-[#07132b] font-bold px-8 py-3 rounded-full text-base shadow-lg transition-transform hover:-translate-y-0.5 active:translate-y-0" href="#products">
+<span class="">تسوق العروض الآن</span>
+<span class="text-lg">✨</span>
+</a>
+<a class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-full text-base backdrop-blur-sm border border-white/20 transition" href="#categories">
+<span class="">تصفح الأقسام</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- END: HeroBannerSection -->
+<!-- BEGIN: CategoriesSection - Iconic Circular Clean Aesthetic matching original IMAGE_10 -->
+<section class="relative" data-purpose="categories-slider">
+<div class="flex items-center justify-between mb-4" id="categories">
+<div>
+<h2 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">تصنيفات المنتجات</h2>
+<p class="text-xs text-gray-500 mt-0.5">اختر القسم وتصفح إبداعات الحرفيين والأسر</p>
+</div>
+<div class="flex items-center gap-2">
+<button aria-label="السابق" class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 text-gray-600 hover:text-sky-600 hover:border-sky-300 flex items-center justify-center transition">
+<i class="fa-solid fa-chevron-right text-xs"></i>
+</button>
+<button aria-label="التالي" class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 text-gray-600 hover:text-sky-600 hover:border-sky-300 flex items-center justify-center transition">
+<i class="fa-solid fa-chevron-left text-xs"></i>
+</button>
+</div>
+</div>
+<div class="w-full flex items-center justify-between gap-4 sm:gap-6 overflow-x-auto py-4 px-2 custom-scroll-hidden">
+<!-- Category 1: ديكور وهدايا (Warm Amber / Gold Glow) -->
+<a class="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1" href="#">
+<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-200 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-lg group-hover:shadow-amber-500/35 transition-all">
+<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-200">
+<i class="fa-solid fa-gift text-2xl sm:text-3xl"></i>
+</div>
+</div>
+<span class="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-amber-600 transition text-center">ديكور وهدايا</span>
+<span class="text-[11px] text-gray-400 font-medium">+120 منتج</span>
+</a>
+<!-- Category 2: صناعات يدوية (Earth Brown & Terracotta) -->
+<a class="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1" href="#">
+<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#8a5a36] via-[#b37a4c] to-[#deb887] flex items-center justify-center shadow-md shadow-[#8a5a36]/20 group-hover:shadow-lg group-hover:shadow-[#8a5a36]/35 transition-all">
+<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#fbf7f4] flex items-center justify-center text-[#8a5a36] border border-[#ebdace]">
+<i class="fa-solid fa-basket-shopping text-2xl sm:text-3xl"></i>
+</div>
+</div>
+<span class="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-[#8a5a36] transition text-center">صناعات يدوية</span>
+<span class="text-[11px] text-gray-400 font-medium">+85 منتج</span>
+</a>
+<!-- Category 3: ملابس وأزياء (Sky & Deep Blue) -->
+<a class="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1" href="#">
+<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#163168] via-sky-500 to-sky-200 flex items-center justify-center shadow-md shadow-sky-600/20 group-hover:shadow-lg group-hover:shadow-sky-600/35 transition-all">
+<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-sky-50 flex items-center justify-center text-sky-600 border border-sky-200">
+<i class="fa-solid fa-shirt text-2xl sm:text-3xl"></i>
+</div>
+</div>
+<span class="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-sky-600 transition text-center">ملابس وأزياء</span>
+<span class="text-[11px] text-gray-400 font-medium">+140 منتج</span>
+</a>
+<!-- Category 4: أسر منتجة (Royal Purple & Violet) -->
+<a class="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1" href="#">
+<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#581c87] via-[#8b5cf6] to-[#d8b4fe] flex items-center justify-center shadow-md shadow-purple-600/20 group-hover:shadow-lg group-hover:shadow-purple-600/35 transition-all">
+<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-purple-50 flex items-center justify-center text-[#7c3aed] border border-purple-200">
+<i class="fa-solid fa-kitchen-set text-2xl sm:text-3xl"></i>
+</div>
+</div>
+<span class="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-purple-600 transition text-center">أسر منتجة</span>
+<span class="text-[11px] text-gray-400 font-medium">+95 منتج</span>
+</a>
+<!-- Category 5: بخور وعطور (Warm Amber / Oudh) -->
+<a class="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1" href="#">
+<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#92400e] via-[#d97706] to-[#fde68a] flex items-center justify-center shadow-md shadow-amber-700/20 group-hover:shadow-lg group-hover:shadow-amber-700/35 transition-all">
+<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-amber-50 flex items-center justify-center text-amber-700 border border-amber-200">
+<i class="fa-solid fa-spray-can-sparkles text-2xl sm:text-3xl"></i>
+</div>
+</div>
+<span class="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-amber-700 transition text-center">بخور وعطور</span>
+<span class="text-[11px] text-gray-400 font-medium">+70 منتج</span>
+</a>
+<!-- Category 6: حلويات ومخبوزات (Sweet Coral / Rose Gold) -->
+<a class="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1" href="#">
+<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#e11d48] via-[#f97316] to-[#fdba74] flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:shadow-lg group-hover:shadow-orange-500/35 transition-all">
+<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-rose-50 flex items-center justify-center text-[#ea580c] border border-orange-200">
+<i class="fa-solid fa-cake-candles text-2xl sm:text-3xl"></i>
+</div>
+</div>
+<span class="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-orange-600 transition text-center">حلويات ومخبوزات</span>
+<span class="text-[11px] text-gray-400 font-medium">+60 منتج</span>
+</a>
+</div>
+</section>
+<!-- END: CategoriesSection -->
+<!-- BEGIN: FeaturedStoresSection -->
+<section class="space-y-4" data-purpose="featured-stores">
+<div class="flex items-center justify-between">
+<h2 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">المتاجر المميزة لهذا الأسبوع</h2>
+<a class="text-xs sm:text-sm font-semibold text-gray-500 hover:text-sky-700 transition" href="#">عرض الكل</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+<!-- Store Card 1: متجر غيم الهدايا والديكور -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
+<div class="relative w-full h-36 rounded-xl overflow-hidden mb-8 shadow-inner">
+<img alt="متجر غيم الهدايا والديكور" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZEIfF-VPJ_5ZP0mO3X_wY4hFVtkL_AdQ27_PsIa8pOUMJR5u6LwZ8QlFUSNiGSpxi6tox5tOv5herX_PPgDtloFbJxQWj8srFCmDxVMnHUBY1QTQY6DVtTIkjgM5tqtRyE0k_S1aQ99fbA93eCKObnqad7yPq5WbqoMgygK5iQkNSYtAwmV9BDCJ1cgRRqmLWePTjE6cnLdZym2ua_2WQLrFA5hkOWfiIAoToiRI">
+<div class="absolute inset-0 bg-gradient-to-t from-[#07132b]/80 via-transparent to-black/20"></div>
+<!-- Store Profile Image Overlap -->
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md bg-[#07132b] flex items-center justify-center overflow-hidden p-1.5 z-10">
+<img alt="شعار متجر غيم" class="w-full h-full object-contain filter drop-shadow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0kTwyrOgVt1UikZzjl_8adoPbACflThuS0OAMs1NBAxfhdj0d6U5zy__p3zH1LwwSEoGCf-TrnUeEI9e7ofTlwvzBEkjkRq7dWVa2VM8YYzl6qDAYySLO14czo6P79cFjMAhBjFyf9NEde5r2LsURP2LZTDBAFNk7WWjYNfTnw_OMambwfjlKjSD-giwosQLJIjXhF6XEZHmA2tjH6DDME6VgOoNX5agZVPKSTOwWd7WRKHY8-450">
+</div>
+</div>
+<h3 class="text-sm font-bold text-gray-900 group-hover:text-sky-700 transition">متجر غيم الهدايا والديكور</h3>
+<div class="flex items-center gap-2 mt-1.5 mb-4">
+<span class="flex items-center text-amber-500 text-xs font-bold gap-1">
+<i class="fa-solid fa-star text-[11px]"></i> 4.9
+    </span>
+<span class="bg-sky-500 text-white text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+<i class="fa-solid fa-check text-[9px]"></i> موثق
+    </span>
+</div>
+<button class="w-full mt-auto py-2.5 bg-gray-50 hover:bg-[#07132b] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition border border-gray-200">
+    زيارة المتجر
+  </button>
+</div>
+<!-- Store Card 2: بخور وعطور المكلا -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
+<div class="relative w-full h-36 rounded-xl overflow-hidden mb-8 shadow-inner">
+<img alt="بخور وعطور المكلا" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbWwAPDaPMAU0AbnJL7o0JFHnBUKb_xCfQMD0ZXlqmK3GDQc2TYpAG1RYwUlk1Mst0m7dLGywyOld4SgZvXMqzVZnSDVbVNCznu9UioW-FMs9aOvJbraGdJqfuWUX-dGTC014bwRdM-4iv0ZV_u2YThb9nFNLvOwv3taPoV57C6FhfdcVfVd-A2FltBVkBsK5dv6NDolnpIOtZ4mFRDAuZlGoDzvolKwUzcEYoTbs">
+<div class="absolute inset-0 bg-gradient-to-t from-[#2b1810]/80 via-transparent to-black/20"></div>
+<!-- Store Profile Image Overlap -->
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md bg-[#2b1810] flex items-center justify-center text-amber-300 font-bold text-xs z-10">
+<i class="fa-solid fa-fire-burner text-xl text-amber-400"></i>
+</div>
+</div>
+<h3 class="text-sm font-bold text-gray-900 group-hover:text-amber-700 transition">بخور وعطور المكلا</h3>
+<div class="flex items-center gap-2 mt-1.5 mb-4">
+<span class="flex items-center text-amber-500 text-xs font-bold gap-1">
+<i class="fa-solid fa-star text-[11px]"></i> 4.9
+    </span>
+<span class="bg-sky-500 text-white text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+<i class="fa-solid fa-check text-[9px]"></i> موثق
+    </span>
+</div>
+<button class="w-full mt-auto py-2.5 bg-gray-50 hover:bg-[#07132b] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition border border-gray-200">
+    زيارة المتجر
+  </button>
+</div>
+<!-- Store Card 3: متجر جازيزا للعطور والإكسسوارات -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
+<div class="relative w-full h-36 rounded-xl overflow-hidden mb-8 shadow-inner">
+<img alt="جازيزا إكسسوارات وعطور" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgicSXG7A3VERksuK_wxciZAy9bUpexlZl9ccRzRWRfNZSytwA5bvj4o5DG2toWQ-ANd98MJIjPzO6fiGLhEjkFFwi99KcI_rxaol-oMTVQmG-MpVTJx1XJjyLhgn1v3W_dpttlNC9m3lFYG4Zkkg4--Ev2dVWopfD45gPAdu1X3a-SKDcKXsMXZEa2GeYGZYqmL7WhtAyT4QxIlsIxGTP9yaTKfRAUfU3X0oLzgc">
+<div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-black/20"></div>
+<!-- Store Profile Image Overlap -->
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md bg-black text-amber-300 font-bold text-[11px] flex items-center justify-center tracking-wider z-10">
+      JAZIZA
+    </div>
+</div>
+<h3 class="text-sm font-bold text-gray-900 group-hover:text-amber-700 transition">متجر جازيزا المميز</h3>
+<div class="flex items-center gap-2 mt-1.5 mb-4">
+<span class="flex items-center text-amber-500 text-xs font-bold gap-1">
+<i class="fa-solid fa-star text-[11px]"></i> 4.8
+    </span>
+<span class="bg-sky-500 text-white text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+<i class="fa-solid fa-check text-[9px]"></i> موثق
+    </span>
+</div>
+<button class="w-full mt-auto py-2.5 bg-gray-50 hover:bg-[#07132b] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition border border-gray-200">
+    زيارة المتجر
+  </button>
+</div>
+<!-- Store Card 4: سمر المكلا للأزياء التراثية -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
+<div class="relative w-full h-36 rounded-xl overflow-hidden mb-8 shadow-inner">
+<img alt="سمر المكلا للأزياء" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtGSyVVDvewp5mn8XZPiDBXjRT-x_q9TnJt5PVN9a8g0zuRTenDpcVNnV2_pJShqd4sP49iCn6mVOSuryS9gRQx366ctsIMH41USHgdVF7fWXUwk2WpTB1dlAgvxI48eBtH6-8xKVhQ5gpEw37wEbL439CorP0QJEBM1PbqtgAheUZDJqWN1dUkyhtQb2Vy6Sl7xvrWjZYCvybaXE9v9K0eJqQ4rPAf8CZEYwsrW4">
+<div class="absolute inset-0 bg-gradient-to-t from-stone-900/80 via-transparent to-black/20"></div>
+<!-- Store Profile Image Overlap -->
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md bg-[#1a1412] text-amber-200 font-bold text-[11px] flex items-center justify-center tracking-wider z-10">
+      SAMAR
+    </div>
+</div>
+<h3 class="text-sm font-bold text-gray-900 group-hover:text-amber-700 transition">سمر المكلا للأزياء</h3>
+<div class="flex items-center gap-2 mt-1.5 mb-4">
+<span class="flex items-center text-amber-500 text-xs font-bold gap-1">
+<i class="fa-solid fa-star text-[11px]"></i> 4.9
+    </span>
+<span class="bg-sky-500 text-white text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+<i class="fa-solid fa-check text-[9px]"></i> موثق
+    </span>
+</div>
+<button class="w-full mt-auto py-2.5 bg-gray-50 hover:bg-[#07132b] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition border border-gray-200">
+    زيارة المتجر
+  </button>
+</div>
+</div>
+</section>
+<!-- END: FeaturedStoresSection -->
+<!-- BEGIN: SellerCallToActionBanner -->
+<section class="rounded-2xl bg-gradient-to-r from-[#07132b] via-[#0d224d] to-[#07132b] p-6 sm:p-7 text-white shadow-lg border border-[#1b3469] flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden" data-purpose="join-seller-banner">
+<div class="absolute -right-8 -top-8 w-40 h-40 bg-sky-400/10 rounded-full blur-2xl pointer-events-none anim-cloud-glow"></div>
+<div class="absolute -left-8 -bottom-8 w-40 h-40 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none anim-cloud-float-2"></div>
+<div class="flex items-center gap-4 text-center sm:text-right relative z-10">
+<div class="w-14 h-14 shrink-0 hidden sm:flex items-center justify-center anim-cloud-float-1">
+<img alt="غيم سبيس ترحيب" class="w-12 h-12 object-contain filter drop-shadow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0kTwyrOgVt1UikZzjl_8adoPbACflThuS0OAMs1NBAxfhdj0d6U5zy__p3zH1LwwSEoGCf-TrnUeEI9e7ofTlwvzBEkjkRq7dWVa2VM8YYzl6qDAYySLO14czo6P79cFjMAhBjFyf9NEde5r2LsURP2LZTDBAFNk7WWjYNfTnw_OMambwfjlKjSD-giwosQLJIjXhF6XEZHmA2tjH6DDME6VgOoNX5agZVPKSTOwWd7WRKHY8-450">
+</div>
+<div>
+<h3 class="text-lg sm:text-xl font-bold text-white">هل لديك موهبة أو مشروع منزلي؟ انضم إلى غيم سبيس الآن وابدأ البيع مجاناً! ☁️🛒</h3>
+<p class="text-xs sm:text-sm text-sky-200 mt-1">منصتك المتكاملة لعرض منتجاتك، تنظيم مبيعاتك والوصول لآلاف العملاء في حضرموت</p>
+</div>
+</div>
+<a class="shrink-0 bg-[#eab839] hover:bg-[#d9a72b] text-[#07132b] font-bold px-7 py-2.5 rounded-xl text-sm transition-all shadow hover:shadow-md relative z-10" href="#">
+    سجل كتاجر
+  </a>
+</section>
+<!-- END: SellerCallToActionBanner -->
+<!-- BEGIN: LatestProductsSection -->
+<section class="space-y-4" data-purpose="latest-products" id="products">
+<div class="flex items-center justify-between">
+<h2 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">أحدث المنتجات المضافة</h2>
+<a class="text-xs sm:text-sm font-semibold text-gray-500 hover:text-sky-700 transition" href="#">عرض الكل</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+<!-- Product 1: حقائب يمنية قماشية وحرفية -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col p-3 hover:shadow-lg transition duration-300 group">
+<div class="relative w-full h-52 rounded-xl bg-amber-50 overflow-hidden flex items-center justify-center mb-3">
+<img alt="حقائب يمنية قماشية وحرفية" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAdU2O_nwVrhsXPF0BG4Au1c8sVBpL6DQ6CxVjtbNJV0USNwQJwSMmhQXQWdbL0SaGAGlwwHcHxjZPk5ypextJ5g_pRp4miv5b57hQKEWUBXspt6ukQrF1l78o3WYK4TR1r7TiXXR1eLjHITPpKjVu5q4kaaHkuGMNnPkyI3k05tGiVVslNc46YaQsUSjGoEJtLgRuV13wqXhFW2jZbJQpssdOETehHsrVWBdor6E">
+<span class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2.5 py-0.5 rounded-md font-semibold">
+      حرف يدوية
+    </span>
+<button aria-label="أضف للمفضلة" class="absolute top-2 left-2 w-7 h-7 rounded-full bg-white/80 hover:bg-white text-gray-600 hover:text-red-500 flex items-center justify-center backdrop-blur-sm transition">
+<i class="fa-regular fa-heart text-xs"></i>
+</button>
+</div>
+<h3 class="text-xs sm:text-sm font-bold text-gray-800 line-clamp-1 group-hover:text-sky-700 transition">حقائب يمنية قماشية وتطريز حضرمي</h3>
+<p class="text-[11px] text-gray-400 mt-0.5">صنع يدوي بالكامل من القطن الطبيعي</p>
+<div class="mt-3 flex items-center justify-between">
+<span class="text-sm font-extrabold text-[#07132b]">24,000 <span class="text-xs font-normal text-gray-500">ر.ي</span></span>
+<span class="text-[11px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded">متوفر</span>
+</div>
+<button class="mt-3 w-full py-2 bg-[#07132b] hover:bg-[#0e2248] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-95">
+<i class="fa-solid fa-cart-shopping text-[11px]"></i>
+<span class="">أضف للسلة</span>
+</button>
+</div>
+<!-- Product 2: مباخر بتطريز تقليدي وفخامة البخور -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col p-3 hover:shadow-lg transition duration-300 group">
+<div class="relative w-full h-52 rounded-xl bg-stone-100 overflow-hidden flex items-center justify-center mb-3">
+<img alt="مباخر بتطريز تقليدي وفخامة البخور" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGDbLzeGt-HihsJQ0HgIjSiIDj1wRRGHGyi_4D2wGV-Cp1MlxxMljCC_8sqmN0OMVlbsigCN3CF0toJ7GbBbxfHKRuHLLv6hAh0Ek6gCulhkTFN96g3z6Olr0ef96vClc5M06IASom4bR_IvKamuQAB3hAmsd-UjMxJSVCoVoXqOv45n3xgihR8YZvUGylgfu-eBBtwgJBwsiZIZvZTbEiZASihlhbJ4JsYprJ7YQ">
+<span class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2.5 py-0.5 rounded-md font-semibold">
+      فخاريات وتراث
+    </span>
+<button aria-label="أضف للمفضلة" class="absolute top-2 left-2 w-7 h-7 rounded-full bg-white/80 hover:bg-white text-gray-600 hover:text-red-500 flex items-center justify-center backdrop-blur-sm transition">
+<i class="fa-regular fa-heart text-xs"></i>
+</button>
+</div>
+<h3 class="text-xs sm:text-sm font-bold text-gray-800 line-clamp-1 group-hover:text-sky-700 transition">مباخر بتطريز تقليدي وفخامة البخور</h3>
+<p class="text-[11px] text-gray-400 mt-0.5">فخار حضرمي أصيل بنقوش يدوية</p>
+<div class="mt-3 flex items-center justify-between">
+<span class="text-sm font-extrabold text-[#07132b]">18,500 <span class="text-xs font-normal text-gray-500">ر.ي</span></span>
+<span class="text-[11px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded">متوفر</span>
+</div>
+<button class="mt-3 w-full py-2 bg-[#07132b] hover:bg-[#0e2248] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-95">
+<i class="fa-solid fa-cart-shopping text-[11px]"></i>
+<span class="">أضف للسلة</span>
+</button>
+</div>
+<!-- Product 3: شموع معطرة ومصنوعة يدوياً -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col p-3 hover:shadow-lg transition duration-300 group">
+<div class="relative w-full h-52 rounded-xl bg-orange-50 overflow-hidden flex items-center justify-center mb-3">
+<img alt="شموع معطرة ومصنوعة يدوياً" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgebItWGOCJZqnCZjUZvBbLbzm37W_0j8rgXZ_ae_yEIwlh0Th14U4uvGHFs0yB4K14CBrxOGuCbiT4pVX3sT2ccODEvpCh2r_2pOEay6JEA0_vaa6BAnYKaQnrzpPJv6f6Z16yS2M4l3n18UgRU9EdjvnMAZYJFbMkhmCa1s5fNKH36Iv2a5p6Fg5-nDrCF2PbFpIOjrHKIBsfeL5-OFK_IwghcO6RsXPYZyXU9E">
+<span class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2.5 py-0.5 rounded-md font-semibold">
+      روائح منزلية
+    </span>
+<button aria-label="أضف للمفضلة" class="absolute top-2 left-2 w-7 h-7 rounded-full bg-white/80 hover:bg-white text-gray-600 hover:text-red-500 flex items-center justify-center backdrop-blur-sm transition">
+<i class="fa-regular fa-heart text-xs"></i>
+</button>
+</div>
+<h3 class="text-xs sm:text-sm font-bold text-gray-800 line-clamp-1 group-hover:text-sky-700 transition">شموع صويا طبيعية معطرة بالعود</h3>
+<p class="text-[11px] text-gray-400 mt-0.5">زيوت عطرية تدوم حتى 40 ساعة</p>
+<div class="mt-3 flex items-center justify-between">
+<span class="text-sm font-extrabold text-[#07132b]">12,000 <span class="text-xs font-normal text-gray-500">ر.ي</span></span>
+<span class="text-[11px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded">متوفر</span>
+</div>
+<button class="mt-3 w-full py-2 bg-[#07132b] hover:bg-[#0e2248] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-95">
+<i class="fa-solid fa-cart-shopping text-[11px]"></i>
+<span class="">أضف للسلة</span>
+</button>
+</div>
+<!-- Product 4: أواني وتشكيلات كونكريت إسمنتية -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col p-3 hover:shadow-lg transition duration-300 group">
+<div class="relative w-full h-52 rounded-xl bg-gray-50 overflow-hidden flex items-center justify-center mb-3">
+<img alt="أواني وتشكيلات كونكريت إسمنتية" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa9yOjJKqht9IQTre4INhmc_Kwy7KZjlV792aK4AhTem1dLgFTxI-r88ovNoFhLJ6C1qMTfZB3TGcOJmRUxxqMZPEQ0Dl-ySXsH8DwuehSzb_q1wrp6ieo6Usi5Efqy54QROPih_NFdnBbxnhApAX86gFg6pV54ciI5HK3d6zrB0uV4DkAPV44vSzwwe3W7mQYp44ahHQw6pmk-dFNTeHX3ICvB5ApmPCRZihO7G4">
+<span class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2.5 py-0.5 rounded-md font-semibold">
+      ديكور حديث
+    </span>
+<button aria-label="أضف للمفضلة" class="absolute top-2 left-2 w-7 h-7 rounded-full bg-white/80 hover:bg-white text-gray-600 hover:text-red-500 flex items-center justify-center backdrop-blur-sm transition">
+<i class="fa-regular fa-heart text-xs"></i>
+</button>
+</div>
+<h3 class="text-xs sm:text-sm font-bold text-gray-800 line-clamp-1 group-hover:text-sky-700 transition">أواني وتشكيلات كونكريت رخامية</h3>
+<p class="text-[11px] text-gray-400 mt-0.5">تصاميم عصرية مدمجة بالذهب والنحاس</p>
+<div class="mt-3 flex items-center justify-between">
+<span class="text-sm font-extrabold text-[#07132b]">15,000 <span class="text-xs font-normal text-gray-500">ر.ي</span></span>
+<span class="text-[11px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded">متوفر</span>
+</div>
+<button class="mt-3 w-full py-2 bg-[#07132b] hover:bg-[#0e2248] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-95">
+<i class="fa-solid fa-cart-shopping text-[11px]"></i>
+<span class="">أضف للسلة</span>
+</button>
+</div>
+</div>
+</section>
+<!-- END: LatestProductsSection -->
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: MainFooter - Exact Match with SCREEN_16, SCREEN_13 & IMAGE_9 -->
+<footer class="w-full text-white mt-16 bg-[#07132b] relative overflow-hidden" data-purpose="cloud-footer"><div class="w-full relative flex justify-center bg-[#07132b]"><img alt="فوتر غيم سبيس" class="w-full max-w-7xl h-auto object-cover select-none pointer-events-none block" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-981ETjZIyjLcJkezxdIRC731hVinLmlZ2sv6ec5gLCxoc0WlQ4LJiLPvn5jiRPyvoUK_7ac2bvtywFWvQSzOnz1yjJVZt_ML4la7o2bhrMQ_WHjrc8Z4lD13Vi43p-E-6QVV0KJPh1AsRecXsLZ-0eL08MszJYaluNRTP2KX12bYDx0sezpkLL92Fjy32iyr7uSpDRFsrVQxtz0Z56rk1MirBxbJOwUqjQXyXkk1pliKw3n6Hf5a"></div><div class="w-full bg-[#07132b] pb-6 pt-3 text-center text-xs text-sky-200/70 border-t border-white/5 flex items-center justify-center gap-1.5"><i class="fa-regular fa-copyright text-xs"></i><span class="">جميع الحقوق محفوظة .2026 Ghaym Space</span></div></footer>
+<!-- END: MainFooter -->
+<!-- Interactive Parallax Script with Reduced Motion Support -->
+<script>
+  (function() {
+    const heroBanner = document.getElementById('hero-banner');
+    if (!heroBanner) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    const parallaxLayers = heroBanner.querySelectorAll('[data-parallax-factor]');
+    let mouseX = 0;
+    let mouseY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let isHovering = false;
+    let animationFrameId = null;
+
+    function renderParallax() {
+      currentX += (mouseX - currentX) * 0.08;
+      currentY += (mouseY - currentY) * 0.08;
+
+      parallaxLayers.forEach(layer => {
+        const factor = parseFloat(layer.getAttribute('data-parallax-factor')) || 0.03;
+        const moveX = currentX * factor * 45;
+        const moveY = currentY * factor * 35;
+        layer.style.transform = `translate3d(${moveX.toFixed(2)}px, ${moveY.toFixed(2)}px, 0)`;
+      });
+
+      if (isHovering || Math.abs(currentX) > 0.01 || Math.abs(currentY) > 0.01) {
+        animationFrameId = requestAnimationFrame(renderParallax);
+      }
+    }
+
+    heroBanner.addEventListener('mousemove', (e) => {
+      const rect = heroBanner.getBoundingClientRect();
+      mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouseY = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+
+      if (!isHovering) {
+        isHovering = true;
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(renderParallax);
+      }
+    });
+
+    heroBanner.addEventListener('mouseleave', () => {
+      isHovering = false;
+      mouseX = 0;
+      mouseY = 0;
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(renderParallax);
+    });
+  })();
+</script>
+
+
+</body></html>

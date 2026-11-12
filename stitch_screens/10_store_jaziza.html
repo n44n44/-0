@@ -1,0 +1,615 @@
+<!DOCTYPE html><html dir="rtl" lang="ar"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>متجر جازيزا - JAZIZA | غيم سبيس Ghaym Space</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts: Outfit & Manrope -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a",
+            "on-primary-container": "#eeefff",
+            "primary-fixed": "#dbe1ff",
+            "surface-container-high": "#e2e7ff",
+            "inverse-surface": "#283044",
+            "surface-dim": "#d2d9f4",
+            "on-primary-fixed-variant": "#003ea8",
+            "surface-container-lowest": "#ffffff",
+            "error": "#ba1a1a",
+            "surface-bright": "#faf8ff",
+            "inverse-on-surface": "#eef0ff",
+            "tertiary-container": "#196fc0",
+            "surface-container-low": "#f2f3ff",
+            "on-tertiary-fixed-variant": "#004883",
+            "on-secondary-container": "#1d3989",
+            "background": "#faf8ff",
+            "on-primary-fixed": "#00174b",
+            "on-surface-variant": "#434655",
+            "on-tertiary-container": "#ebf1ff",
+            "surface-tint": "#0053db",
+            "on-secondary-fixed": "#00164e",
+            "tertiary-fixed": "#d4e3ff",
+            "outline-variant": "#c3c6d7",
+            "surface-variant": "#dae2fd",
+            "on-error": "#ffffff",
+            "primary-container": "#2563eb",
+            "on-surface": "#131b2e",
+            "on-primary": "#ffffff",
+            "surface": "#faf8ff",
+            "tertiary-fixed-dim": "#a4c9ff",
+            "secondary-fixed": "#dce1ff",
+            "surface-container": "#eaedff",
+            "on-tertiary-fixed": "#001c39",
+            "tertiary": "#00569c",
+            "on-tertiary": "#ffffff",
+            "primary": "#004ac6",
+            "outline": "#737686",
+            "secondary-fixed-dim": "#b6c4ff",
+            "surface-container-highest": "#dae2fd",
+            "secondary": "#4059aa",
+            "primary-fixed-dim": "#b4c5ff",
+            "on-secondary-fixed-variant": "#264191",
+            "on-secondary": "#ffffff",
+            "secondary-container": "#8fa7fe",
+            "on-background": "#131b2e",
+            "inverse-primary": "#b4c5ff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "margin": "1rem",
+            "space-sm": "0.5rem",
+            "gutter": "1rem",
+            "space-xl": "2.5rem",
+            "space-xs": "0.25rem",
+            "margin-desktop": "2rem",
+            "gutter-desktop": "1.5rem",
+            "space-lg": "1.5rem"
+          },
+          "fontFamily": {
+            "body-md": ["Manrope"],
+            "headline-xl-mobile": ["Outfit"],
+            "headline-lg": ["Outfit"],
+            "headline-xl": ["Outfit"],
+            "label-lg": ["Manrope"],
+            "label-sm": ["Manrope"],
+            "display-hero-mobile": ["Outfit"],
+            "display-hero": ["Outfit"],
+            "headline-md": ["Outfit"],
+            "body-sm": ["Manrope"],
+            "body-lg": ["Manrope"],
+            "label-md": ["Manrope"]
+          },
+          "fontSize": {
+            "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "headline-xl-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "headline-lg": ["22px", { "lineHeight": "30px", "fontWeight": "600" }],
+            "headline-xl": ["30px", { "lineHeight": "40px", "fontWeight": "600" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "fontWeight": "600" }],
+            "display-hero-mobile": ["32px", { "lineHeight": "42px", "fontWeight": "700" }],
+            "display-hero": ["44px", { "lineHeight": "56px", "fontWeight": "700" }],
+            "headline-md": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "500" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F0F7FF 40%, #EAEDFF 100%);
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body class="text-on-surface antialiased flex flex-col min-h-screen">
+<!-- ================= TOP NAV BAR (Source of Truth JSON Executed) ================= -->
+<header class="bg-on-background dark:bg-inverse-surface shadow-md sticky top-0 z-50">
+<div class="w-full px-4 md:px-8 max-w-7xl mx-auto flex flex-col justify-between py-3 gap-3">
+<!-- Upper Tier: Brand + Search Bar + Actions -->
+<div class="flex items-center justify-between gap-4">
+<!-- Brand Logo & Name -->
+<a class="text-headline-md font-headline-md text-surface-container-lowest flex items-center gap-2 group" href="#">
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL9SB-b1JgknAQ3dIpNnEIlKip6i4X5swig97f8JrMY0wnJX2Gh6lTj87EQ7z5QBHBBedFRvlfhoWPqj5oFnc9JMfEHBS19H1qd8zANPIBoAA6xEPkBhkBMrDLO6TzEhrFm0L2Ri2v9VpciNjguu1rLhne-610_NuW4mMH62blt2k5IMW9whjH-ASgGBC4wYlDQcQe-PuFlPAfHtnWYkFOhgZUfqSmoR42cnRCCY9vHbcl_gEPRpHX" alt="غيم سبيس Ghaym Space" class="h-10 w-auto rounded-lg object-contain group-hover:scale-105 transition-transform duration-200 shadow-sm">
+<span class="tracking-tight font-bold">غيم سبيس Ghaym Space</span>
+</a>
+<!-- Search Bar (search_bar: "on_right") -->
+<div class="flex-1 max-w-xl mx-4 relative hidden sm:block">
+<div class="relative flex items-center">
+<input class="w-full bg-surface-container-lowest/10 border border-surface-container-highest/20 rounded-full py-2.5 pr-11 pl-4 text-surface-container-lowest placeholder:text-surface-container-highest/70 font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest/20 transition-all duration-200" placeholder="ابحث عن منتجات، متاجر أو حرفيين..." type="text">
+<span class="material-symbols-outlined absolute right-3 text-surface-container-highest pointer-events-none">search</span>
+</div>
+</div>
+<!-- Trailing Actions: ["shopping_cart", "favorite", "notifications", "person"] -->
+<div class="flex items-center gap-1 md:gap-2">
+<button class="p-2 text-surface-container-highest dark:text-outline-variant hover:text-surface-container-lowest hover:bg-surface-container-lowest/10 rounded-full transition-colors duration-200 relative" title="سلة التسوق">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute top-1 right-1 w-4 h-4 bg-primary-container text-surface-container-lowest text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
+</button>
+<button class="p-2 text-surface-container-highest dark:text-outline-variant hover:text-surface-container-lowest hover:bg-surface-container-lowest/10 rounded-full transition-colors duration-200" title="المفضلة">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<button class="p-2 text-surface-container-highest dark:text-outline-variant hover:text-surface-container-lowest hover:bg-surface-container-lowest/10 rounded-full transition-colors duration-200 relative" title="الإشعارات">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="h-6 w-px bg-surface-container-lowest/20 mx-1 hidden sm:block"></div>
+<button class="flex items-center gap-2 p-1.5 text-surface-container-highest dark:text-outline-variant hover:text-surface-container-lowest hover:bg-surface-container-lowest/10 rounded-full md:rounded-lg transition-colors duration-200" title="الحساب الشخصي">
+<span class="material-symbols-outlined text-2xl">person</span>
+<span class="hidden md:inline font-label-md text-label-md text-surface-container-lowest">حسابي</span>
+</button>
+</div>
+</div>
+<!-- Navigation Links Bar (Desktop) -->
+<!-- Links: ["الرئيسية", "جميع المتاجر", "تصنيفات المنتجات", "من نحن", "تواصل معنا"] -->
+<!-- Active logic: Page represents a single store under "جميع المتاجر", mapped accurately -->
+<nav class="flex items-center justify-start gap-6 pt-1 border-t border-surface-container-lowest/10 overflow-x-auto no-scrollbar">
+<a class="text-surface-container-highest dark:text-outline-variant hover:text-surface-container-lowest hover:bg-surface-container-lowest/10 transition-colors duration-200 font-label-md text-label-md py-1" href="#">
+          الرئيسية
+        </a>
+<a class="text-surface-container-lowest font-bold border-b-2 border-primary-container pb-1 transition-all duration-200 font-label-md text-label-md" href="#">
+          جميع المتاجر
+        </a>
+<a class="text-surface-container-highest dark:text-outline-variant hover:text-surface-container-lowest hover:bg-surface-container-lowest/10 transition-colors duration-200 font-label-md text-label-md py-1" href="#">
+          تصنيفات المنتجات
+        </a>
+<a class="text-surface-container-highest dark:text-outline-variant hover:text-surface-container-lowest hover:bg-surface-container-lowest/10 transition-colors duration-200 font-label-md text-label-md py-1" href="#">
+          من نحن
+        </a>
+<a class="text-surface-container-highest dark:text-outline-variant hover:text-surface-container-lowest hover:bg-surface-container-lowest/10 transition-colors duration-200 font-label-md text-label-md py-1" href="#">
+          تواصل معنا
+        </a>
+</nav>
+</div>
+</header>
+<!-- ================= MAIN CONTENT CANVAS ================= -->
+<main class="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-6 space-y-6">
+<!-- Top Action Breadcrumb & Back Navigation -->
+<div class="flex items-center justify-between">
+<a class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-lowest border border-outline-variant/30 rounded-full text-on-surface hover:bg-surface-container-low transition-all duration-200 shadow-sm active:scale-95" href="#">
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+<span class="font-label-md text-label-md">رجوع إلى المتاجر</span>
+</a>
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm hidden sm:flex">
+<span class="">الرئيسية</span>
+<span class="material-symbols-outlined text-xs">arrow_back_ios</span>
+<span class="">جميع المتاجر</span>
+<span class="material-symbols-outlined text-xs">arrow_back_ios</span>
+<span class="text-primary font-bold">متجر جازيزا</span>
+</div>
+</div>
+<!-- Storefront Showcase Header & Identity Hero -->
+<section class="relative bg-surface-container-lowest rounded-2xl overflow-hidden shadow-lg border border-outline-variant/30">
+<!-- Store Banner Background: Twilight Royal Blue with delicate cloud ambient glow -->
+<div class="h-44 md:h-56 w-full relative bg-gradient-to-l from-on-secondary-container via-primary to-on-background overflow-hidden">
+<div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18)_0%,transparent_60%)]"></div>
+<div class="absolute -bottom-10 left-10 w-72 h-72 bg-primary-container/20 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Delivery and Guarantee Floating Badges in Banner -->
+<div class="absolute top-4 left-4 flex items-center gap-2">
+<span class="bg-surface-container-lowest/20 backdrop-blur-md text-surface-container-lowest font-label-sm text-label-sm px-3 py-1.5 rounded-full flex items-center gap-1 border border-surface-container-lowest/30 shadow-sm">
+<span class="material-symbols-outlined text-sm">local_shipping</span>
+<span class="">توصيل فوري خلال ساعتين</span>
+</span>
+<span class="bg-surface-container-lowest/20 backdrop-blur-md text-surface-container-lowest font-label-sm text-label-sm px-3 py-1.5 rounded-full hidden md:flex items-center gap-1 border border-surface-container-lowest/30 shadow-sm">
+<span class="material-symbols-outlined text-sm">verified</span>
+<span class="">بائع معتمد موثق</span>
+</span>
+</div>
+</div>
+<!-- Store Profile & Metadata Row -->
+<div class="px-6 md:px-10 pb-6 pt-0 relative">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 -mt-16 md:-mt-20">
+<!-- Avatar + Store Name Info -->
+<div class="flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-right">
+<!-- JAZIZA Circular Logo Emblem -->
+<div class="w-28 h-28 md:w-36 md:h-36 rounded-full bg-[#531024] p-1.5 shadow-xl border-4 border-surface-container-lowest flex-shrink-0 flex items-center justify-center relative overflow-hidden group">
+<div class="w-full h-full rounded-full border border-amber-300/40 flex flex-col items-center justify-center text-center p-2 bg-gradient-to-b from-[#69152e] to-[#3f0c1b]">
+<span class="font-headline-xl text-headline-lg text-amber-200 font-extrabold tracking-widest drop-shadow">JAZIZA</span>
+<span class="text-[9px] text-amber-100/90 font-label-sm tracking-wider">جازيزا بيكري</span>
+</div>
+<div class="absolute bottom-1 right-2 bg-primary-container text-surface-container-lowest rounded-full p-1 border-2 border-surface-container-lowest shadow" title="متجر موثق">
+<span class="material-symbols-outlined text-sm block">verified</span>
+</div>
+</div>
+<!-- Title & Brief Bio -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-center sm:justify-start gap-2.5">
+<h1 class="font-headline-xl text-headline-xl text-on-surface font-bold tracking-tight">متجر جازيزا (JAZIZA)</h1>
+<span class="bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm px-2.5 py-0.5 rounded-full font-bold">موثق</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xl">
+                كل ما تحتاجه من حلويات ومخبوزات ومستلزمات فاخرة ومميزة صُنعت بكل حب في المكلا.
+              </p>
+<!-- Metrics & Ratings -->
+<div class="flex flex-wrap items-center justify-center sm:justify-start gap-4 pt-1 text-on-surface-variant font-label-md text-label-md">
+<div class="flex items-center gap-1 text-amber-500 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60">
+<span class="material-symbols-outlined text-base material-symbols-fill">star</span>
+<span class="text-on-surface">4.9</span>
+<span class="text-on-surface-variant font-normal">(120+ تقييم)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-base">inventory_2</span>
+<span class="">45 منتج فاخر</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-base">schedule</span>
+<span class="">متواجد الآن للطلب</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Store CTAs / Interactions -->
+<div class="flex items-center justify-center gap-3">
+<button class="px-5 py-2.5 bg-surface-container-low hover:bg-surface-container text-primary font-label-lg text-label-lg rounded-xl border border-primary/20 flex items-center gap-2 shadow-sm transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-xl">favorite</span>
+<span class="">متابعة المتجر</span>
+</button>
+<button class="px-5 py-2.5 bg-primary-container hover:bg-primary text-surface-container-lowest font-label-lg text-label-lg rounded-xl flex items-center gap-2 shadow-md shadow-primary-container/20 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-xl">chat</span>
+<span class="">محادثة التاجر</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Categories & Store Department Tabs (Image accurate filter bar) -->
+<div class="border-t border-outline-variant/30 px-6 md:px-10 bg-surface-container-low/50">
+<div class="flex items-center gap-2 sm:gap-4 overflow-x-auto py-3 no-scrollbar">
+<button class="px-5 py-2 rounded-full font-label-lg text-label-lg font-bold bg-primary-container text-surface-container-lowest shadow-sm flex items-center gap-2 whitespace-nowrap">
+<span class="material-symbols-outlined text-lg">grid_view</span>
+<span class="">جميع المنتجات</span>
+<span class="bg-surface-container-lowest/20 text-surface-container-lowest text-xs px-2 py-0.5 rounded-full font-mono">18</span>
+</button>
+<button class="px-5 py-2 rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-lowest transition-colors flex items-center gap-2 whitespace-nowrap bg-surface-container-lowest/60 border border-outline-variant/20">
+<span class="material-symbols-outlined text-lg">cake</span>
+<span class="">الكيك</span>
+</button>
+<button class="px-5 py-2 rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-lowest transition-colors flex items-center gap-2 whitespace-nowrap bg-surface-container-lowest/60 border border-outline-variant/20">
+<span class="material-symbols-outlined text-lg">bakery_dining</span>
+<span class="">الحلويات</span>
+</button>
+<button class="px-5 py-2 rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-lowest transition-colors flex items-center gap-2 whitespace-nowrap bg-surface-container-lowest/60 border border-outline-variant/20">
+<span class="material-symbols-outlined text-lg">local_florist</span>
+<span class="">الورود والهدايا</span>
+</button>
+<button class="px-5 py-2 rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-lowest transition-colors flex items-center gap-2 whitespace-nowrap bg-surface-container-lowest/60 border border-outline-variant/20">
+<span class="material-symbols-outlined text-lg">card_giftcard</span>
+<span class="">عروض التوفير</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Filter & Sort Strip -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/20">
+<div class="flex items-center gap-2 text-on-surface font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-primary">storefront</span>
+<span class="">منتجات جازيزا الحصرية</span>
+<span class="text-on-surface-variant font-body-sm text-body-sm">(عرض 6 منتجات ممتازة)</span>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<div class="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-lg border border-outline-variant/30 text-on-surface font-label-md text-label-md">
+<span class="text-on-surface-variant">الترتيب حسب:</span>
+<select class="bg-transparent font-bold text-primary border-none p-0 focus:ring-0 cursor-pointer">
+<option>الأكثر مبيعاً</option>
+<option>الأعلى تقييماً</option>
+<option>السعر: من الأقل للأعلى</option>
+<option>السعر: من الأعلى للأقل</option>
+</select>
+</div>
+<button class="p-2 bg-surface-container-low hover:bg-surface-container rounded-lg text-on-surface-variant" title="طريقة العرض">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+</div>
+</div>
+<!-- ================= PRODUCTS GRID (Direct Reference from IMAGE_11) ================= -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<!-- Product Card 1: كيكة الشوكولاتة الفاخرة (From Reference Screenshot) -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group">
+<div>
+<!-- Thumbnail & Fav Button -->
+<div class="relative w-full aspect-square rounded-xl overflow-hidden bg-surface-container-low mb-3">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A gourmet artisanal chocolate drip cake decorated with rich chocolate curls, fresh blackberries, and delicate golden flakes sitting on a minimalist white porcelain stand in a bright, soft daylight studio setting. The atmosphere is airy and elegant with a pastel cream and subtle azure ambiance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrFfJ2BzQwiyXzn-U3nlKCWLt8tm5hbGhb4WjwDAJussTXY918va6FOXuM22VI6NE8OfsBDHYMoU0pN346S4vMvr0FZmCpyYMvDWd49dJQY-T9JkUH5jY_fYaEjcIZfYRcKc5vDJmBACsGjNEayuwEJZVC9-XLZYJK2kx6Jxi1R8zzNxPNt0jvOfMmRvHfnuEBZ4vJB-4H0L8I6zpi8Kge5NlVzfJDxxHHGjgur7Q">
+<button class="absolute top-2.5 left-2.5 w-9 h-9 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant hover:text-error hover:bg-surface-container-lowest transition-colors flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+<span class="absolute bottom-2.5 right-2.5 bg-primary-container text-surface-container-lowest text-label-sm font-label-sm px-2.5 py-0.5 rounded-full font-bold shadow">
+              الأكثر طلباً
+            </span>
+</div>
+<!-- Product Details -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-body-sm text-body-sm">كيك ومخبوزات</span>
+<div class="flex items-center gap-1 text-amber-500 font-bold text-xs">
+<span class="material-symbols-outlined text-sm material-symbols-fill">star</span>
+<span class="">4.9</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold group-hover:text-primary transition-colors">
+              كيكة الشوكولاتة
+            </h3>
+<p class="text-on-surface-variant font-body-sm text-body-sm line-clamp-1">
+              طبقات الشوكولاتة الغنية بكريمة الغاناش البلجيكية المميزة.
+            </p>
+</div>
+</div>
+<!-- Price & CTA Action -->
+<div class="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2.5">
+<div class="flex items-baseline justify-between">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">59 <span class="font-label-md text-label-md text-on-surface-variant">ر.س</span></span>
+<span class="text-xs text-on-surface-variant line-through">75 ر.س</span>
+</div>
+<button class="w-full py-2.5 px-4 bg-primary-container hover:bg-primary text-surface-container-lowest rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-md shadow-primary-container/20 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-lg">shopping_cart</span>
+<span class="">أضف للسلة</span>
+</button>
+</div>
+</div>
+<!-- Product Card 2: كب كيك ميني باستيل (From Reference Screenshot) -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group">
+<div>
+<div class="relative w-full aspect-square rounded-xl overflow-hidden bg-surface-container-low mb-3">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A delightful assortment of pastel frosted mini cupcakes garnished with edible pearls and tiny sugar hearts arranged meticulously on a clean marble surface bathed in warm morning light. The composition reflects luxury boutique confectionery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZbNuWkRXvH6dC2JXgzNnoCpXcSacap8C2-fK3CEaFxD45vmmyMB7ewBtALaNU8gPjUfEvANRLYwabSH-DZeX3sGI7ZkoD2LwLnIcv0Eq0rsj3nOypYVkc9b8WLEcTNPlGTKLNQMQdLu5mPiYCI-jf4pZTyvkJ0Md9v7Uih4Ws40_i0xxNjqLeGLCcSAT_POS6UpvYEZfXM2qpxmPEDcVkZacVXxQIpPNvvFFqwCo">
+<button class="absolute top-2.5 left-2.5 w-9 h-9 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant hover:text-error hover:bg-surface-container-lowest transition-colors flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+</div>
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-body-sm text-body-sm">كب كيك وصواني</span>
+<div class="flex items-center gap-1 text-amber-500 font-bold text-xs">
+<span class="material-symbols-outlined text-sm material-symbols-fill">star</span>
+<span class="">4.8</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold group-hover:text-primary transition-colors">
+              كب كيك ميني
+            </h3>
+<p class="text-on-surface-variant font-body-sm text-body-sm line-clamp-1">
+              مجموعة 6 قطع بنكهات الفانيليا والتوت المخملي.
+            </p>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2.5">
+<div class="flex items-baseline justify-between">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">49 <span class="font-label-md text-label-md text-on-surface-variant">ر.س</span></span>
+</div>
+<button class="w-full py-2.5 px-4 bg-primary-container hover:bg-primary text-surface-container-lowest rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-md shadow-primary-container/20 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-lg">shopping_cart</span>
+<span class="">أضف للسلة</span>
+</button>
+</div>
+</div>
+<!-- Product Card 3: كيكة الفراولة (From Reference Screenshot) -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group">
+<div>
+<div class="relative w-full aspect-square rounded-xl overflow-hidden bg-surface-container-low mb-3">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A delicate two-tier light pink strawberry sponge cake crowned with glazed organic strawberries, soft white piping cream, and spun sugar on a pristine pastel blue backdrop with luminous daylight illuminating the textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApXOBZFSDpAI2rVE5Hny0PgCFPvTCRhATKGbeR_raRTRfqm_ah9fhmBvUmHjodX4DcGVrD8wSuDrkY8dXOjhR1Vd4xRlREmHJYSEPOZPyyq64A7hgM60lNKMqD85c7_20ZIX1Xq043AcZqMLhEfUHeyNEumFGTM0Ftgcaq22CH9P3GfBFxwN5jOplv1gd7d-9bWjJVVfaWz_mwgIZbJHPml5EW5A3JbaMxZbbW-GU">
+<button class="absolute top-2.5 left-2.5 w-9 h-9 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant hover:text-error hover:bg-surface-container-lowest transition-colors flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+</div>
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-body-sm text-body-sm">كيك مناسبات</span>
+<div class="flex items-center gap-1 text-amber-500 font-bold text-xs">
+<span class="material-symbols-outlined text-sm material-symbols-fill">star</span>
+<span class="">4.9</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold group-hover:text-primary transition-colors">
+              كيكة الفراولة
+            </h3>
+<p class="text-on-surface-variant font-body-sm text-body-sm line-clamp-1">
+              مجهزة طازجة يومياً بالفراولة الطبيعية والكريمة الإيطالية.
+            </p>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2.5">
+<div class="flex items-baseline justify-between">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">49 <span class="font-label-md text-label-md text-on-surface-variant">ر.س</span></span>
+</div>
+<button class="w-full py-2.5 px-4 bg-primary-container hover:bg-primary text-surface-container-lowest rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-md shadow-primary-container/20 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-lg">shopping_cart</span>
+<span class="">أضف للسلة</span>
+</button>
+</div>
+</div>
+<!-- Product Card 4: كيكة عيد ميلاد مميزة للأطفال (From Reference Screen 2 & 1) -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group">
+<div>
+<div class="relative w-full aspect-square rounded-xl overflow-hidden bg-surface-container-low mb-3">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An adorable luxury baby pink birthday cake featuring a sculpted sugar bunny rabbit on top with silk bow detailing and handcrafted sugar pearls in a modern pastel bakery studio with soft glowing ambient light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7PCfkx2U-WQ2qdDDFr5Cnb9vCFn9D8dpxGffjIjKf2kNXKzPumMDTrq5U7FskzVpc7E9uZ5BdxaaEAS78nfenXLqfzf9V06x5o1WN7rAuMQmIaqt98WJ7aq2QbNHd4x907gVDDNygh_PQ56b78zJ7vu1tlDI_fRhFRNO3x0vMf880iJUJPv32lF1W4FveprY9nzpTWqSm7C17ZptjjtG47SC4a7L6pCKDqHqBbSA">
+<button class="absolute top-2.5 left-2.5 w-9 h-9 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant hover:text-error hover:bg-surface-container-lowest transition-colors flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+<span class="absolute top-2.5 right-2.5 bg-secondary text-surface-container-lowest text-label-sm font-label-sm px-2.5 py-0.5 rounded-full font-bold shadow">
+              مخصص بالطلب
+            </span>
+</div>
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-body-sm text-body-sm">كيك أطفال خاص</span>
+<div class="flex items-center gap-1 text-amber-500 font-bold text-xs">
+<span class="material-symbols-outlined text-sm material-symbols-fill">star</span>
+<span class="">4.9</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold group-hover:text-primary transition-colors">
+              كيكة عيد ميلاد مميزة
+            </h3>
+<p class="text-on-surface-variant font-body-sm text-body-sm line-clamp-1">
+              إمكانية كتابة الاسم واختيار الحجم المناسب لحفلتكم.
+            </p>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2.5">
+<div class="flex items-baseline justify-between">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">149 <span class="font-label-md text-label-md text-on-surface-variant">ر.س</span></span>
+<span class="text-xs text-on-surface-variant line-through">180 ر.س</span>
+</div>
+<button class="w-full py-2.5 px-4 bg-primary-container hover:bg-primary text-surface-container-lowest rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-md shadow-primary-container/20 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-lg">shopping_cart</span>
+<span class="">أضف للسلة</span>
+</button>
+</div>
+</div>
+<!-- Product Card 5: باقة ورد وردية فاخرة (From Reference Screenshot) -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group">
+<div>
+<div class="relative w-full aspect-square rounded-xl overflow-hidden bg-surface-container-low mb-3">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A lush bouquet of pristine blush pink and magenta roses wrapped in minimalist matte paper with satin ribbons positioned on a luminous reflective surface in a boutique setting with ethereal soft light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCh26yK2mrdj8UZxCyiYqbIvqmgxNOBg6GGx0Pn3JrMffwwOW-wyRiCieocrmaNmFMk2vYskQ18gp_8UInGY6eeu84MsrpS9QGTXfEXDTpNyxwDPBUNJEY3pYkEslCrI3Fm_tHXpbBO3yvjB1gp8aWi17GDz3zZa3PsaE_Wm8lBK8yUT5PjP8p9Xyyte9-hlY14jK2e3TsC_fQc4qtTK1qLRvFLQg3OP7Hgv2v9nn0">
+<button class="absolute top-2.5 left-2.5 w-9 h-9 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant hover:text-error hover:bg-surface-container-lowest transition-colors flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+</div>
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-body-sm text-body-sm">زهور وهدايا</span>
+<div class="flex items-center gap-1 text-amber-500 font-bold text-xs">
+<span class="material-symbols-outlined text-sm material-symbols-fill">star</span>
+<span class="">5.0</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold group-hover:text-primary transition-colors">
+              باقة ورد وردية
+            </h3>
+<p class="text-on-surface-variant font-body-sm text-body-sm line-clamp-1">
+              زهور طبيعية منتقاة بعناية ترافق أشهى أطباق الحلويات.
+            </p>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2.5">
+<div class="flex items-baseline justify-between">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">99 <span class="font-label-md text-label-md text-on-surface-variant">ر.س</span></span>
+</div>
+<button class="w-full py-2.5 px-4 bg-primary-container hover:bg-primary text-surface-container-lowest rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-md shadow-primary-container/20 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-lg">shopping_cart</span>
+<span class="">أضف للسلة</span>
+</button>
+</div>
+</div>
+<!-- Product Card 6: هدية دب لطيف مميز (From Reference Screenshot) -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group">
+<div>
+<div class="relative w-full aspect-square rounded-xl overflow-hidden bg-surface-container-low mb-3">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A soft plush cream teddy bear wearing a miniature satin bow tie sitting politely next to luxury gift packaging against a bright pastel blue background, creating a cozy and tender boutique celebratory feeling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAf3efMYyQ5K8LHEjKFeEGq2voCKI-hczC8EuGLwpGXl3pgaGHTR00ZSxLPC4AgkJhhnfELfjvjRb27Ehs5JufHkNkk8_vc8A3vEXUezo4VSf0KF0VdwdDc16qWtn43tgb0pdnKqkxGQ2cBfHRYTWcaTuDft3MPiPHRfADRlD1LdeCnEwMSh8UtmVxXhzbU2832G4ae4Pgz6YJKardz5tWCnb-NZ7mAdpIRfhOU998">
+<button class="absolute top-2.5 left-2.5 w-9 h-9 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant hover:text-error hover:bg-surface-container-lowest transition-colors flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+</div>
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-body-sm text-body-sm">مستلزمات وهدايا</span>
+<div class="flex items-center gap-1 text-amber-500 font-bold text-xs">
+<span class="material-symbols-outlined text-sm material-symbols-fill">star</span>
+<span class="">4.9</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold group-hover:text-primary transition-colors">
+              دب لطيف للإهداء
+            </h3>
+<p class="text-on-surface-variant font-body-sm text-body-sm line-clamp-1">
+              إضافة ساحرة ومحبوبة مع بوكسات الكيك والمفاجآت.
+            </p>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2.5">
+<div class="flex items-baseline justify-between">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">69 <span class="font-label-md text-label-md text-on-surface-variant">ر.س</span></span>
+</div>
+<button class="w-full py-2.5 px-4 bg-primary-container hover:bg-primary text-surface-container-lowest rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-md shadow-primary-container/20 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-lg">shopping_cart</span>
+<span class="">أضف للسلة</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination & Atmospheric Counter -->
+<div class="flex items-center justify-between py-6 border-t border-outline-variant/30">
+<div class="text-on-surface-variant font-body-md text-body-md">
+        عرض <span class="font-bold text-on-surface">1 - 6</span> من إجمالي <span class="font-bold text-on-surface">45</span> منتج
+      </div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-xl border border-outline-variant/30 bg-surface-container-lowest flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors disabled:opacity-40" disabled="">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+<button class="w-10 h-10 rounded-xl bg-primary-container text-surface-container-lowest font-bold text-sm">1</button>
+<button class="w-10 h-10 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-on-surface hover:bg-surface-container-low font-bold text-sm transition-colors">2</button>
+<button class="w-10 h-10 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-on-surface hover:bg-surface-container-low font-bold text-sm transition-colors">3</button>
+<button class="w-10 h-10 rounded-xl border border-outline-variant/30 bg-surface-container-lowest flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+</div>
+</div>
+<!-- Merchant Story & Customer Trust Feature Banner -->
+<section class="bg-gradient-to-r from-surface-container to-surface-container-low rounded-2xl p-6 md:p-8 border border-outline-variant/30 shadow-sm relative overflow-hidden">
+<div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-right">
+<div class="flex flex-col sm:flex-row items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-2xl">verified_user</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface font-bold">جودة ومكونات طازجة 100%</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">يتم تحضير كافة الطلبات طازجة يومياً بأيدي أمهر الخبازين.</p>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-2xl">local_shipping</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface font-bold">توصيل مبرد وسريع</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">توصيل آمن يضمن وصول الكيك والحلويات بحالتها المثالية.</p>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-2xl">support_agent</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface font-bold">دعم وتخصيص المناسبات</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">جاهزون لتلبية رغباتكم وكتابة عبارات الإهداء بحرفية.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- ================= FOOTER (Source of Truth JSON Executed) ================= -->
+<footer class="relative w-full overflow-hidden pb-6" style="background-color: rgb(5, 19, 41);">
+  <!-- Wave / cloud decorative boundary or image -->
+  <div class="w-full">
+    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSfuXImjb30TIqkWLaQWpKi4oNOqWnerlo9T1DrJ9l20qXeEEMFe4zXr_Afo3NMZbWOehT-C8QAIKyc3-VEMRv-Dnxfu2nuBtF6bpTnJwVbUMxFGwTyQWLYFZo_GJ8es1ZVAMvE2gCPRcEEQhN_mRXPDnWDHkhBt_tP0RiYaOtpt9uFmltRcq1PWD42m5-fg4aHQVLHQ1UB8zCcMXm_nBjYKLYk6bBHTeBooSa7S7omciM3CveT3mQ" alt="Ghaym Space Footer" class="w-full h-auto block select-none pointer-events-auto" style="min-height: 180px; object-fit: cover; object-position: center bottom;">
+  </div>
+</footer>
+
+
+</body></html>

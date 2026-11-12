@@ -1,0 +1,63 @@
+/* Clean Global Styles & Stitch Cloud Animations */
+@layer base {
+  html, body {
+    direction: rtl;
+    text-align: right;
+    overflow-x: hidden;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Cairo', 'Tajawal', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  }
+}
+
+.anim-cloud-float-1 {
+  animation: cloudFloat1 7s ease-in-out infinite;
+}
+
+.anim-cloud-float-2 {
+  animation: cloudFloat2 9s ease-in-out infinite;
+}
+
+.anim-cloud-glow {
+  animation: cloudGlow 6s ease-in-out infinite;
+}
+
+.cloud-float-slow {
+  animation: floatCloud 7s ease-in-out infinite alternate;
+}
+
+.cloud-float-reverse {
+  animation: floatCloudAlt 9s ease-in-out infinite alternate;
+}
+
+@keyframes cloudFloat1 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(14px, -10px, 0) scale(1.04); }
+}
+
+@keyframes cloudFloat2 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-14px, 10px, 0) scale(0.96); }
+}
+
+@keyframes cloudGlow {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.65; }
+}
+
+@keyframes floatCloud {
+  0% { transform: translateY(0px) scale(1); }
+  100% { transform: translateY(-10px) scale(1.02); }
+}
+
+@keyframes floatCloudAlt {
+  0% { transform: translateY(-6px) scale(1); }
+  100% { transform: translateY(8px) scale(0.98); }
+}
+
+.blend-hero-logo {
+  mix-blend-mode: screen;
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 58%, rgba(0,0,0,0.8) 72%, transparent 92%);
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 58%, rgba(0,0,0,0.8) 72%, transparent 92%);
+}

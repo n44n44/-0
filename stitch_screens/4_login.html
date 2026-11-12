@@ -1,0 +1,501 @@
+<!DOCTYPE html><html dir="rtl" lang="ar"><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>تسجيل الدخول - غيم سبيس Ghaym Space</title>
+<!-- Google Fonts: Outfit & Manrope for theme, Cairo for balanced Arabic presentation -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;family=Outfit:wght@500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS with Forms and Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-fixed": "#00164e",
+            "on-secondary-container": "#1d3989",
+            "surface-bright": "#faf8ff",
+            "on-surface-variant": "#434655",
+            "secondary-fixed-dim": "#b6c4ff",
+            "surface-dim": "#d2d9f4",
+            "on-tertiary-fixed-variant": "#004883",
+            "secondary": "#4059aa",
+            "secondary-fixed": "#dce1ff",
+            "background": "#faf8ff",
+            "surface-tint": "#0053db",
+            "on-primary-fixed-variant": "#003ea8",
+            "tertiary-fixed": "#d4e3ff",
+            "secondary-container": "#8fa7fe",
+            "surface-container-high": "#e2e7ff",
+            "inverse-primary": "#b4c5ff",
+            "primary-fixed": "#dbe1ff",
+            "on-error-container": "#93000a",
+            "tertiary": "#00569c",
+            "tertiary-container": "#196fc0",
+            "inverse-on-surface": "#eef0ff",
+            "error": "#ba1a1a",
+            "surface-container": "#eaedff",
+            "on-tertiary-fixed": "#001c39",
+            "primary-container": "#2563eb",
+            "on-primary-fixed": "#00174b",
+            "error-container": "#ffdad6",
+            "on-tertiary": "#ffffff",
+            "on-background": "#131b2e",
+            "surface-container-low": "#f2f3ff",
+            "on-secondary": "#ffffff",
+            "on-error": "#ffffff",
+            "inverse-surface": "#283044",
+            "primary-fixed-dim": "#b4c5ff",
+            "surface": "#faf8ff",
+            "on-tertiary-container": "#ebf1ff",
+            "tertiary-fixed-dim": "#a4c9ff",
+            "surface-container-highest": "#dae2fd",
+            "on-secondary-fixed-variant": "#264191",
+            "surface-variant": "#dae2fd",
+            "outline-variant": "#c3c6d7",
+            "on-primary-container": "#eeefff",
+            "primary": "#004ac6",
+            "on-primary": "#ffffff",
+            "on-surface": "#131b2e",
+            "outline": "#737686"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1.25rem",
+            "3xl": "1.75rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "body-sm": ["Cairo", "Manrope", "sans-serif"],
+            "label-lg": ["Cairo", "Manrope", "sans-serif"],
+            "label-sm": ["Cairo", "Manrope", "sans-serif"],
+            "body-lg": ["Cairo", "Manrope", "sans-serif"],
+            "headline-lg": ["Cairo", "Outfit", "sans-serif"],
+            "display-hero-mobile": ["Cairo", "Outfit", "sans-serif"],
+            "display-hero": ["Cairo", "Outfit", "sans-serif"],
+            "headline-xl": ["Cairo", "Outfit", "sans-serif"],
+            "label-md": ["Cairo", "Manrope", "sans-serif"],
+            "body-md": ["Cairo", "Manrope", "sans-serif"],
+            "headline-md": ["Cairo", "Outfit", "sans-serif"],
+            "headline-xl-mobile": ["Cairo", "Outfit", "sans-serif"]
+          },
+          "fontSize": {
+            "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "500" }],
+            "headline-lg": ["22px", { "lineHeight": "30px", "fontWeight": "600" }],
+            "display-hero-mobile": ["32px", { "lineHeight": "42px", "fontWeight": "700" }],
+            "display-hero": ["44px", { "lineHeight": "56px", "fontWeight": "700" }],
+            "headline-xl": ["30px", { "lineHeight": "40px", "fontWeight": "600" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "headline-md": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+            "headline-xl-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined[data-weight="fill"] {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* Ambient cloud backdrop layers */
+    .sky-gradient {
+      background: radial-gradient(120% 90% at 50% 10%, #7bb3fc 0%, #a5cdfd 42%, #d7e9fe 75%, #ffffff 100%);
+    }
+
+    .cloud-card-shadow {
+      box-shadow: 0 24px 60px -12px rgba(16, 42, 110, 0.18), 0 8px 24px -6px rgba(37, 99, 235, 0.12);
+    }
+
+    .cloud-float-slow {
+      animation: floatCloud 7s ease-in-out infinite alternate;
+    }
+
+    .cloud-float-reverse {
+      animation: floatCloudAlt 9s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatCloud {
+      0% { transform: translateY(0px) scale(1); }
+      100% { transform: translateY(-10px) scale(1.02); }
+    }
+
+    @keyframes floatCloudAlt {
+      0% { transform: translateY(-6px) scale(1); }
+      100% { transform: translateY(8px) scale(0.98); }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-background text-on-surface font-body-md antialiased overflow-x-hidden relative flex flex-col justify-between selection:bg-primary-container selection:text-white">
+<!-- ================= TOP NAV BAR (Shared Component) ================= -->
+<header class="w-full bg-[#0c1938] text-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 md:px-8">
+    <div class="flex items-center justify-between py-3 gap-3 md:gap-6">
+      <!-- Right: Brand Logo -->
+      <a href="#" class="flex items-center gap-2.5 select-none shrink-0 text-white hover:opacity-95 transition-opacity">
+        <div class="relative h-10 w-auto flex items-center justify-center"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL9SB-b1JgknAQ3dIpNnEIlKip6i4X5swig97f8JrMY0wnJX2Gh6lTj87EQ7z5QBHBBedFRvlfhoWPqj5oFnc9JMfEHBS19H1qd8zANPIBoAA6xEPkBhkBMrDLO6TzEhrFm0L2Ri2v9VpciNjguu1rLhne-610_NuW4mMH62blt2k5IMW9whjH-ASgGBC4wYlDQcQe-PuFlPAfHtnWYkFOhgZUfqSmoR42cnRCCY9vHbcl_gEPRpHX" alt="غيم سبيس - Ghaym Space" class="h-10 w-auto object-contain rounded-lg"></div>
+        <div class="flex flex-col text-right leading-tight">
+          <span class="font-extrabold text-base md:text-lg tracking-tight text-white">غيم سبيس</span>
+          <span class="text-[10px] text-blue-200 tracking-wider font-medium uppercase">Ghaym Space</span>
+        </div>
+      </a>
+
+      <!-- Center/Right: Search bar -->
+      <div class="flex-1 max-w-xl mx-2 md:mx-4 hidden sm:block">
+        <div class="relative w-full">
+          <input type="text" placeholder="ابحث عن منتجات، متاجر، أو حرفيين..." class="w-full py-2 pr-10 pl-4 text-sm rounded-full bg-white text-gray-900 placeholder-gray-400 border-none focus:ring-2 focus:ring-blue-500 outline-none text-right shadow-inner">
+          <span class="material-symbols-outlined absolute right-3 top-2.5 text-gray-400 text-lg pointer-events-none">search</span>
+        </div>
+      </div>
+
+      <!-- Left: Location & Icons Group -->
+      <div class="flex items-center gap-1.5 md:gap-3">
+        <!-- Delivery Location Dropdown -->
+        <div class="hidden lg:flex items-center gap-1 text-xs text-blue-100 hover:text-white px-2.5 py-1.5 rounded-lg bg-white/10 cursor-pointer transition-colors">
+          <span class="material-symbols-outlined text-base text-blue-300">location_on</span>
+          <span class="font-medium truncate max-w-[110px]">أدخل موقع التوصيل</span>
+          <span class="material-symbols-outlined text-sm">expand_more</span>
+        </div>
+
+        <!-- User Account Icon -->
+        <a href="#" aria-label="الحساب" class="w-9 h-9 rounded-full flex items-center justify-center text-blue-100 hover:text-white hover:bg-white/10 transition-colors duration-150">
+          <span class="material-symbols-outlined text-xl">person</span>
+        </a>
+        <!-- Wishlist Icon -->
+        <a href="#" aria-label="المفضلة" class="w-9 h-9 rounded-full flex items-center justify-center text-blue-100 hover:text-white hover:bg-white/10 transition-colors duration-150">
+          <span class="material-symbols-outlined text-xl">favorite</span>
+        </a>
+        <!-- Notifications -->
+        <a href="#" aria-label="الإشعارات" class="w-9 h-9 rounded-full flex items-center justify-center text-blue-100 hover:text-white hover:bg-white/10 transition-colors duration-150 relative">
+          <span class="material-symbols-outlined text-xl">notifications</span>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-[#0c1938]"></span>
+        </a>
+        <!-- Cart with badge -->
+        <a href="#" aria-label="سلة التسوق" class="w-9 h-9 rounded-full flex items-center justify-center text-blue-100 hover:text-white hover:bg-white/10 transition-colors duration-150 relative">
+          <span class="material-symbols-outlined text-xl">shopping_cart</span>
+          <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-[#0c1938]">0</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Mobile Search Bar (small screens) -->
+    <div class="sm:hidden pb-3">
+      <div class="relative w-full">
+        <input type="text" placeholder="ابحث عن منتجات، متاجر، أو حرفيين..." class="w-full py-1.5 pr-9 pl-3 text-xs rounded-full bg-white text-gray-900 placeholder-gray-400 border-none focus:ring-2 focus:ring-blue-500 outline-none text-right">
+        <span class="material-symbols-outlined absolute right-2.5 top-2 text-gray-400 text-base pointer-events-none">search</span>
+      </div>
+    </div>
+
+    <!-- Sub-navigation links strip -->
+    <nav class="flex items-center justify-start md:justify-end gap-4 md:gap-7 pt-1.5 pb-2 text-xs md:text-sm font-medium border-t border-white/10 overflow-x-auto whitespace-nowrap scrollbar-none">
+      <a href="#" class="text-blue-200 hover:text-white transition-colors duration-150">تواصل معنا</a>
+      <a href="#" class="text-blue-200 hover:text-white transition-colors duration-150">من نحن</a>
+      <a href="#" class="text-blue-200 hover:text-white transition-colors duration-150">تصنيفات المنتجات</a>
+      <a href="#" class="text-blue-200 hover:text-white transition-colors duration-150">جميع المتاجر</a>
+      <a href="#" class="text-white font-bold border-b-2 border-blue-500 pb-0.5">الرئيسية</a>
+    </nav>
+  </div>
+</header>
+<!-- ================= MAIN ATMOSPHERIC STAGE ================= -->
+<main class="relative flex-1 flex items-center justify-center px-4 py-8 md:py-14 sky-gradient overflow-hidden">
+<!-- 3D Cloud & Boutique Gift Accents (Atmospheric Background) -->
+<!-- Ambient 3D Cloud Top Right -->
+<div class="absolute -top-12 -right-16 w-80 md:w-96 pointer-events-none opacity-85 cloud-float-slow select-none z-0">
+<svg class="w-full h-auto drop-shadow-xl" fill="none" viewBox="0 0 400 240">
+<path d="M120 190C70 190 30 150 30 105C30 65 65 30 110 30C130 30 150 38 165 50C190 20 235 5 280 20C330 35 365 80 360 130C385 145 400 170 395 195C390 220 365 240 335 240L120 240C95 240 120 190 120 190Z" fill="url(#cloudGrad1)"></path>
+<defs>
+<linearGradient gradientUnits="userSpaceOnUse" id="cloudGrad1" x1="40" x2="380" y1="20" y2="240">
+<stop stop-color="#FFFFFF" stop-opacity="0.95"></stop>
+<stop offset="0.6" stop-color="#EDF5FF" stop-opacity="0.85"></stop>
+<stop offset="1" stop-color="#CADEFC" stop-opacity="0.75"></stop>
+</linearGradient>
+</defs>
+</svg>
+</div>
+<!-- Ambient 3D Cloud Top Left -->
+<div class="absolute top-10 -left-20 w-80 md:w-[420px] pointer-events-none opacity-80 cloud-float-reverse select-none z-0">
+<svg class="w-full h-auto drop-shadow-xl" fill="none" viewBox="0 0 400 220">
+<path d="M300 180C345 180 380 145 380 100C380 60 348 28 305 28C287 28 270 34 256 45C232 18 190 5 150 18C105 32 75 72 80 118C55 132 40 155 45 180C50 205 75 220 105 220L300 220Z" fill="url(#cloudGrad2)"></path>
+<defs>
+<linearGradient gradientUnits="userSpaceOnUse" id="cloudGrad2" x1="380" x2="40" y1="20" y2="220">
+<stop stop-color="#FFFFFF" stop-opacity="0.95"></stop>
+<stop offset="0.6" stop-color="#E8F2FF" stop-opacity="0.8"></stop>
+<stop offset="1" stop-color="#BED7FD" stop-opacity="0.7"></stop>
+</linearGradient>
+</defs>
+</svg>
+</div>
+<!-- Decorative 3D Gift Box (Left Ambient Cue matching reference) -->
+<div class="hidden lg:block absolute left-10 md:left-20 bottom-24 w-36 pointer-events-none select-none z-0 opacity-90 drop-shadow-2xl cloud-float-slow">
+<svg class="w-full h-auto" fill="none" viewBox="0 0 160 160">
+<!-- Gift Base Box with royal lighting -->
+<rect fill="url(#giftBoxGrad)" height="90" rx="8" width="110" x="25" y="60"></rect>
+<rect fill="#4B88E8" height="20" rx="6" width="120" x="20" y="48"></rect>
+<!-- Ribbon Vertical -->
+<rect fill="url(#ribbonGrad)" height="102" width="20" x="70" y="48"></rect>
+<!-- Ribbon Bow 3D -->
+<ellipse cx="65" cy="36" fill="#8AB8FF" opacity="0.95" rx="20" ry="12" transform="rotate(-20 65 36)"></ellipse>
+<ellipse cx="95" cy="36" fill="#679FF6" opacity="0.95" rx="20" ry="12" transform="rotate(20 95 36)"></ellipse>
+<circle cx="80" cy="40" fill="#B3D3FF" r="7"></circle>
+<defs>
+<linearGradient gradientUnits="userSpaceOnUse" id="giftBoxGrad" x1="25" x2="135" y1="60" y2="150">
+<stop stop-color="#3B82F6"></stop>
+<stop offset="1" stop-color="#1D4ED8"></stop>
+</linearGradient>
+<linearGradient gradientUnits="userSpaceOnUse" id="ribbonGrad" x1="70" x2="90" y1="48" y2="150">
+<stop stop-color="#93C5FD"></stop>
+<stop offset="1" stop-color="#60A5FA"></stop>
+</linearGradient>
+</defs>
+</svg>
+</div>
+<!-- Decorative 3D Boutique Shopping Bag (Right Ambient Cue matching reference) -->
+<div class="hidden lg:block absolute right-12 md:right-24 bottom-28 w-32 pointer-events-none select-none z-0 opacity-90 drop-shadow-2xl cloud-float-reverse">
+<svg class="w-full h-auto" fill="none" viewBox="0 0 160 180">
+<!-- Handle -->
+<path d="M55 55 C55 25, 105 25, 105 55" fill="none" stroke="#93C5FD" stroke-linecap="round" stroke-width="7"></path>
+<!-- Bag Body -->
+<path d="M30 55 L130 55 L120 165 L40 165 Z" fill="url(#bagGrad)"></path>
+<!-- Inner shadow fold -->
+<path d="M40 55 L52 165 L30 55 Z" fill="#1E40AF" opacity="0.25"></path>
+<defs>
+<linearGradient gradientUnits="userSpaceOnUse" id="bagGrad" x1="30" x2="130" y1="55" y2="165">
+<stop stop-color="#3B82F6"></stop>
+<stop offset="0.85" stop-color="#1D4ED8"></stop>
+<stop offset="1" stop-color="#1E3A8A"></stop>
+</linearGradient>
+</defs>
+</svg>
+</div>
+<!-- Atmospheric Star Sparkles (Inspired by original composition) -->
+<span class="material-symbols-outlined absolute top-28 right-[22%] text-white text-xl opacity-80 pointer-events-none" data-weight="fill">arrow_back_ios_new</span>
+<span class="material-symbols-outlined absolute bottom-44 left-[24%] text-white text-base opacity-75 pointer-events-none" data-weight="fill">arrow_back_ios_new</span>
+<span class="material-symbols-outlined absolute top-40 left-[18%] text-primary-fixed-dim text-2xl opacity-60 pointer-events-none" data-weight="fill">arrow_back_ios_new</span>
+<!-- Bottom Billowy Cumulus Cloud Floor (Native SVG curve horizon) -->
+<div class="absolute -bottom-1 left-0 right-0 w-full pointer-events-none select-none z-0 overflow-hidden leading-none">
+<svg class="w-full h-24 md:h-36 object-cover preserve-3d" fill="none" preserveAspectRatio="none" viewBox="0 0 1440 180">
+<path d="M0,180 L1440,180 L1440,100 C1380,85 1320,60 1240,75 C1140,95 1060,50 960,65 C860,80 800,40 700,60 C600,80 520,35 420,55 C320,75 260,40 180,60 C100,80 40,55 0,75 Z" fill="#FFFFFF" fill-opacity="0.95"></path>
+<path d="M0,180 L1440,180 L1440,120 C1350,110 1280,90 1190,105 C1080,125 1010,85 910,98 C810,110 750,80 640,95 C540,110 470,80 370,95 C270,110 200,88 120,100 C60,110 20,95 0,110 Z" fill="#FFFFFF"></path>
+</svg>
+</div>
+<!-- ================= FLOATING AUTHENTICATION PANEL ================= -->
+<div class="relative w-full max-w-[500px] z-10 bg-surface-container-lowest/95 backdrop-blur-md rounded-3xl p-6 sm:p-9 cloud-card-shadow border border-white/80 transition-all duration-300">
+<!-- Top Action: Back Pill Button (Aligned to Start / Right in Arabic RTL) -->
+<div class="flex items-center justify-between mb-2">
+<a class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-surface-container-low hover:bg-surface-container text-on-secondary-container text-label-md font-label-md transition-colors duration-200 border border-outline-variant/40" href="#">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+<span class="">رجوع</span>
+</a>
+<div class="w-6"></div> <!-- Optical counter-balance -->
+</div>
+<!-- Cloud Icon Brand Emblem with Cart & Stars -->
+<div class="flex flex-col items-center justify-center text-center mt-1">
+<div class="relative w-28 h-20 mb-2 flex items-center justify-center">
+<!-- Ambient glowing cloud icon -->
+<svg class="w-full h-full drop-shadow-md" fill="none" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+<path d="M78 30C77.2 19 68 10 56.6 10C48 10 40.5 15.2 37.3 22.8C35.1 21 32.2 20 29 20C21.3 20 15 26.3 15 34C15 35 15.1 36 15.3 37C11.1 39.5 8 44.2 8 49.5C8 57.5 14.5 64 22.5 64H78C87.4 64 95 56.4 95 47C95 38 87.8 30.7 78 30Z" fill="url(#authCloudGrad)" stroke="#2563eb" stroke-linejoin="round" stroke-width="2.5"></path>
+<!-- Motion speed lines -->
+<path d="M22 38H34" stroke="#2563eb" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M19 44H31" stroke="#2563eb" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Embedded mini shopping cart -->
+<path d="M43 32H67L63 45H47L43 32Z" fill="#131b2e"></path>
+<path d="M39 27L43 32" stroke="#131b2e" stroke-linecap="round" stroke-width="2.5"></path>
+<circle cx="50" cy="50" fill="#131b2e" r="3"></circle>
+<circle cx="61" cy="50" fill="#131b2e" r="3"></circle>
+<!-- Sparkles -->
+<path d="M77 15L78.5 19.5L83 21L78.5 22.5L77 27L75.5 22.5L71 21L75.5 19.5L77 15Z" fill="#2563eb"></path>
+<defs>
+<linearGradient gradientUnits="userSpaceOnUse" id="authCloudGrad" x1="10" x2="90" y1="12" y2="64">
+<stop stop-color="#FFFFFF"></stop>
+<stop offset="0.75" stop-color="#EFF6FF"></stop>
+<stop offset="1" stop-color="#DBEAFE"></stop>
+</linearGradient>
+</defs>
+</svg>
+</div>
+<!-- Headline & Welcome Subtext -->
+<h1 class="text-headline-xl font-headline-xl text-on-background font-bold tracking-tight mb-1">
+          مرحبًا بعودتك!
+        </h1>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-xs leading-relaxed">
+          سجل دخولك للمتابعة والاستمتاع بتجربة تسوق مميزة
+        </p>
+</div>
+<!-- Tri-State Role Selector (Tabs matching screenshot precisely) -->
+<div class="mt-6 mb-5" id="roleSelectorGroup">
+<div class="grid grid-cols-3 gap-2.5">
+<!-- Role: عميل (Active by default) -->
+<button class="role-card flex flex-col items-center justify-between p-3 rounded-2xl border-2 border-primary-container bg-primary-fixed/30 text-on-surface transition-all duration-200 relative group cursor-pointer" id="role-customer" onclick="selectRole('customer')" type="button">
+<div class="w-full flex justify-end">
+<span class="w-4 h-4 rounded-full border-2 border-primary-container flex items-center justify-center">
+<span class="role-dot w-2 h-2 rounded-full bg-primary-container"></span>
+</span>
+</div>
+<span class="material-symbols-outlined text-primary-container text-2xl my-1 group-hover:scale-105 transition-transform" data-weight="fill">person</span>
+<span class="text-label-lg font-label-lg font-bold">عميل</span>
+</button>
+<!-- Role: تاجر -->
+<button class="role-card flex flex-col items-center justify-between p-3 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-primary-container/40 transition-all duration-200 relative group cursor-pointer" id="role-merchant" onclick="selectRole('merchant')" type="button">
+<div class="w-full flex justify-end">
+<span class="w-4 h-4 rounded-full border border-outline-variant flex items-center justify-center">
+<span class="role-dot w-2 h-2 rounded-full bg-transparent"></span>
+</span>
+</div>
+<span class="material-symbols-outlined text-outline text-2xl my-1 group-hover:scale-105 transition-transform" data-weight="fill">storefront</span>
+<span class="text-label-lg font-label-lg font-semibold">تاجر</span>
+</button>
+<!-- Role: مندوب توصيل -->
+<button class="role-card flex flex-col items-center justify-between p-3 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-primary-container/40 transition-all duration-200 relative group cursor-pointer" id="role-courier" onclick="selectRole('courier')" type="button">
+<div class="w-full flex justify-end">
+<span class="w-4 h-4 rounded-full border border-outline-variant flex items-center justify-center">
+<span class="role-dot w-2 h-2 rounded-full bg-transparent"></span>
+</span>
+</div>
+<span class="material-symbols-outlined text-outline text-2xl my-1 group-hover:scale-105 transition-transform" data-weight="fill">local_shipping</span>
+<span class="text-label-md font-label-md font-semibold whitespace-nowrap">مندوب توصيل</span>
+</button>
+</div>
+</div>
+<!-- Authentication Form -->
+<form class="space-y-4" onsubmit="event.preventDefault();">
+<!-- Input: البريد الالكتروني أو رقم الجوال -->
+<div class="space-y-1">
+<div class="relative flex items-center">
+<input class="w-full h-12 pr-11 pl-4 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface text-body-md font-body-md placeholder:text-outline/80 focus:border-primary-container focus:ring-4 focus:ring-primary-container/15 transition-all text-right outline-none" id="identifierInput" name="identifier" placeholder="البريد الالكتروني أو رقم الجوال" required="" type="text">
+<span class="material-symbols-outlined absolute right-3.5 text-outline pointer-events-none text-xl">mail</span>
+</div>
+</div>
+<!-- Input: كلمة المرور -->
+<div class="space-y-1">
+<div class="relative flex items-center">
+<!-- Far-Right Icon: Lock -->
+<span class="material-symbols-outlined absolute right-3.5 text-outline pointer-events-none text-xl">lock</span>
+<input class="w-full h-12 pr-11 pl-11 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface text-body-md font-body-md placeholder:text-outline/80 focus:border-primary-container focus:ring-4 focus:ring-primary-container/15 transition-all text-right outline-none" id="passwordInput" name="password" placeholder="كلمة المرور" required="" type="password">
+<!-- Far-Left Icon: Password Visibility Toggle -->
+<button aria-label="إظهار أو إخفاء كلمة المرور" class="absolute left-3 text-outline hover:text-on-surface focus:outline-none p-1 transition-colors" id="togglePasswordBtn" onclick="togglePasswordVisibility()" type="button">
+<span class="material-symbols-outlined text-xl" id="passwordEyeIcon">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Remember Me & Forgot Password Row -->
+<div class="flex items-center justify-between text-body-sm font-body-sm pt-0.5">
+<a class="text-primary-container hover:text-primary font-semibold transition-colors duration-150" href="#">
+            نسيت كلمة المرور؟
+          </a>
+<label class="inline-flex items-center gap-2 cursor-pointer select-none">
+<span class="text-on-surface-variant font-medium">تذكرني</span>
+<input class="w-4 h-4 rounded border-outline-variant text-primary-container focus:ring-primary-container focus:ring-offset-0 cursor-pointer" type="checkbox">
+</label>
+</div>
+<!-- Primary CTA: تسجيل الدخول (Solid Deep Royal Navy Button) -->
+<div class="pt-2">
+<button class="w-full h-12 rounded-xl bg-on-background hover:bg-inverse-surface text-white font-label-lg font-bold flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.99] shadow-md hover:shadow-lg" type="submit">
+<span class="material-symbols-outlined text-xl transition-transform group-hover:-translate-x-1">login</span>
+<span class="">تسجيل الدخول</span>
+</button>
+</div>
+<!-- Divider Line with 'أو' -->
+<div class="relative flex items-center justify-center my-3">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant/40"></div>
+</div>
+<span class="relative bg-surface-container-lowest px-3 text-body-sm font-body-sm text-outline">أو</span>
+</div>
+<!-- Secondary CTA: إنشاء حساب جديد (Outlined Pill Button) -->
+<div>
+<button class="w-full h-12 rounded-xl border border-primary-container/80 bg-surface-container-lowest hover:bg-primary-fixed/20 text-on-secondary-container font-label-lg font-bold flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.99]" type="button">
+<span class="material-symbols-outlined text-xl text-primary-container">person_add</span>
+<span class="">إنشاء حساب جديد</span>
+</button>
+</div>
+<!-- Card Footer Note: ليس لديك حساب؟ إنشاء حساب الآن -->
+<div class="text-center pt-2 text-body-sm font-body-sm text-on-surface-variant">
+<span class="">ليس لديك حساب؟</span>
+<a class="text-primary-container font-bold hover:underline mr-1" href="#">
+            إنشاء حساب الآن
+          </a>
+</div>
+</form>
+</div>
+</main>
+<!-- ================= FOOTER (Shared Component) ================= -->
+<footer class="relative w-full overflow-hidden" style="background-color: rgb(5, 19, 41);">
+  <div class="w-full pb-12 pt-4 bg-[#07132c]"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSfuXImjb30TIqkWLaQWpKi4oNOqWnerlo9T1DrJ9l20qXeEEMFe4zXr_Afo3NMZbWOehT-C8QAIKyc3-VEMRv-Dnxfu2nuBtF6bpTnJwVbUMxFGwTyQWLYFZo_GJ8es1ZVAMvE2gCPRcEEQhN_mRXPDnWDHkhBt_tP0RiYaOtpt9uFmltRcq1PWD42m5-fg4aHQVLHQ1UB8zCcMXm_nBjYKLYk6bBHTeBooSa7S7omciM3CveT3mQ" alt="Ghaym Space Footer" class="w-full h-auto block select-none pointer-events-auto" style="min-height: 180px; object-fit: cover; object-position: center bottom;"><div class="w-full py-4 text-center text-xs text-blue-200/80 font-medium"><p class="">© 2025 غيم سبيس - جميع الحقوق محفوظة</p></div></div>
+</footer>
+<!-- ================= MICRO-INTERACTIONS SCRIPT ================= -->
+<script>
+    // Tri-State Account Role Switcher Logic
+    function selectRole(roleKey) {
+      const roles = ['customer', 'merchant', 'courier'];
+      roles.forEach(function(r) {
+        const card = document.getElementById('role-' + r);
+        if (!card) return;
+        const dot = card.querySelector('.role-dot');
+        const icon = card.querySelector('.material-symbols-outlined');
+
+        if (r === roleKey) {
+          // Active state styling
+          card.classList.remove('border-outline-variant/60', 'bg-surface-container-lowest', 'text-on-surface-variant');
+          card.classList.add('border-primary-container', 'border-2', 'bg-primary-fixed/30', 'text-on-surface');
+          if (dot) {
+            dot.classList.remove('bg-transparent');
+            dot.classList.add('bg-primary-container');
+            dot.parentElement.classList.remove('border-outline-variant');
+            dot.parentElement.classList.add('border-primary-container', 'border-2');
+          }
+          if (icon) {
+            icon.classList.remove('text-outline');
+            icon.classList.add('text-primary-container');
+          }
+        } else {
+          // Inactive state styling
+          card.classList.remove('border-primary-container', 'border-2', 'bg-primary-fixed/30', 'text-on-surface');
+          card.classList.add('border', 'border-outline-variant/60', 'bg-surface-container-lowest', 'text-on-surface-variant');
+          if (dot) {
+            dot.classList.remove('bg-primary-container');
+            dot.classList.add('bg-transparent');
+            dot.parentElement.classList.remove('border-primary-container', 'border-2');
+            dot.parentElement.classList.add('border-outline-variant');
+          }
+          if (icon) {
+            icon.classList.remove('text-primary-container');
+            icon.classList.add('text-outline');
+          }
+        }
+      });
+    }
+
+    // Toggle Password Visibility
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('passwordInput');
+      const eyeIcon = document.getElementById('passwordEyeIcon');
+      if (passwordInput && eyeIcon) {
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          eyeIcon.textContent = 'visibility';
+        } else {
+          passwordInput.type = 'password';
+          eyeIcon.textContent = 'visibility_off';
+        }
+      }
+    }
+  </script>
+
+
+</body></html>

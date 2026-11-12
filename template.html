@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/jpeg" href="./logo.jpg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>غيم سبيس | Ghaym Space - منصة الحرفيين والأسر المنتجة</title>
+
+    <!-- Google Fonts: Cairo, Tajawal, IBM Plex Sans Arabic, Outfit & Material Symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              ghaym: {
+                navy: '#07132B',       // اللون الكحلي العميق الأساسي
+                dark: '#0A162B',       // كحلي داكن ثانوي
+                navySoft: '#122245',   // كحلي خفيف للبطاقات والتباين
+                sky: '#38BDF8',        // اللون الأزرق السماوي المميز
+                skyLight: '#BAE6FD',   // أزرق سماوي ناعم
+                gold: '#EAB839',       // اللون الذهبي الأنيق للأزرار
+                goldHover: '#D9A726',
+                ice: '#F8FAFC',        // خلفية الموقع النظيفة
+                card: '#FFFFFF',
+              }
+            },
+            fontFamily: {
+              cairo: ['Cairo', 'sans-serif'],
+              tajawal: ['Tajawal', 'sans-serif'],
+              sans: ['Cairo', 'Tajawal', '"IBM Plex Sans Arabic"', 'system-ui', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <style>
+      body {
+        font-family: 'Cairo', 'Tajawal', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+        background-color: #F8FAFC;
+        color: #07132B;
+        direction: rtl;
+        overflow-x: hidden;
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 1;
+      }
+      .material-symbols-outlined[data-weight="fill"],
+      .material-symbols-outlined.fill-1 {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 7px;
+        height: 7px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #07132B;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #38BDF8;
+        border-radius: 4px;
+      }
+      .custom-scroll-hidden::-webkit-scrollbar {
+        display: none;
+      }
+      .custom-scroll-hidden {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* Seamless Logo Blending without harsh borders */
+      .blend-hero-logo {
+        mix-blend-mode: screen;
+        -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 58%, rgba(0,0,0,0.8) 72%, transparent 92%);
+        mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 58%, rgba(0,0,0,0.8) 72%, transparent 92%);
+      }
+
+      /* Fluid Organic Cloud Animations */
+      @keyframes cloudFloat1 {
+        0%, 100% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+        50% {
+          transform: translate3d(14px, -10px, 0) scale(1.04);
+        }
+      }
+
+      @keyframes cloudFloat2 {
+        0%, 100% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+        50% {
+          transform: translate3d(-14px, 10px, 0) scale(0.96);
+        }
+      }
+
+      @keyframes cloudGlow {
+        0%, 100% {
+          opacity: 0.35;
+        }
+        50% {
+          opacity: 0.65;
+        }
+      }
+
+      @keyframes floatCloud {
+        0% { transform: translateY(0px) scale(1); }
+        100% { transform: translateY(-10px) scale(1.02); }
+      }
+
+      @keyframes floatCloudAlt {
+        0% { transform: translateY(-6px) scale(1); }
+        100% { transform: translateY(8px) scale(0.98); }
+      }
+
+      .anim-cloud-float-1 {
+        animation: cloudFloat1 7s ease-in-out infinite;
+      }
+
+      .anim-cloud-float-2 {
+        animation: cloudFloat2 9s ease-in-out infinite;
+      }
+
+      .anim-cloud-glow {
+        animation: cloudGlow 6s ease-in-out infinite;
+      }
+
+      .cloud-float-slow {
+        animation: floatCloud 7s ease-in-out infinite alternate;
+      }
+
+      .cloud-float-reverse {
+        animation: floatCloudAlt 9s ease-in-out infinite alternate;
+      }
+
+      .cloud-card-shadow {
+        box-shadow: 0 20px 50px -10px rgba(7, 19, 43, 0.08), 0 4px 15px rgba(56, 189, 248, 0.04);
+      }
+
+      .cloud-glass {
+        backdrop-filter: blur(16px);
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 20px 40px -12px rgba(7, 19, 43, 0.08);
+      }
+
+      .card-lift {
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .card-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 30px -10px rgba(7, 19, 43, 0.12);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .anim-cloud-float-1,
+        .anim-cloud-float-2,
+        .anim-cloud-glow,
+        .cloud-float-slow,
+        .cloud-float-reverse {
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-[#F8FAFC] text-[#07132B] antialiased selection:bg-[#38BDF8] selection:text-white min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

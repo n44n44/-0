@@ -114,22 +114,8 @@ export default function PortalTopBar({ cartCount = 0, onOpenSupabaseModal }) {
           })}
         </div>
 
-        {/* Right: Active URL indicator, Supabase Connection Pill & User Pill */}
+        {/* Right: Active URL indicator & User Pill */}
         <div className="hidden sm:flex items-center gap-2.5 shrink-0 text-xs">
-          {/* Supabase Status Button */}
-          <button
-            onClick={() => onOpenSupabaseModal && onOpenSupabaseModal()}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition shadow-xs cursor-pointer border ${
-              isSupabaseConnected
-                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
-                : 'bg-white/10 text-slate-300 border-white/20 hover:bg-white/15 hover:text-white'
-            }`}
-            title="إعداد والربط بقاعدة بيانات Supabase"
-          >
-            <Database className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{isSupabaseConnected ? 'سوبابيز: متصل 🟢' : 'ربط سوبابيز ⚡'}</span>
-          </button>
-
           <div className="flex items-center gap-1.5 bg-[#12233b] px-3 py-1 rounded-lg border border-[#233f66] font-mono text-[11px] text-slate-300">
             <Lock className="w-3 h-3 text-[#54B9F2]" />
             <span>ghaymspace.com/{currentPortal === 'marketplace' ? '' : `#/${currentPortal}`}</span>

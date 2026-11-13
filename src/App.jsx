@@ -158,7 +158,7 @@ function AppContent() {
         />
       )}
 
-      {/* Floating Platform Rating & Supabase Controls */}
+      {/* Floating Platform Rating Controls */}
       <div className="fixed bottom-5 left-5 z-40 flex items-center gap-2.5">
         {currentPortal === 'marketplace' && (
           <button
@@ -173,17 +173,6 @@ function AppContent() {
             </span>
           </button>
         )}
-
-        {/* Quick Supabase Status Pill */}
-        <button
-          onClick={() => setIsSupabaseModalOpen(true)}
-          className="px-3.5 py-2.5 rounded-full bg-[#07132B]/95 hover:bg-[#0c1f44] text-white border border-emerald-500/40 shadow-2xl backdrop-blur-md text-xs font-bold flex items-center gap-1.5 transition hover:scale-105 active:scale-95 cursor-pointer"
-          title="إعداد والربط بقاعدة بيانات Supabase"
-        >
-          <Database className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="hidden sm:inline">سوبابيز</span>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        </button>
       </div>
 
       {/* 2. RENDER THE ACTIVE PORTAL */}

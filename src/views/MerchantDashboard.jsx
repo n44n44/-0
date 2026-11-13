@@ -353,20 +353,20 @@ export default function MerchantDashboard({ onBackToMarket }) {
   const [salesPeriod, setSalesPeriod] = useState('30days');
 
   const stats = useMemo(() => {
-    const totalSales = merchantOrders.reduce((sum, o) => sum + (Number(o.total) || Number(o.amount) || 0), 0) || 48950;
-    const totalOrdersCount = merchantOrders.length || 248;
+    const totalSales = merchantOrders.reduce((sum, o) => sum + (Number(o.total) || Number(o.amount) || 0), 0);
+    const totalOrdersCount = merchantOrders.length;
     const platformCommission = Math.round(totalSales * 0.02);
     const merchantNetEarnings = totalSales - platformCommission;
-    const activeProdsCount = merchantProducts.filter(p => p.inStock > 0).length || 8;
+    const activeProdsCount = merchantProducts.filter(p => p.inStock > 0).length;
     return {
       totalSales,
       totalOrdersCount,
       platformCommission,
       merchantNetEarnings,
       activeProdsCount,
-      growthRate: 18,
-      ordersGrowth: 12,
-      rating: 4.9,
+      growthRate: 0,
+      ordersGrowth: 0,
+      rating: 5.0,
     };
   }, [merchantOrders, merchantProducts]);
 

@@ -124,8 +124,8 @@ export const PRODUCTS = [
   {
     id: 'prod-3',
     name: 'شموع معطرة معملية',
-    storeName: 'متجر غيم الهدايا والديكور',
-    storeId: 'store-1',
+    storeName: 'إبداعات يدوية',
+    storeId: 'store-6',
     price: 24000,
     originalPrice: 26000,
     rating: 4.9,
@@ -216,18 +216,18 @@ export const PRODUCTS = [
 export const FEATURED_STORES = [
   {
     id: 'store-1',
-    name: 'متجر غيم الهدايا والديكور',
-    tagline: 'تصميم وتصنيع هدايا وتحف فنية فريدة',
+    name: 'سر المنتجات المنزلية',
+    tagline: 'هدايا وديكورات وتحف فنية فريدة مصنوعة يدوياً',
     rating: 4.9,
     reviewsCount: 142,
     verified: true,
     productsCount: 150,
     city: 'المكلا',
-    category: 'هدايا وتنسيق',
+    category: 'ديكور وهدايا',
     badge: 'موثق',
     image: STORE_IMAGES.ghaymGiftsCover,
     avatar: LOGO_DATA_URI,
-    commissionRate: 5,
+    commissionRate: 2,
     salesTotal: '1,450,000 ر.ي',
   },
   {
@@ -423,7 +423,7 @@ export const SAMPLE_ORDERS = [
       {
         id: 'prod-3',
         name: 'شموع معطرة بلبان الحوجري',
-        storeName: 'متجر غيم الهدايا والديكور',
+        storeName: 'إبداعات يدوية',
         price: 24000,
         quantity: 2,
         image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=400&auto=format&fit=crop&q=80',

@@ -63,9 +63,79 @@ export default function HomePage({
 </div>
 </section>
 {/*  END: HeroBannerSection  */}
-{/*  BEGIN: CategoriesSection - Iconic Circular Clean Aesthetic matching original IMAGE_10  */}
-
-{/*  END: CategoriesSection  */}
+{/* BEGIN: CategoriesSection */}
+<section className="relative" data-purpose="categories-slider">
+  <div className="flex items-center justify-between mb-4" id="categories">
+    <div>
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">تصنيفات المنتجات</h2>
+      <p className="text-xs text-gray-500 mt-0.5">اختر القسم وتصفح إبداعات الحرفيين والأسر</p>
+    </div>
+    <button onClick={() => onNavigate && onNavigate('products')} className="text-xs sm:text-sm font-semibold text-sky-700 hover:text-sky-900 transition cursor-pointer">عرض الكل ↗</button>
+  </div>
+  <div className="w-full flex items-start justify-between gap-3 sm:gap-5 overflow-x-auto py-3 px-1" style={{scrollbarWidth:'none', msOverflowStyle:'none'}}>
+    {/* Category 1: ديكور وهدايا */}
+    <button onClick={() => onNavigate && onNavigate('products')} className="flex flex-col items-center group shrink-0 min-w-[90px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer bg-transparent border-none">
+      <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-200 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-lg group-hover:shadow-amber-500/35 transition-all" style={{width:'4.5rem',height:'4.5rem'}}>
+        <div className="rounded-full bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-200" style={{width:'3.5rem',height:'3.5rem'}}>
+          <i className="fa-solid fa-gift text-2xl"></i>
+        </div>
+      </div>
+      <span className="mt-2 text-xs font-bold text-gray-800 group-hover:text-amber-600 transition text-center leading-tight">ديكور وهدايا</span>
+      <span className="text-[10px] text-gray-400 font-medium">+120 منتج</span>
+    </button>
+    {/* Category 2: صناعات يدوية */}
+    <button onClick={() => onNavigate && onNavigate('products')} className="flex flex-col items-center group shrink-0 min-w-[90px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer bg-transparent border-none">
+      <div className="rounded-full bg-gradient-to-tr from-[#8a5a36] via-[#b37a4c] to-[#deb887] flex items-center justify-center shadow-md shadow-[#8a5a36]/20 group-hover:shadow-lg group-hover:shadow-[#8a5a36]/35 transition-all" style={{width:'4.5rem',height:'4.5rem'}}>
+        <div className="rounded-full bg-[#fbf7f4] flex items-center justify-center text-[#8a5a36] border border-[#ebdace]" style={{width:'3.5rem',height:'3.5rem'}}>
+          <i className="fa-solid fa-basket-shopping text-2xl"></i>
+        </div>
+      </div>
+      <span className="mt-2 text-xs font-bold text-gray-800 group-hover:text-[#8a5a36] transition text-center leading-tight">صناعات يدوية</span>
+      <span className="text-[10px] text-gray-400 font-medium">+85 منتج</span>
+    </button>
+    {/* Category 3: ملابس وأزياء */}
+    <button onClick={() => onNavigate && onNavigate('products')} className="flex flex-col items-center group shrink-0 min-w-[90px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer bg-transparent border-none">
+      <div className="rounded-full bg-gradient-to-tr from-[#163168] via-sky-500 to-sky-200 flex items-center justify-center shadow-md shadow-sky-600/20 group-hover:shadow-lg group-hover:shadow-sky-600/35 transition-all" style={{width:'4.5rem',height:'4.5rem'}}>
+        <div className="rounded-full bg-sky-50 flex items-center justify-center text-sky-600 border border-sky-200" style={{width:'3.5rem',height:'3.5rem'}}>
+          <i className="fa-solid fa-shirt text-2xl"></i>
+        </div>
+      </div>
+      <span className="mt-2 text-xs font-bold text-gray-800 group-hover:text-sky-600 transition text-center leading-tight">ملابس وأزياء</span>
+      <span className="text-[10px] text-gray-400 font-medium">+140 منتج</span>
+    </button>
+    {/* Category 4: أسر منتجة */}
+    <button onClick={() => onNavigate && onNavigate('products')} className="flex flex-col items-center group shrink-0 min-w-[90px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer bg-transparent border-none">
+      <div className="rounded-full bg-gradient-to-tr from-[#581c87] via-[#8b5cf6] to-[#d8b4fe] flex items-center justify-center shadow-md shadow-purple-600/20 group-hover:shadow-lg group-hover:shadow-purple-600/35 transition-all" style={{width:'4.5rem',height:'4.5rem'}}>
+        <div className="rounded-full bg-purple-50 flex items-center justify-center text-[#7c3aed] border border-purple-200" style={{width:'3.5rem',height:'3.5rem'}}>
+          <i className="fa-solid fa-kitchen-set text-2xl"></i>
+        </div>
+      </div>
+      <span className="mt-2 text-xs font-bold text-gray-800 group-hover:text-purple-600 transition text-center leading-tight">أسر منتجة</span>
+      <span className="text-[10px] text-gray-400 font-medium">+95 منتج</span>
+    </button>
+    {/* Category 5: بخور وعطور */}
+    <button onClick={() => onNavigate && onNavigate('products')} className="flex flex-col items-center group shrink-0 min-w-[90px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer bg-transparent border-none">
+      <div className="rounded-full bg-gradient-to-tr from-[#92400e] via-[#d97706] to-[#fde68a] flex items-center justify-center shadow-md shadow-amber-700/20 group-hover:shadow-lg group-hover:shadow-amber-700/35 transition-all" style={{width:'4.5rem',height:'4.5rem'}}>
+        <div className="rounded-full bg-amber-50 flex items-center justify-center text-amber-700 border border-amber-200" style={{width:'3.5rem',height:'3.5rem'}}>
+          <i className="fa-solid fa-spray-can-sparkles text-2xl"></i>
+        </div>
+      </div>
+      <span className="mt-2 text-xs font-bold text-gray-800 group-hover:text-amber-700 transition text-center leading-tight">بخور وعطور</span>
+      <span className="text-[10px] text-gray-400 font-medium">+70 منتج</span>
+    </button>
+    {/* Category 6: حلويات ومخبوزات */}
+    <button onClick={() => onNavigate && onNavigate('products')} className="flex flex-col items-center group shrink-0 min-w-[90px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer bg-transparent border-none">
+      <div className="rounded-full bg-gradient-to-tr from-[#e11d48] via-[#f97316] to-[#fdba74] flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:shadow-lg group-hover:shadow-orange-500/35 transition-all" style={{width:'4.5rem',height:'4.5rem'}}>
+        <div className="rounded-full bg-rose-50 flex items-center justify-center text-[#ea580c] border border-orange-200" style={{width:'3.5rem',height:'3.5rem'}}>
+          <i className="fa-solid fa-cake-candles text-2xl"></i>
+        </div>
+      </div>
+      <span className="mt-2 text-xs font-bold text-gray-800 group-hover:text-orange-600 transition text-center leading-tight">حلويات ومخبوزات</span>
+      <span className="text-[10px] text-gray-400 font-medium">+60 منتج</span>
+    </button>
+  </div>
+</section>
+{/* END: CategoriesSection */}
 {/*  BEGIN: FeaturedStoresSection  */}
 <section className="space-y-4" data-purpose="featured-stores">
 <div className="flex items-center justify-between">
@@ -73,26 +143,26 @@ export default function HomePage({
 <button className="text-xs sm:text-sm font-semibold text-sky-700 hover:text-sky-900 transition cursor-pointer" onClick={() => onNavigate("stores")}>عرض كافة المتاجر ↗</button>
 </div>
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-{/*  Store Card 1: متجر غيم الهدايا والديكور  */}
+{/*  Store Card 1: سر المنتجات المنزلية  */}
 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
 <div className="relative w-full h-36 rounded-xl overflow-hidden mb-8 shadow-inner">
-<img alt="متجر غيم الهدايا والديكور" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src={STORE_COVERS.decor} />
+<img alt="سر المنتجات المنزلية" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80" />
 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
 {/*  Store Profile Image Overlap  */}
-<div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md bg-[#07132b] flex items-center justify-center overflow-hidden p-1.5 z-10">
-<img alt="شعار متجر غيم" className="w-full h-full object-contain filter drop-shadow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0kTwyrOgVt1UikZzjl_8adoPbACflThuS0OAMs1NBAxfhdj0d6U5zy__p3zH1LwwSEoGCf-TrnUeEI9e7ofTlwvzBEkjkRq7dWVa2VM8YYzl6qDAYySLO14czo6P79cFjMAhBjFyf9NEde5r2LsURP2LZTDBAFNk7WWjYNfTnw_OMambwfjlKjSD-giwosQLJIjXhF6XEZHmA2tjH6DDME6VgOoNX5agZVPKSTOwWd7WRKHY8-450" />
+<div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md bg-rose-50 flex items-center justify-center overflow-hidden z-10">
+<i className="fa-solid fa-jar text-2xl text-rose-500"></i>
 </div>
 </div>
-<h3 className="text-sm font-bold text-gray-900 group-hover:text-sky-700 transition">متجر غيم الهدايا والديكور</h3>
+<h3 className="text-sm font-bold text-gray-900 group-hover:text-sky-700 transition">سر المنتجات المنزلية</h3>
 <div className="flex items-center gap-2 mt-1.5 mb-4">
 <span className="flex items-center text-amber-500 text-xs font-bold gap-1">
-<i className="fa-solid fa-star text-[11px]"></i> 4.9
+<i className="fa-solid fa-star text-[11px]"></i> 4.8
     </span>
 <span className="bg-sky-500 text-white text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
 <i className="fa-solid fa-check text-[9px]"></i> موثق
     </span>
 </div>
-<button onClick={() => onOpenStoreModal ? onOpenStoreModal({ id: 'store-decor', name: 'متجر غيم الهدايا والديكور', category: 'هدايا وديكور', rating: 4.9, cover: STORE_COVERS.decor }) : onNavigate("store-details")} className="w-full mt-auto py-2.5 bg-gray-50 hover:bg-[#07132b] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition border border-gray-200 cursor-pointer">زيارة المتجر</button>
+<button onClick={() => onOpenStoreModal ? onOpenStoreModal({ id: 'store-5', name: 'سر المنتجات المنزلية', category: 'أسر منتجة', rating: 4.8, cover: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80' }) : onNavigate("store-details")} className="w-full mt-auto py-2.5 bg-gray-50 hover:bg-[#07132b] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition border border-gray-200 cursor-pointer">زيارة المتجر</button>
 </div>
 {/*  Store Card 2: بخور وعطور المكلا  */}
 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
@@ -192,8 +262,8 @@ export default function HomePage({
     category: 'حرف يدوية',
     rating: 4.9,
     reviewsCount: 84,
-    image: PRODUCT_IMAGES.bag,
-    description: 'حقيبة قماشية تراثية مصنوعة يدوياً من القطن الطبيعي وتطريز حضرمي أصيل مناسبة للإهداء والاستخدام اليومي الفاخر.'
+    image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800&auto=format&fit=crop&q=80',
+    description: 'صنع يدوي بالكامل من القطن الطبيعي وتطريز حضرمي أصيل مناسب للإهداء والاستخدام اليومي الفاخر.'
   },
   {
     id: 'prod-burner-home',
@@ -203,30 +273,30 @@ export default function HomePage({
     category: 'فخاريات وتراث',
     rating: 4.9,
     reviewsCount: 92,
-    image: PRODUCT_IMAGES.burner,
-    description: 'مبخرة فخارية حضرمية مصنوعة بأيدي حرفيين محليين مع نقوش تراثية يدوية وتفاصيل دقيقة تجسد أصالة حضرموت.'
+    image: 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80',
+    description: 'فخار حضرمي أصيل بنقوش يدوية وتفاصيل دقيقة تحافظ على جمر البخور وتوزع الشذا الساحر.'
   },
   {
-    id: 'prod-cake-jaziza',
-    name: 'كيكة الفراولة والشوكولاتة الملكية',
-    price: 18000,
-    storeName: 'متجر جازيزا',
-    category: 'حلويات ومخبوزات',
+    id: 'prod-candles-home',
+    name: 'شموع صويا طبيعية معطرة بالعود',
+    price: 12000,
+    storeName: 'إبداعات يدوية',
+    category: 'روائح منزلية',
     rating: 4.9,
-    reviewsCount: 120,
-    image: PRODUCT_IMAGES.cake,
-    description: 'كيكة احتفالية فاخرة بالفراولة الطازجة والشوكولاتة البلجيكية الغنية، محضرة يدوياً يوم التوصيل من متجر جازيزا بالمكلا.'
+    reviewsCount: 65,
+    image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800&auto=format&fit=crop&q=80',
+    description: 'شموع صويا طبيعية 100% مسكوبة يدوياً برائحة العود المعتق واللبان الحوجري تدوم حتى 40 ساعة.'
   },
   {
     id: 'prod-concrete-home',
     name: 'أواني وتشكيلات كونكريت رخامية',
     price: 15000,
-    storeName: 'متجر غيم للديكور',
+    storeName: 'إبداعات يدوية',
     category: 'ديكور حديث',
     rating: 4.8,
     reviewsCount: 45,
-    image: PRODUCT_IMAGES.concrete,
-    description: 'أواني وديكورات كونكريت عصرية بتأثير رخامي مدمجة بلمسات من الذهب والنحاس لإضفاء لمسة جمالية راقية على منزلك.'
+    image: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800&auto=format&fit=crop&q=80',
+    description: 'تصاميم عصرية مدمجة بالذهب والنحاس ومصنوعة بأيدي حرفيات المكلا لإضفاء لمسة جمالية راقية.'
   }
 ].map((prod) => (
   <div

@@ -142,7 +142,7 @@ export const PRODUCT_IMAGES = {
 };
 
 export const STORE_IMAGES = {
-  // Store 1: متجر غيم الهدايا والديكور
+  // Store 1: متجر وردة الأناقة
   ghaymGiftsCover: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 250" width="500" height="250">
     <rect width="500" height="250" fill="%230f1d38"/>
     <defs>

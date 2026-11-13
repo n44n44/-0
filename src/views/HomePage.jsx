@@ -144,15 +144,16 @@ export default function HomePage({
 </div>
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 {/*  Store Card 1: سر المنتجات المنزلية  */}
-<div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
-{/* الشعار فوق المربع حق الصورة */}
-<div className="relative w-full h-36 rounded-xl overflow-hidden mb-3 shadow-inner">
-<img alt="سر المنتجات المنزلية" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80" />
-<div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
-{/* شعار المتجر فوق المربع في الزاوية العلوية */}
-<div className="absolute top-2.5 right-2.5 w-12 h-12 rounded-full border-2 border-white shadow-lg bg-rose-50 flex items-center justify-center overflow-hidden z-10 transition-transform group-hover:scale-110">
-<i className="fa-solid fa-jar text-xl text-rose-500"></i>
-</div>
+<div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
+<div className="relative w-full mb-8">
+  <div className="w-full h-36 rounded-xl overflow-hidden shadow-inner relative">
+    <img alt="سر المنتجات المنزلية" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80" />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+  </div>
+  {/* شعار المتجر ظاهر كامل 100% أمام الغلاف وليس مقصوصاً */}
+  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-xl bg-rose-50 flex items-center justify-center overflow-hidden z-20 transition-transform group-hover:scale-105">
+    <i className="fa-solid fa-jar text-2xl text-rose-500"></i>
+  </div>
 </div>
 <h3 className="text-sm font-bold text-gray-900 group-hover:text-sky-700 transition">سر المنتجات المنزلية</h3>
 <div className="flex items-center gap-2 mt-1.5 mb-4">
@@ -166,15 +167,16 @@ export default function HomePage({
 <button onClick={() => onOpenStoreModal ? onOpenStoreModal({ id: 'store-5', name: 'سر المنتجات المنزلية', category: 'أسر منتجة', rating: 4.8, cover: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80' }) : onNavigate("store-details")} className="w-full mt-auto py-2.5 bg-gray-50 hover:bg-[#07132b] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition border border-gray-200 cursor-pointer">زيارة المتجر</button>
 </div>
 {/*  Store Card 2: بخور وعطور المكلا  */}
-<div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
-{/* الشعار فوق المربع حق الصورة */}
-<div className="relative w-full h-36 rounded-xl overflow-hidden mb-3 shadow-inner">
-<img alt="بخور وعطور المكلا" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src={STORE_COVERS.oud} />
-<div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
-{/* شعار المتجر فوق المربع في الزاوية العلوية */}
-<div className="absolute top-2.5 right-2.5 w-12 h-12 rounded-full border-2 border-white shadow-lg bg-[#2b1810] flex items-center justify-center text-amber-300 font-bold text-xs z-10 transition-transform group-hover:scale-110">
-<i className="fa-solid fa-fire-burner text-lg text-amber-400"></i>
-</div>
+<div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
+<div className="relative w-full mb-8">
+  <div className="w-full h-36 rounded-xl overflow-hidden shadow-inner relative">
+    <img alt="بخور وعطور المكلا" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src={STORE_COVERS.oud} />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+  </div>
+  {/* شعار المتجر ظاهر كامل 100% أمام الغلاف وليس مقصوصاً */}
+  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-xl bg-[#2b1810] flex items-center justify-center text-amber-300 font-bold text-xs z-20 transition-transform group-hover:scale-105">
+    <i className="fa-solid fa-fire-burner text-xl text-amber-400"></i>
+  </div>
 </div>
 <h3 className="text-sm font-bold text-gray-900 group-hover:text-amber-700 transition">بخور وعطور المكلا</h3>
 <div className="flex items-center gap-2 mt-1.5 mb-4">
@@ -188,15 +190,16 @@ export default function HomePage({
 <button onClick={() => onOpenStoreModal ? onOpenStoreModal({ id: 'store-oud', name: 'بخور وعطور المكلا', category: 'بخور وعطور', rating: 4.9, cover: STORE_COVERS.oud }) : onNavigate("store-details")} className="w-full mt-auto py-2.5 bg-gray-50 hover:bg-[#07132b] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition border border-gray-200 cursor-pointer">زيارة المتجر</button>
 </div>
 {/*  Store Card 3: متجر جازيزا للعطور والإكسسوارات  */}
-<div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
-{/* الشعار فوق المربع حق الصورة */}
-<div className="relative w-full h-36 rounded-xl overflow-hidden mb-3 shadow-inner">
-<img alt="متجر جازيزا للحلويات" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src={STORE_COVERS.sweets} />
-<div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
-{/* شعار المتجر فوق المربع في الزاوية العلوية */}
-<div className="absolute top-2.5 right-2.5 w-12 h-12 rounded-full border-2 border-white shadow-lg bg-black text-amber-300 font-bold text-[10px] flex items-center justify-center tracking-wider z-10 transition-transform group-hover:scale-110">
-      JAZIZA
-</div>
+<div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
+<div className="relative w-full mb-8">
+  <div className="w-full h-36 rounded-xl overflow-hidden shadow-inner relative">
+    <img alt="متجر جازيزا للحلويات" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src={STORE_COVERS.sweets} />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+  </div>
+  {/* شعار المتجر ظاهر كامل 100% أمام الغلاف وليس مقصوصاً */}
+  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-xl bg-black text-amber-300 font-bold text-[11px] flex items-center justify-center tracking-wider z-20 transition-transform group-hover:scale-105">
+    JAZIZA
+  </div>
 </div>
 <h3 className="text-sm font-bold text-gray-900 group-hover:text-amber-700 transition">متجر جازيزا المميز</h3>
 <div className="flex items-center gap-2 mt-1.5 mb-4">
@@ -210,15 +213,16 @@ export default function HomePage({
 <button onClick={() => onOpenStoreModal ? onOpenStoreModal({ id: 'store-jaziza', name: 'متجر جازيزا', category: 'حلويات ومخبوزات', rating: 4.8, cover: STORE_COVERS.sweets }) : onNavigate("store-details")} className="w-full mt-auto py-2.5 bg-gray-50 hover:bg-[#07132b] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition border border-gray-200 cursor-pointer">زيارة المتجر</button>
 </div>
 {/*  Store Card 4: سمر المكلا للأزياء التراثية  */}
-<div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
-{/* الشعار فوق المربع حق الصورة */}
-<div className="relative w-full h-36 rounded-xl overflow-hidden mb-3 shadow-inner">
-<img alt="سمر المكلا للأزياء والتطريز" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src={STORE_COVERS.fashion} />
-<div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
-{/* شعار المتجر فوق المربع في الزاوية العلوية */}
-<div className="absolute top-2.5 right-2.5 w-12 h-12 rounded-full border-2 border-white shadow-lg bg-[#1a1412] text-amber-200 font-bold text-[10px] flex items-center justify-center tracking-wider z-10 transition-transform group-hover:scale-110">
-      SAMAR
-</div>
+<div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group">
+<div className="relative w-full mb-8">
+  <div className="w-full h-36 rounded-xl overflow-hidden shadow-inner relative">
+    <img alt="سمر المكلا للأزياء والتطريز" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src={STORE_COVERS.fashion} />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+  </div>
+  {/* شعار المتجر ظاهر كامل 100% أمام الغلاف وليس مقصوصاً */}
+  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-xl bg-[#1a1412] text-amber-200 font-bold text-[11px] flex items-center justify-center tracking-wider z-20 transition-transform group-hover:scale-105">
+    SAMAR
+  </div>
 </div>
 <h3 className="text-sm font-bold text-gray-900 group-hover:text-amber-700 transition">سمر المكلا للأزياء</h3>
 <div className="flex items-center gap-2 mt-1.5 mb-4">

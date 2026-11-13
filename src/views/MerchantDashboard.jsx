@@ -1,49 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   LayoutDashboard,
+  Store,
+  Tag,
   Package,
   ShoppingBag,
   TrendingUp,
-  Tag,
   Settings,
   HelpCircle,
   LogOut,
   Bell,
-  Star,
-  ChevronDown,
-  ArrowUpRight,
-  Clock,
-  CheckCircle2,
-  Gift,
-  ExternalLink,
-  Store,
+  Search,
   Plus,
-  Sparkles,
-  Bot,
-  Eye,
   Trash2,
   Edit,
-  Search,
-  Check,
+  Eye,
+  CheckCircle2,
+  Clock,
+  Truck,
+  ArrowUpRight,
   DollarSign,
-  AlertTriangle,
-  Send,
-  MessageSquare,
-  ShieldCheck,
+  Calculator,
+  Percent,
   CreditCard,
-  Building,
-  Phone,
-  Image as ImageIcon,
   Building2,
-  Copy,
-  Receipt,
-  FileCheck,
+  Phone,
+  Mail,
+  Globe,
+  Share2,
+  Filter,
+  ChevronDown,
+  ArrowRight,
+  Upload,
+  AlertCircle,
+  Check,
+  ShieldCheck,
+  Headphones,
+  Sparkles,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  FileText,
+  RefreshCw,
+  Wallet,
+  ArrowDownLeft,
+  Crown
 } from 'lucide-react';
-import GhaymLogo from '../components/GhaymLogo';
-import MerchantPaymentModal from '../components/MerchantPaymentModal';
-import YemeniPhoneInput from '../components/YemeniPhoneInput';
-import { validateYemeniPhone, cleanYemeniPhone } from '../utils/phoneValidation';
 import { usePlatform, calculateDaysRemaining } from '../context/PlatformContext';
+import { LOGO_DATA_URI } from '../data/logoBase64';
+import YemeniPhoneInput from '../components/YemeniPhoneInput';
+import MerchantPaymentModal from '../components/MerchantPaymentModal';
 
 export default function MerchantDashboard({ onBackToMarket }) {
   const {
@@ -68,424 +75,418 @@ export default function MerchantDashboard({ onBackToMarket }) {
     markAllNotificationsAsRead,
   } = usePlatform();
 
-  // Scoped isolated data for current merchant
-  const products = merchantProducts;
-  const orders = merchantOrders;
-
-  // Active Navigation Tab
-  // 'dashboard' | 'products' | 'orders' | 'inventory' | 'store-profile' | 'sales' | 'finances' | 'notifications' | 'reviews' | 'settings'
+  // Navigation tab matching Stitch screens:
+  // 'dashboard' (Screen 5) | 'store-profile' (Screens 1 & 3) | 'pricing' (Screen 2) |
+  // 'products' (Screen 7) | 'add-product' (Screen 8) | 'orders' (Screen 4) |
+  // 'sales' (Screen 6) | 'settings' | 'support'
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [timeFilter, setTimeFilter] = useState('أسبوع');
 
-  // Modals state
-  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
-  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState(null);
+  // Notifications dropdown
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
-  // Manual Product Form
-  const [newProduct, setNewProduct] = useState({
-    name: '',
-    price: 24000,
-    discountPrice: '',
-    category: 'بخور وعطور',
-    description: '',
-    inStock: 15,
-    sizes: 'صغير, وسط, كبير',
-    colors: 'ذهبي, فضي',
-    images: ['https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80'],
-    image: 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80',
-    isVisible: true,
-  });
-  const [newImageUrlInput, setNewImageUrlInput] = useState('');
+  // Switch merchant modal / account selector
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
 
-  // AI Generator Form
-  const [aiPrompt, setAiPrompt] = useState('بخور مكلاوي فاخر مسقى بالعود ومسك الغزال');
-  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
-  const [aiResult, setAiResult] = useState(null);
+  // Success toast notification
+  const [toast, setToast] = useState(null);
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3500);
+  };
 
-  // Store Profile Edit Form
-    const [storeForm, setStoreForm] = useState({
+  /* ==========================================================================
+     1. CALCULATOR STATE (Screen 2: التسعير وحاسبة الربح)
+     ========================================================================== */
+  const [calcCost, setCalcCost] = useState(15000);
+  const [calcPackaging, setCalcPackaging] = useState(1500);
+  const [calcProfitMargin, setCalcProfitMargin] = useState(25); // 25%
+  const [calcDiscount, setCalcDiscount] = useState(0);
+
+  const calcResults = useMemo(() => {
+    const cost = Number(calcCost) || 0;
+    const packaging = Number(calcPackaging) || 0;
+    const margin = Number(calcProfitMargin) || 0;
+    const discount = Number(calcDiscount) || 0;
+
+    const baseCost = cost + packaging;
+    const desiredProfit = baseCost * (margin / 100);
+    // Platform commission is 2% of the selling price
+    // finalPrice = (baseCost + desiredProfit) / (1 - 0.02)
+    const rawPrice = baseCost + desiredProfit;
+    const platformCommission = rawPrice * 0.02;
+    const suggestedPrice = Math.round(rawPrice + platformCommission);
+    const finalPrice = discount > 0 ? suggestedPrice - discount : suggestedPrice;
+    const actualCommission = Math.round(finalPrice * 0.02);
+    const netProfit = Math.round(finalPrice - baseCost - actualCommission);
+    const actualMargin = finalPrice > 0 ? Math.round((netProfit / finalPrice) * 100) : 0;
+
+    return {
+      baseCost,
+      desiredProfit: Math.round(desiredProfit),
+      suggestedPrice,
+      platformCommission: actualCommission,
+      netProfit,
+      actualMargin,
+      finalPrice,
+    };
+  }, [calcCost, calcPackaging, calcProfitMargin, calcDiscount]);
+
+  /* ==========================================================================
+     2. STORE PROFILE STATE (Screens 1 & 3: معلومات المتجر & الحسابات البنكية)
+     ========================================================================== */
+  const [storeForm, setStoreForm] = useState({
     name: merchantStore?.name || 'متجر وردة الأناقة',
-    description: merchantStore?.description || '',
+    ownerName: currentMerchantUser?.name || 'أحمد باقازي',
+    phone: currentMerchantUser?.phone || '773058707',
+    description: merchantStore?.description || 'متجر حضرمي متخصص في أجود أنواع البخور المكلاوي والعطور الشرقية الفاخرة والعود الطبيعي.',
     city: merchantStore?.city || 'المكلا',
-    neighborhood: merchantStore?.neighborhood || 'حي الورد - المكلا',
-    phone: currentMerchantUser?.phone || '771234567',
-    whatsapp: merchantStore?.whatsapp || currentMerchantUser?.whatsapp || '771234567',
-    coverImage: merchantStore?.coverImage || merchantStore?.cover || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1200&auto=format&fit=crop&q=80',
-    logo: merchantStore?.image || merchantStore?.logo || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&auto=format&fit=crop&q=80',
-    kuraimiAccount: currentMerchantUser?.kuraimiAccount || '30129841',
-    omgyAccount: currentMerchantUser?.omgyAccount || 'AMQ-889021',
+    neighborhood: merchantStore?.neighborhood || 'حي الشهيد - الديس',
+    email: currentMerchantUser?.email || 'warda.store@ghaym.space',
+    website: 'https://ghaym.space/#/store/' + (merchantStore?.id || 'store-1'),
+    socialX: '@warda_style',
+    socialInstagram: '@warda_elegance',
+    socialTikTok: '@warda_luxury',
+    socialYouTube: '@warda_perfumes',
+    isOpen: true,
+    minOrderAmount: 3000,
+    shippingPolicy: 'التوصيل متاح لكافة مناطق ساحل ووادي حضرموت خلال 24 إلى 48 ساعة بواسطة أسطول غيم سبيس السريع.',
+    bankAccounts: [
+      { id: 'b1', bank: 'بنك الكريمي للتمويل الأصغر', accountName: 'أحمد سعيد باقازي', accountNumber: '30129841', iban: 'YE30KRM000000030129841', isDefault: true },
+      { id: 'b2', bank: 'شركة العمقي وإخوانه للصرافة', accountName: 'متجر وردة الأناقة', accountNumber: 'AMQ-889021', iban: 'YE88AMQ00000000889021', isDefault: false },
+    ],
   });
 
-  // Update store form when active merchant store changes
-  React.useEffect(() => {
-    if (merchantStore) {
-      setStoreForm({
-        name: merchantStore.name || 'متجر وردة الأناقة',
-        description: merchantStore.description || '',
-        city: merchantStore.city || 'المكلا',
-        neighborhood: 'حي الورد - المكلا',
-        phone: currentMerchantUser?.phone || '771234567',
-        coverImage: merchantStore.coverImage || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1200&auto=format&fit=crop&q=80',
-        logo: merchantStore.image || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&auto=format&fit=crop&q=80',
-      });
+  const [newBankModal, setNewBankModal] = useState(false);
+  const [newBankData, setNewBankData] = useState({ bank: 'بنك الكريمي', accountName: '', accountNumber: '', iban: '' });
+
+  const handleAddBankAccount = () => {
+    if (!newBankData.accountNumber || !newBankData.accountName) {
+      showToast('يرجى ملء اسم ورقم الحساب', 'error');
+      return;
     }
-  }, [merchantStore?.id, currentMerchantUser?.id]);
-
-  // Withdrawal form
-  const [withdrawAmount, setWithdrawAmount] = useState(150000);
-  const [withdrawBank, setWithdrawBank] = useState('الكريمي');
-  const [withdrawAccount, setWithdrawAccount] = useState('30129841');
-  const [withdrawSuccess, setWithdrawSuccess] = useState(false);
-
-  // Reviews state with merchant reply
-  const [reviewsList, setReviewsList] = useState([
-    {
-      id: 'rev-1',
-      customer: 'أروى العطاس',
-      rating: 5,
-      date: 'منذ يومين',
-      productName: 'شموع معطرة بلبان الحوجري واللافندر',
-      comment: 'ما شاء الله الرائحة خيال وثابتة لأيام في الغرفة، والتغليف راقي جداً!',
-      reply: 'شكراً جزيلاً أختي أروى، نسعد دائماً بخدمتك ونتمنى لك دوام الراحة والسكينة 🌸',
-    },
-    {
-      id: 'rev-2',
-      customer: 'صالح العمودي',
-      rating: 5,
-      date: 'منذ 4 أيام',
-      productName: 'مباخر دقة عود مكلاوي أصلي',
-      comment: 'العود أصلي ونظيف ودخانه كثيف وبارد، فخر الصناعة المكلاوية.',
-      reply: null,
-    },
-    {
-      id: 'rev-3',
-      customer: 'منى باوزير',
-      rating: 4,
-      date: 'منذ أسبوع',
-      productName: 'أسمنت كونكريت تحف فنية بحرية',
-      comment: 'القطعة ممتازة وجودة الصب والتشطيب عالية جداً.',
-      reply: 'أهلاً بكِ أختي منى، رأيك وسام لنا وجاري تجهيز تشكيلة جديدة قريباً ✨',
-    },
-  ]);
-  const [replyText, setReplyText] = useState({});
-
-  // Menu Items matching Image 3 Top exactly with Finances Tab
-  const menuItems = [
-    { id: 'dashboard', label: 'لوحة التحكم', icon: LayoutDashboard },
-    { id: 'products', label: 'منتجاتي (إدارة المنتجات)', icon: Package, badge: `${products.length}` },
-    { id: 'orders', label: 'طلباتي (إدارة الطلبات)', icon: ShoppingBag, badge: `${orders.length}` },
-    { id: 'inventory', label: 'المخزون والأسعار', icon: Tag },
-    { id: 'sales', label: 'مبيعاتي والأرباح', icon: TrendingUp },
-    {
-      id: 'finances',
-      label: 'الاشتراك والمدفوعات البنكية',
-      icon: CreditCard,
-      badge: merchantSubscription?.status === 'expiring_soon' ? 'مستحق' : null,
-    },
-    { id: 'store-profile', label: 'بيانات المتجر والغلاف', icon: Store },
-    { id: 'reviews', label: 'التقييمات والمراجعات', icon: Star },
-    { id: 'notifications', label: 'الإشعارات', icon: Bell, badge: `${notifications.filter(n => n.unread).length || ''}` },
-    { id: 'settings', label: 'إعدادات الحساب والبنك', icon: Settings },
-  ];
-
-  // Sales data points for 7 days chart (Image 3 Top)
-  const salesData = [
-    { day: 'السبت', val: 520, height: '35%' },
-    { day: 'الأحد', val: 680, height: '45%' },
-    { day: 'الإثنين', val: 610, height: '40%' },
-    { day: 'الثلاثاء', val: 950, height: '65%' },
-    { day: 'الأربعاء', val: 820, height: '55%' },
-    { day: 'الخميس', val: 1100, height: '75%' },
-    { day: 'الجمعة', val: 1450, height: '95%' },
-  ];
-
-  // Manual Add submit
-
-  // Helper for adding multi-images to newProduct
-  const handleAddNewProductImage = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const base64 = ev.target.result;
-        setNewProduct((prev) => {
-          const imgs = prev.images || [];
-          return {
-            ...prev,
-            images: [...imgs, base64],
-            image: prev.image || base64,
-          };
-        });
-      };
-      reader.readAsDataURL(file);
-    }
+    const newAcc = {
+      id: 'b-' + Date.now(),
+      bank: newBankData.bank,
+      accountName: newBankData.accountName,
+      accountNumber: newBankData.accountNumber,
+      iban: newBankData.iban || ('YE-' + newBankData.accountNumber),
+      isDefault: storeForm.bankAccounts.length === 0,
+    };
+    setStoreForm(prev => ({ ...prev, bankAccounts: [...prev.bankAccounts, newAcc] }));
+    setNewBankData({ bank: 'بنك الكريمي', accountName: '', accountNumber: '', iban: '' });
+    setNewBankModal(false);
+    showToast('تمت إضافة الحساب البنكي بنجاح');
   };
 
-  const handleAddImageUrl = () => {
-    if (!newImageUrlInput.trim()) return;
-    setNewProduct((prev) => {
-      const imgs = prev.images || [];
-      return {
-        ...prev,
-        images: [...imgs, newImageUrlInput.trim()],
-        image: prev.image || newImageUrlInput.trim(),
-      };
-    });
-    setNewImageUrlInput('');
-  };
-
-  const handleRemoveNewProductImage = (idx) => {
-    setNewProduct((prev) => {
-      const imgs = (prev.images || []).filter((_, i) => i !== idx);
-      return {
-        ...prev,
-        images: imgs,
-        image: imgs[0] || '',
-      };
-    });
-  };
-
-  const handleSetPrimaryImage = (img) => {
-    setNewProduct((prev) => ({
+  const handleDeleteBankAccount = (id) => {
+    setStoreForm(prev => ({
       ...prev,
-      image: img,
+      bankAccounts: prev.bankAccounts.filter(b => b.id !== id),
     }));
+    showToast('تم حذف الحساب البنكي');
   };
 
-  // Helper for adding multi-images to editingProduct
-  const handleEditProductImageUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file && editingProduct) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const base64 = ev.target.result;
-        setEditingProduct((prev) => {
-          const imgs = prev.images || [];
-          return {
-            ...prev,
-            images: [...imgs, base64],
-            image: prev.image || base64,
-          };
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleRemoveEditingProductImage = (idx) => {
-    setEditingProduct((prev) => {
-      const imgs = (prev.images || []).filter((_, i) => i !== idx);
-      return {
-        ...prev,
-        images: imgs,
-        image: imgs[0] || '',
-      };
-    });
-  };
-
-  const handleAddManualProduct = (e) => {
-    e.preventDefault();
-    const primaryImg = (newProduct.images && newProduct.images.length > 0) ? newProduct.images[0] : (newProduct.image || 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80');
-    
-    addProduct({
-      name: newProduct.name,
-      price: Number(newProduct.price),
-      discountPrice: newProduct.discountPrice ? Number(newProduct.discountPrice) : null,
-      originalPrice: newProduct.discountPrice ? Number(newProduct.price) : Number(newProduct.price) * 1.2,
-      category: newProduct.category,
-      images: newProduct.images?.length > 0 ? newProduct.images : [primaryImg],
-      image: primaryImg,
-      description: newProduct.description,
-      inStock: Number(newProduct.inStock) || 15,
-      sizes: newProduct.sizes ? newProduct.sizes.split(',').map(s => s.trim()) : [],
-      colors: newProduct.colors ? newProduct.colors.split(',').map(c => c.trim()) : [],
-      isVisible: newProduct.isVisible !== false,
-      badge: newProduct.discountPrice ? `خصم ${Math.round((1 - Number(newProduct.discountPrice) / Number(newProduct.price)) * 100)}%` : 'جديد ✨',
-    });
-    
-    setIsManualModalOpen(false);
-    setNewProduct({
-      name: '',
-      price: 24000,
-      discountPrice: '',
-      category: categories[0]?.name || 'بخور وعطور',
-      description: '',
-      inStock: 15,
-      sizes: '',
-      colors: '',
-      images: ['https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80'],
-      image: 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80',
-      isVisible: true,
-    });
-    setActiveTab('products');
-  };
-
-  const handleSaveProductEdit = (e) => {
-    e.preventDefault();
-    if (!editingProduct) return;
-    const primaryImg = (editingProduct.images && editingProduct.images.length > 0) ? editingProduct.images[0] : (editingProduct.image || 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80');
-    
-    updateProduct(editingProduct.id, {
-      name: editingProduct.name,
-      price: Number(editingProduct.price),
-      discountPrice: editingProduct.discountPrice ? Number(editingProduct.discountPrice) : null,
-      category: editingProduct.category,
-      inStock: Number(editingProduct.inStock),
-      description: editingProduct.description,
-      images: editingProduct.images?.length > 0 ? editingProduct.images : [primaryImg],
-      image: primaryImg,
-      sizes: typeof editingProduct.sizes === 'string' ? editingProduct.sizes.split(',').map(s => s.trim()) : editingProduct.sizes,
-      colors: typeof editingProduct.colors === 'string' ? editingProduct.colors.split(',').map(c => c.trim()) : editingProduct.colors,
-      isVisible: editingProduct.isVisible !== false,
-      badge: editingProduct.discountPrice ? `خصم ${Math.round((1 - Number(editingProduct.discountPrice) / Number(editingProduct.price)) * 100)}%` : editingProduct.badge,
-    });
-    setEditingProduct(null);
-  };
-
-  // AI Assistant Generator Logic
-  const handleGenerateWithAi = () => {
-    if (!aiPrompt.trim()) return;
-    setIsGeneratingAi(true);
-
-    setTimeout(() => {
-      setIsGeneratingAi(false);
-      const generated = {
-        name: aiPrompt.includes('بخور')
-          ? 'بخور مكلاوي ملكي مسقى بالعود والمسك المعتق'
-          : aiPrompt.includes('شمع')
-          ? 'شموع معطرة بزيوت اللبان الحوجري وخشب الصندل'
-          : `تحف ${aiPrompt} - إصدار حضرمي حصري`,
-        price: 24000,
-        category: aiPrompt.includes('بخور')
-          ? 'بخور وعطور'
-          : aiPrompt.includes('شمع')
-          ? 'ديكور وهدايا'
-          : 'صناعات يدوية',
-        description:
-          'منتج يدوي مميز محضر بأعلى معايير الإتقان والجودة بأيدي أسر منتجة في المكلا، معبأ بعناية فائقة ليعكس التراث الحضرمي الأصيل ويدوم طويلاً.',
-        image: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=800&auto=format&fit=crop&q=80',
-        badge: 'توليد ذكاء اصطناعي ✨',
-        inStock: 20,
-      };
-      setAiResult(generated);
-    }, 1000);
-  };
-
-  const handleConfirmAiProduct = () => {
-    if (aiResult) {
-      addProduct(aiResult);
-      setAiResult(null);
-      setIsAiModalOpen(false);
-      setActiveTab('products');
-    }
-  };
-
-
-  // Save store profile
   const handleSaveStoreProfile = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     updateMerchantStore({
       name: storeForm.name,
       description: storeForm.description,
       city: storeForm.city,
-      image: storeForm.logo,
+      neighborhood: storeForm.neighborhood,
+      phone: storeForm.phone,
     });
-    alert('تم حفظ وتحديث بيانات المتجر بنجاح!');
+    showToast('تم حفظ وتحديث بيانات المتجر بنجاح ✨');
   };
 
-  // Submit merchant review reply
-  const handleAddReviewReply = (revId) => {
-    const text = replyText[revId];
-    if (!text || !text.trim()) return;
-    setReviewsList((prev) =>
-      prev.map((r) => (r.id === revId ? { ...r, reply: text.trim() } : r))
-    );
-    setReplyText((prev) => ({ ...prev, [revId]: '' }));
+  /* ==========================================================================
+     3. PRODUCTS STATE (Screen 7: المنتجات & Screen 8: إضافة منتج)
+     ========================================================================== */
+  const [productSearch, setProductSearch] = useState('');
+  const [productCategoryFilter, setProductCategoryFilter] = useState('all');
+  const [productStatusFilter, setProductStatusFilter] = useState('all');
+  const [editingProductId, setEditingProductId] = useState(null);
+
+  // New / Edit Product Form (Screen 8)
+  const [productForm, setProductForm] = useState({
+    name: '',
+    description: '',
+    category: 'عطور وبخور',
+    subCategory: 'بخور مكلاوي فاخر',
+    price: 18000,
+    discountPrice: 15500,
+    inStock: 25,
+    barcode: '629110829012',
+    image: 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&auto=format&fit=crop&q=80',
+    ],
+    isActive: true,
+    isFeatured: true,
+    sizes: [
+      { id: 's1', size: 'صغير (50 جرام)', stock: 12, price: 9000, offerPrice: 8000, barcode: 'SKU-001-SM' },
+      { id: 's2', size: 'وسط (100 جرام)', stock: 20, price: 16000, offerPrice: 14500, barcode: 'SKU-001-MD' },
+      { id: 's3', size: 'كبير ملكي (250 جرام)', stock: 8, price: 32000, offerPrice: 29000, barcode: 'SKU-001-LG' },
+    ],
+  });
+
+  const handleAddSizeRow = () => {
+    setProductForm(prev => ({
+      ...prev,
+      sizes: [
+        ...prev.sizes,
+        { id: 's-' + Date.now(), size: 'حجم جديد', stock: 10, price: 10000, offerPrice: '', barcode: 'SKU-' + Math.floor(100 + Math.random() * 900) },
+      ],
+    }));
   };
 
-  // Submit withdrawal
-  const handleWithdrawalSubmit = (e) => {
-    e.preventDefault();
-    setWithdrawSuccess(true);
-    setTimeout(() => {
-      setWithdrawSuccess(false);
-      setIsWithdrawModalOpen(false);
-    }, 2000);
+  const handleRemoveSizeRow = (id) => {
+    setProductForm(prev => ({
+      ...prev,
+      sizes: prev.sizes.filter(s => s.id !== id),
+    }));
   };
 
-  // Financial calculations - Strictly computed from real store orders (zero state for new merchants)
-  const totalMerchantSales = orders.reduce((acc, o) => acc + (o.total || 0), 0);
-  const platformFee = Math.round(totalMerchantSales * 0.05);
-  const netEarnings = totalMerchantSales - platformFee;
+  const handleSaveProduct = (e) => {
+    if (e) e.preventDefault();
+    if (!productForm.name) {
+      showToast('يرجى كتابة اسم المنتج', 'error');
+      return;
+    }
+
+    if (editingProductId) {
+      updateProduct(editingProductId, {
+        name: productForm.name,
+        description: productForm.description,
+        category: productForm.category,
+        price: Number(productForm.price),
+        discountPrice: productForm.discountPrice ? Number(productForm.discountPrice) : null,
+        inStock: Number(productForm.inStock),
+        image: productForm.image,
+      });
+      showToast('تم تحديث بيانات المنتج بنجاح');
+    } else {
+      addProduct({
+        name: productForm.name,
+        description: productForm.description,
+        category: productForm.category,
+        price: Number(productForm.price),
+        discountPrice: productForm.discountPrice ? Number(productForm.discountPrice) : null,
+        inStock: Number(productForm.inStock),
+        image: productForm.image,
+        sizes: productForm.sizes.map(s => s.size).join(', '),
+      });
+      showToast('تمت إضافة المنتج الجديد بنجاح إلى متجرك ✨');
+    }
+
+    setEditingProductId(null);
+    setActiveTab('products');
+  };
+
+  const handleEditProductClick = (prod) => {
+    setEditingProductId(prod.id);
+    setProductForm({
+      name: prod.name || '',
+      description: prod.description || '',
+      category: prod.category || 'عطور وبخور',
+      subCategory: 'منتجات فاخرة',
+      price: prod.price || 15000,
+      discountPrice: prod.discountPrice || '',
+      inStock: prod.inStock || 10,
+      barcode: prod.barcode || '62910029381',
+      image: prod.image || 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80',
+      images: [prod.image || 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80'],
+      isActive: true,
+      isFeatured: true,
+      sizes: [
+        { id: 's1', size: 'العبوة القياسية', stock: prod.inStock || 10, price: prod.price || 15000, offerPrice: prod.discountPrice || '', barcode: 'SKU-STD' },
+      ],
+    });
+    setActiveTab('add-product');
+  };
+
+  const handleDeleteProductClick = (id, name) => {
+    if (window.confirm(`هل أنت متأكد من حذف المنتج "${name}"؟`)) {
+      deleteProduct(id);
+      showToast('تم حذف المنتج');
+    }
+  };
+
+  // Filtered products list
+  const filteredProducts = useMemo(() => {
+    return merchantProducts.filter(p => {
+      const matchSearch = !productSearch || p.name.toLowerCase().includes(productSearch.toLowerCase());
+      const matchCat = productCategoryFilter === 'all' || p.category === productCategoryFilter;
+      const matchStatus = productStatusFilter === 'all' || (productStatusFilter === 'active' ? p.inStock > 0 : p.inStock === 0);
+      return matchSearch && matchCat && matchStatus;
+    });
+  }, [merchantProducts, productSearch, productCategoryFilter, productStatusFilter]);
+
+  /* ==========================================================================
+     4. ORDERS STATE (Screen 4: الطلبات)
+     ========================================================================== */
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState('all');
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  const filteredOrders = useMemo(() => {
+    return merchantOrders.filter(o => {
+      const matchSearch = !orderSearch ||
+        o.id.toLowerCase().includes(orderSearch.toLowerCase()) ||
+        (o.customer && o.customer.toLowerCase().includes(orderSearch.toLowerCase()));
+      const matchStatus = orderStatusFilter === 'all' || o.status === orderStatusFilter;
+      return matchSearch && matchStatus;
+    });
+  }, [merchantOrders, orderSearch, orderStatusFilter]);
+
+  const orderStats = useMemo(() => {
+    const total = merchantOrders.length;
+    const completed = merchantOrders.filter(o => o.status === 'delivered' || o.status === 'مكتمل').length;
+    const shipping = merchantOrders.filter(o => o.status === 'delivering' || o.status === 'قيد الشحن' || o.status === 'ready_for_pickup').length;
+    const processing = merchantOrders.filter(o => o.status === 'processing' || o.status === 'قيد المعالجة' || o.status === 'placed').length;
+    return { total, completed, shipping, processing };
+  }, [merchantOrders]);
+
+  /* ==========================================================================
+     5. SALES & STATS (Screen 6: المبيعات والتقارير & Screen 5: الرئيسية)
+     ========================================================================== */
+  const [salesPeriod, setSalesPeriod] = useState('30days');
+
+  const stats = useMemo(() => {
+    const totalSales = merchantOrders.reduce((sum, o) => sum + (Number(o.total) || Number(o.amount) || 0), 0) || 48950;
+    const totalOrdersCount = merchantOrders.length || 248;
+    const platformCommission = Math.round(totalSales * 0.02);
+    const merchantNetEarnings = totalSales - platformCommission;
+    const activeProdsCount = merchantProducts.filter(p => p.inStock > 0).length || 8;
+    return {
+      totalSales,
+      totalOrdersCount,
+      platformCommission,
+      merchantNetEarnings,
+      activeProdsCount,
+      growthRate: 18,
+      ordersGrowth: 12,
+      rating: 4.9,
+    };
+  }, [merchantOrders, merchantProducts]);
+
+  // Payment Modal state for subscription
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
 
   return (
-    <div className="min-h-screen bg-[#F3F6FB] flex flex-col md:flex-row text-[#172A46]" dir="rtl">
-      {/* 1. SIDEBAR (Matching Image 3 Top) */}
-      <aside className="w-full md:w-64 bg-[#172A46] text-white flex flex-col justify-between shrink-0 shadow-2xl border-l border-[#233f66]">
+    <div className="min-h-screen bg-[#f3f7fb] text-slate-800 font-['Cairo',sans-serif] flex flex-col md:flex-row antialiased selection:bg-blue-600 selection:text-white" dir="rtl">
+      
+      {/* ==========================================================================
+          SIDEBAR NAVIGATION (Matching Stitch: Dark Navy Gradient with Blue Glow)
+          ========================================================================== */}
+      <aside className="w-full md:w-72 bg-gradient-to-b from-[#0e213d] via-[#102747] to-[#0a172c] text-white flex-shrink-0 flex flex-col justify-between shadow-2xl z-30 border-l border-blue-900/40">
         <div>
-          {/* Brand Logo Header */}
-          <div className="p-6 border-b border-[#233f66] flex items-center justify-between">
-            <GhaymLogo size="md" subtitle="Grow Together" />
-          </div>
-
-          {/* Multi-Tenant Merchant Account Switcher */}
-          <div className="px-4 py-3 bg-[#0c182c] border-b border-[#233f66] space-y-1.5">
-            <div className="flex items-center justify-between text-[11px] text-slate-400 font-bold">
-              <span className="flex items-center gap-1.5 text-sky-400">
-                <Store className="w-3.5 h-3.5" />
-                <span>حساب التاجر النشط:</span>
-              </span>
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">
-                {merchantStore?.id}
-              </span>
+          {/* Logo Brand Header */}
+          <div className="p-6 border-b border-blue-900/40 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="relative group cursor-pointer" onClick={() => setActiveTab('dashboard')}>
+                <div className="w-12 h-12 rounded-2xl bg-white/10 p-1 backdrop-blur-md border border-white/20 shadow-[0_0_20px_rgba(29,117,242,0.4)] flex items-center justify-center transition-transform group-hover:scale-105">
+                  <img src={LOGO_DATA_URI} alt="غيم سبيس" className="w-full h-full object-contain rounded-xl" />
+                </div>
+                <div className="absolute -bottom-1 -left-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-[#0e213d]" title="المتجر متصل ومباشر"></div>
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-lg text-white tracking-wide">منصتي</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-medium">التاجر</span>
+                </div>
+                <p className="text-xs text-blue-200/60 truncate max-w-[130px]">{merchantStore?.name || 'متجر وردة الأناقة'}</p>
+              </div>
             </div>
 
+            {/* Back to market link */}
+            <button
+              onClick={onBackToMarket}
+              title="العودة إلى متجر غيم سبيس الرئيسي"
+              className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-blue-200 transition-colors border border-white/10"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Current Merchant Pill / Store Switcher */}
+          <div className="px-5 pt-5 pb-2">
             <div className="relative">
-              <select
-                value={currentMerchantUser?.id}
-                onChange={(e) => switchMerchantAccount(e.target.value)}
-                className="w-full bg-[#172A46] text-white text-xs font-bold py-2 pr-2 pl-7 rounded-xl border border-sky-500/40 focus:outline-none focus:ring-2 focus:ring-[#54B9F2] appearance-none cursor-pointer"
+              <button
+                onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+                className="w-full p-3 rounded-2xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 transition-all flex items-center justify-between text-right group"
               >
-                {merchantsList.map((m) => (
-                  <option key={m.id} value={m.id} className="bg-[#172A46] text-white">
-                    {m.name} — {m.storeName}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-sky-400 absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-sm text-white shadow-md">
+                    {merchantStore?.name ? merchantStore.name.charAt(0) : 'م'}
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-blue-300">المتجر الحالي</div>
+                    <div className="text-sm font-bold text-white truncate max-w-[120px]">{merchantStore?.name || 'متجر وردة الأناقة'}</div>
+                  </div>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-blue-300 transition-transform ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Account Dropdown */}
+              {isAccountMenuOpen && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[#12233f] border border-blue-500/20 rounded-2xl p-2 shadow-2xl z-50 backdrop-blur-xl">
+                  <div className="text-[11px] font-semibold text-blue-300/80 px-2.5 py-1.5">تبديل حساب التاجر:</div>
+                  {merchantsList.map(m => (
+                    <button
+                      key={m.id}
+                      onClick={() => {
+                        switchMerchantAccount(m.id);
+                        setIsAccountMenuOpen(false);
+                        showToast(`تم التبديل إلى متجر ${m.name}`);
+                      }}
+                      className={`w-full text-right px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${activeMerchantId === m.id ? 'bg-blue-600 text-white font-bold' : 'hover:bg-white/5 text-slate-300'}`}
+                    >
+                      <span className="truncate">{m.name}</span>
+                      {activeMerchantId === m.id && <Check className="w-3.5 h-3.5" />}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Navigation Menu */}
-          <nav className="p-3 space-y-1 text-xs font-bold">
-            {menuItems.map((item) => {
+          {/* Navigation Links (Matching Stitch order & icons) */}
+          <nav className="p-4 space-y-1.5">
+            {[
+              { id: 'dashboard', label: 'الرئيسية', icon: LayoutDashboard },
+              { id: 'store-profile', label: 'معلومات المتجر', icon: Store },
+              { id: 'pricing', label: 'التسعير وحاسبة الربح', icon: Calculator },
+              { id: 'products', label: 'المنتجات', icon: Package },
+              { id: 'orders', label: 'الطلبات', icon: ShoppingBag, badge: merchantOrders.length },
+              { id: 'sales', label: 'المبيعات والتقارير', icon: TrendingUp },
+              { id: 'settings', label: 'الإعدادات', icon: Settings },
+              { id: 'support', label: 'الدعم والمساعدة', icon: Headphones },
+            ].map(item => {
               const Icon = item.icon;
-              const isActive = activeTab === item.id;
+              const isActive = activeTab === item.id || (item.id === 'products' && activeTab === 'add-product');
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-right ${
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    if (item.id === 'products' && activeTab === 'add-product') {
+                      setEditingProductId(null);
+                    }
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 ${
                     isActive
-                      ? 'bg-[#54B9F2] text-[#172A46] shadow-md shadow-sky-500/25 font-black'
-                      : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                      ? 'bg-blue-600 text-white shadow-[0_8px_20px_rgba(37,99,235,0.4)] translate-x-1'
+                      : 'text-slate-300 hover:text-white hover:bg-white/[0.06]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className="w-4 h-4" />
+                    <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-blue-400'}`} />
                     <span>{item.label}</span>
                   </div>
-                  {item.badge && (
-                    <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                        isActive ? 'bg-[#172A46] text-white' : 'bg-sky-500/20 text-sky-300'
-                      }`}
-                    >
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-white text-blue-600' : 'bg-blue-500/20 text-blue-300'}`}>
                       {item.badge}
                     </span>
                   )}
@@ -495,2058 +496,1861 @@ export default function MerchantDashboard({ onBackToMarket }) {
           </nav>
         </div>
 
-        {/* Back and Logout */}
-        <div className="p-4 border-t border-[#233f66] space-y-2">
-          {onBackToMarket && (
-            <button
-              onClick={onBackToMarket}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-sky-500/10 text-sky-300 hover:bg-sky-500/20 text-xs font-bold transition"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span>العودة لواجهة السوق</span>
-            </button>
-          )}
-
+        {/* Sidebar Footer: Logout / Store status */}
+        <div className="p-4 border-t border-blue-900/40">
           <button
-            onClick={() => alert('تم تسجيل خروج التاجر')}
-            className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 text-xs font-bold transition"
+            onClick={onBackToMarket}
+            className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl bg-white/5 hover:bg-red-500/20 text-slate-300 hover:text-red-300 transition-all text-sm font-bold border border-white/5"
           >
             <LogOut className="w-4 h-4" />
-            <span>تسجيل الخروج</span>
+            <span>تسجيل الخروج والعودة للمنصة</span>
           </button>
         </div>
       </aside>
 
-      {/* 2. MAIN DASHBOARD CONTENT */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        {/* Top Header */}
-        <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm sticky top-0 z-30">
+      {/* ==========================================================================
+          MAIN CONTENT AREA
+          ========================================================================== */}
+      <main className="flex-1 flex flex-col min-w-0 bg-gradient-to-br from-[#f8fafc] via-[#edf4fc] to-[#e4eef9] overflow-y-auto min-h-screen">
+        
+        {/* TOP BAR / HEADER */}
+        <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-blue-100/60 px-6 py-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#F3F6FB] border border-slate-200 text-xs font-bold text-[#172A46]">
-              <Store className="w-4 h-4 text-[#54B9F2]" />
-              <span>{merchantStore?.name || 'متجر وردة الأناقة'}</span>
-              <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                موثق معتمد ✅
-              </span>
-            </div>
-
-            {/* Quick Add Product Buttons */}
-            <div className="hidden sm:flex items-center gap-2">
-              <button
-                onClick={() => setIsManualModalOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#172A46] text-white hover:bg-[#233f66] text-xs font-bold transition shadow-sm"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>إضافة منتج يدوياً</span>
-              </button>
-
-              <button
-                onClick={() => setIsAiModalOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-xs transition shadow-sm hover:scale-105"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>إضافة بالـ AI ✨</span>
-              </button>
-            </div>
+            <h1 className="text-xl font-black text-slate-900 tracking-tight">
+              {activeTab === 'dashboard' && 'لوحة تحكم التاجر - الرئيسية'}
+              {activeTab === 'store-profile' && 'إدارة وتحديث معلومات المتجر'}
+              {activeTab === 'pricing' && 'التسعير الذكي وحاسبة الأرباح'}
+              {activeTab === 'products' && 'إدارة المنتجات والمخزون'}
+              {activeTab === 'add-product' && (editingProductId ? 'تعديل بيانات المنتج' : 'إضافة منتج جديد')}
+              {activeTab === 'orders' && 'سجل وطلبات العملاء'}
+              {activeTab === 'sales' && 'المبيعات والتقارير المالية'}
+              {activeTab === 'settings' && 'إعدادات المتجر والحساب'}
+              {activeTab === 'support' && 'مركز المساعدة والدعم المباشر'}
+            </h1>
+            <span className="hidden sm:inline-block text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 font-bold border border-blue-200">
+              حضرموت - المكلا
+            </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setActiveTab('notifications')}
-              className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition relative"
-              title="الإشعارات"
-            >
-              <Bell className="w-5 h-5" />
-              {notifications.some(n => n.unread) && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
-              )}
-            </button>
+          <div className="flex items-center gap-3">
+            {/* Quick Action: Add Product */}
+            {activeTab !== 'add-product' && (
+              <button
+                onClick={() => {
+                  setEditingProductId(null);
+                  setActiveTab('add-product');
+                }}
+                className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-transform hover:scale-[1.02]"
+              >
+                <Plus className="w-4 h-4" />
+                <span>إضافة منتج</span>
+              </button>
+            )}
 
-            <div className="flex items-center gap-2.5 pr-2 border-r border-slate-200">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#172A46] to-[#25426d] text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                {currentMerchantUser?.name?.[0] || 'ت'}
+            {/* Notifications Bell */}
+            <div className="relative">
+              <button
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                className="p-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 relative transition-colors shadow-sm"
+              >
+                <Bell className="w-5 h-5" />
+                {notifications.length > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border-2 border-white"></span>
+                )}
+              </button>
+
+              {isNotificationsOpen && (
+                <div className="absolute left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 p-3 z-50">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 px-2">
+                    <span className="font-bold text-xs text-slate-800">التنبيهات ({notifications.length})</span>
+                    <button onClick={markAllNotificationsAsRead} className="text-[11px] text-blue-600 hover:underline">
+                      تعليم كمقروء
+                    </button>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto divide-y divide-slate-50 py-1">
+                    {notifications.length === 0 ? (
+                      <p className="text-center py-6 text-xs text-slate-400">لا توجد تنبيهات جديدة</p>
+                    ) : (
+                      notifications.map((n, i) => (
+                        <div key={i} className="p-2.5 hover:bg-blue-50/50 rounded-xl transition-colors text-right">
+                          <p className="text-xs font-semibold text-slate-800">{n.title || n.message}</p>
+                          <span className="text-[10px] text-slate-400">{n.time || 'الآن'}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Merchant User Pill */}
+            <div className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 bg-white rounded-xl border border-slate-200 shadow-sm">
+              <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs">
+                {currentMerchantUser?.name ? currentMerchantUser.name.charAt(0) : 'ت'}
               </div>
               <div className="hidden sm:block text-right">
-                <span className="block text-xs font-bold text-[#172A46]">{currentMerchantUser?.name}</span>
-                <span className="text-[10px] text-slate-400">{merchantStore?.city || 'المكلا'} • {currentMerchantUser?.phone}</span>
+                <div className="text-xs font-bold text-slate-800">{currentMerchantUser?.name || 'أحمد التاجر'}</div>
+                <div className="text-[10px] text-slate-400">تاجر معتمد</div>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Dashboard Views Routing */}
-        <div className="p-6 space-y-6">
-        {/* Pending Approval Notice Banner */}
-        {currentMerchantUser?.status === 'pending_approval' && (
-          <div className="mx-6 mt-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between text-xs shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold shrink-0">
-                ⏱️
-              </div>
-              <div>
-                <h4 className="font-bold text-amber-950">طلب تسجيل متجرك قيد المراجعة والاعتماد من قبل إدارة غيم سبيس</h4>
-                <p className="text-[11px] text-amber-700 mt-0.5">
-                  يمكنك الآن إضافة منتجاتك وصورك وأسعارك وتجهيز متجرك بالكامل. ستظهر منتجاتك تلقائياً للعملاء في المنصة فور موافقة الإدارة.
-                </p>
-              </div>
+        {/* TOAST MESSAGE POPUP */}
+        {toast && (
+          <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+            <div className={`px-5 py-3 rounded-2xl shadow-2xl text-white text-xs font-bold flex items-center gap-3 backdrop-blur-md animate-bounce ${
+              toast.type === 'error' ? 'bg-red-600/90' : 'bg-blue-600/95'
+            }`}>
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{toast.message}</span>
             </div>
-            <span className="px-3 py-1 bg-amber-200/80 rounded-xl font-bold text-[11px] shrink-0">
-              بانتظار موافقة الإدارة
-            </span>
           </div>
         )}
-          {/* TAB 1: OVERVIEW DASHBOARD (Matching Image 3 Top) */}
+
+        {/* TAB CONTENTS */}
+        <div className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-8">
+
+          {/* ==================================================================
+              TAB 1: DASHBOARD (Screen 5: لوحة تحكم التاجر / الرئيسية)
+              ================================================================== */}
           {activeTab === 'dashboard' && (
-            <>
-              {/* Onboarding Empty-State Widget for New Merchants (Zero State) */}
-              {products.length === 0 && (
-                <div className="mb-6 bg-gradient-to-r from-sky-50 via-white to-blue-50 border-2 border-dashed border-[#38BDF8]/60 rounded-3xl p-6 sm:p-8 text-center space-y-4 shadow-sm animate-fadeIn">
-                  <div className="w-16 h-16 rounded-full bg-[#38BDF8]/15 text-[#0F1D38] flex items-center justify-center mx-auto border border-[#38BDF8]/30 shadow-inner">
-                    <Package className="w-8 h-8 text-[#38BDF8]" />
+            <div className="space-y-8">
+              
+              {/* Welcome Hero Banner (Matching Stitch Blue Gradient + Illustration) */}
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#173d6e] via-[#1d5aa0] to-[#2563eb] text-white p-8 md:p-10 shadow-xl border border-blue-400/20">
+                <div className="relative z-10 max-w-2xl">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold mb-4">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <span>مرحباً بك في منصتك السحابية الذكية</span>
                   </div>
-                  <div className="space-y-1.5 max-w-lg mx-auto">
-                    <h3 className="text-base sm:text-lg font-black text-[#0F1D38]">
-                      مرحباً بك في متجرك! لم تقم بإضافة أي منتج بعد
-                    </h3>
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      بيانات متجرك وحساباتك البنكية ({merchantStore?.name} • {merchantStore?.city || 'المكلا'} • {currentMerchantUser?.phone}) مسجلة بنجاح. ابدأ الآن برفع أول منتج يدوي أو حرفي ليظهر فوراً في المنصة الرئيسية ويبدأ زبائن حضرموت بالشراء!
-                    </p>
-                  </div>
-                  <div>
+                  <h2 className="text-2xl md:text-3xl font-black mb-3 leading-snug">
+                    أهلاً بك مجدداً، {currentMerchantUser?.name || 'أحمد التاجر'} 👋
+                  </h2>
+                  <p className="text-blue-100 text-sm md:text-base leading-relaxed mb-6 font-medium">
+                    لوحة تحكم متجرك متصلة بالكامل ومحدثة آنياً مع قاعدة بيانات غيم سبيس. تابع أداء مبيعاتك، المنتجات، والطلبات بكل احترافية وسلاسة.
+                  </p>
+
+                  <div className="flex flex-wrap gap-3">
                     <button
-                      onClick={() => setIsManualModalOpen(true)}
-                      className="px-8 py-3 rounded-2xl bg-[#0F1D38] hover:bg-[#1a335c] text-[#F2C044] font-black text-sm shadow-lg shadow-sky-950/20 transition transform hover:scale-105 active:scale-95 inline-flex items-center gap-2"
+                      onClick={() => setActiveTab('add-product')}
+                      className="px-5 py-2.5 rounded-xl bg-white text-blue-900 font-black text-xs shadow-lg hover:bg-blue-50 transition-all flex items-center gap-2"
                     >
-                      <Plus className="w-5 h-5 text-[#F2C044]" />
-                      <span>+ أضف منتجك الأول</span>
+                      <Plus className="w-4 h-4 text-blue-600" />
+                      <span>إضافة منتج جديد</span>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('pricing')}
+                      className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/20 transition-all flex items-center gap-2"
+                    >
+                      <Calculator className="w-4 h-4 text-amber-300" />
+                      <span>حاسبة التسعير والربح</span>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('orders')}
+                      className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/20 transition-all flex items-center gap-2"
+                    >
+                      <ShoppingBag className="w-4 h-4 text-blue-200" />
+                      <span>متابعة الطلبات</span>
                     </button>
                   </div>
                 </div>
-              )}
 
-              {/* 5 Stats Cards Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                {/* 1. إجمالي المبيعات */}
-                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] text-slate-500 font-bold block">إجمالي المبيعات</span>
-                    <span className="text-xl font-black text-[#172A46] mt-1 block font-mono">
-                      {totalMerchantSales.toLocaleString()} ر.ي
-                    </span>
-                    <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-0.5 mt-1">
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                      <span>↑ 12%</span>
+                {/* Decorative background glow */}
+                <div className="absolute -left-12 -bottom-12 w-80 h-80 bg-blue-400/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="absolute right-1/2 -top-12 w-64 h-64 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none"></div>
+              </div>
+
+              {/* 4 Stats Cards (Screen 5 Layout) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                
+                {/* Total Sales */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                      <DollarSign className="w-6 h-6" />
+                    </div>
+                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 flex items-center gap-1">
+                      <ArrowUpRight className="w-3 h-3" />
+                      <span>+{stats.growthRate}%</span>
                     </span>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-sky-50 text-[#54B9F2] flex items-center justify-center">
-                    <ShoppingBag className="w-6 h-6" />
+                  <div className="text-2xl font-black text-slate-900 mb-1">
+                    {stats.totalSales.toLocaleString()} <span className="text-xs font-normal text-slate-500">ريال</span>
                   </div>
+                  <p className="text-xs text-slate-500 font-medium">إجمالي المبيعات المحققة</p>
                 </div>
 
-                {/* 2. الطلبات الجديدة */}
-                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] text-slate-500 font-bold block">الطلبات الجديدة</span>
-                    <span className="text-xl font-black text-[#172A46] mt-1 block font-mono">{orders.length}</span>
-                    <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-0.5 mt-1">
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                      <span>↑ 8%</span>
+                {/* Total Orders */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                      <ShoppingBag className="w-6 h-6" />
+                    </div>
+                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 flex items-center gap-1">
+                      <ArrowUpRight className="w-3 h-3" />
+                      <span>+{stats.ordersGrowth}%</span>
                     </span>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                    <Package className="w-6 h-6" />
+                  <div className="text-2xl font-black text-slate-900 mb-1">
+                    {stats.totalOrdersCount} <span className="text-xs font-normal text-slate-500">طلب</span>
                   </div>
+                  <p className="text-xs text-slate-500 font-medium">الطلبات الكلية المنجزة</p>
                 </div>
 
-                {/* 3. إجمالي المنتجات */}
-                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] text-slate-500 font-bold block">إجمالي المنتجات</span>
-                    <span className="text-xl font-black text-[#172A46] mt-1 block font-mono">
-                      {products.length}
+                {/* Active Products */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                      <Package className="w-6 h-6" />
+                    </div>
+                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-blue-50 text-blue-600">
+                      نشط في المتجر
                     </span>
-                    <span className="text-[11px] text-[#54B9F2] font-bold mt-1 block">نشطة في السوق</span>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                    <Tag className="w-6 h-6" />
+                  <div className="text-2xl font-black text-slate-900 mb-1">
+                    {merchantProducts.length} <span className="text-xs font-normal text-slate-500">منتج</span>
                   </div>
+                  <p className="text-xs text-slate-500 font-medium">المنتجات المعروضة للزبائن</p>
                 </div>
 
-                {/* 4. متوسط التقييم */}
-                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
+                {/* Platform Commission 2% */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <Percent className="w-6 h-6" />
+                    </div>
+                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700">
+                      ثابتة ومخفضة
+                    </span>
+                  </div>
+                  <div className="text-2xl font-black text-emerald-600 mb-1">
+                    2% <span className="text-xs font-normal text-slate-500">فقط</span>
+                  </div>
+                  <p className="text-xs text-slate-500 font-medium">عمولة منصة غيم سبيس</p>
+                </div>
+
+              </div>
+
+              {/* Subscription & Platform Support Section (Screen 5) */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* Subscription Card */}
+                <div className="bg-gradient-to-br from-white to-blue-50/60 rounded-3xl p-6 border border-blue-100 shadow-sm flex flex-col justify-between">
                   <div>
-                    <span className="text-[11px] text-slate-500 font-bold block">متوسط التقييم</span>
-                    <span className="text-xl font-black text-[#172A46] mt-1 block">4.8</span>
-                    <div className="flex items-center gap-0.5 mt-1 text-amber-400">
-                      <Star className="w-3 h-3 fill-amber-400" />
-                      <Star className="w-3 h-3 fill-amber-400" />
-                      <Star className="w-3 h-3 fill-amber-400" />
-                      <Star className="w-3 h-3 fill-amber-400" />
-                      <Star className="w-3 h-3 fill-amber-400" />
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                          <Crown className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-900 text-sm">باقة التاجر الفضي</h3>
+                          <span className="text-[11px] text-slate-500">سارية حتى 31 ديسمبر 2026</span>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+                        مفعّلة
+                      </span>
+                    </div>
+
+                    <div className="my-4 p-4 rounded-2xl bg-white border border-blue-100/80">
+                      <div className="text-xs text-slate-500 mb-1">رسوم الاشتراك الشهري</div>
+                      <div className="text-2xl font-black text-blue-600">6,000 <span className="text-xs text-slate-500 font-normal">ريال / شهرياً</span></div>
+                    </div>
+
+                    <ul className="text-xs text-slate-600 space-y-2 mb-6">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        <span>منتجات غير محدودة في المتجر</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        <span>ربط مع أسطول مناديب غيم سبيس</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        <span>عمولة 2% مخفضة على الطلبات الناجحة</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <button
+                    onClick={() => setIsPaymentModalOpen(true)}
+                    className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>تجديد أو ترقية الباقة</span>
+                  </button>
+                </div>
+
+                {/* Recent Orders Overview */}
+                <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-5">
+                      <h3 className="font-bold text-slate-900 text-base">أحدث طلبات المتجر</h3>
+                      <button
+                        onClick={() => setActiveTab('orders')}
+                        className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                      >
+                        <span>عرض الكل</span>
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-right text-xs">
+                        <thead>
+                          <tr className="text-slate-400 border-b border-slate-100">
+                            <th className="pb-3 font-semibold">رقم الطلب</th>
+                            <th className="pb-3 font-semibold">العميل</th>
+                            <th className="pb-3 font-semibold">المبلغ</th>
+                            <th className="pb-3 font-semibold">الحالة</th>
+                            <th className="pb-3 font-semibold">التاريخ</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                          {merchantOrders.slice(0, 4).map((order, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                              <td className="py-3 font-bold text-blue-600">{order.id}</td>
+                              <td className="py-3 font-medium text-slate-800">{order.customer || 'عميل غيم'}</td>
+                              <td className="py-3 font-bold text-slate-900">{order.total || order.amount || 18500} ريال</td>
+                              <td className="py-3">
+                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                                  order.status === 'delivered' || order.status === 'مكتمل'
+                                    ? 'bg-emerald-50 text-emerald-700'
+                                    : order.status === 'ready_for_pickup' || order.status === 'delivering'
+                                    ? 'bg-blue-50 text-blue-700'
+                                    : 'bg-amber-50 text-amber-700'
+                                }`}>
+                                  {order.status === 'delivered' ? 'مكتمل' : order.status === 'ready_for_pickup' ? 'جاهز للتوصيل' : 'قيد المعالجة'}
+                                </span>
+                              </td>
+                              <td className="py-3 text-slate-400">{order.date || 'اليوم'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                    <Star className="w-6 h-6 fill-amber-400" />
+
+                  <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between text-xs text-slate-500">
+                    <span>إجمالي الطلبات في السجل: {merchantOrders.length}</span>
+                    <button
+                      onClick={() => setActiveTab('orders')}
+                      className="font-bold text-blue-600 hover:underline"
+                    >
+                      إدارة ومعالجة الطلبات ←
+                    </button>
                   </div>
                 </div>
 
-                {/* 5. مرحباً بك في لوحة تحكم التاجر */}
-                <div className="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-100 rounded-2xl p-4 shadow-sm flex items-center justify-between sm:col-span-2 lg:col-span-1">
-                  <div>
-                    <h4 className="text-xs font-black text-[#172A46]">مرحباً بك في لوحة تحكم التاجر</h4>
-                    <p className="text-[10px] text-slate-500 mt-1">إدارة متجرك بكل سهولة واحترافية</p>
+              </div>
+
+              {/* 3 Pillars Footer Cards (Screen 5 Layout) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-6 h-6" />
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center shrink-0">
-                    <Store className="w-5 h-5 text-[#54B9F2]" />
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">نمو مستمر للمبيعات</h4>
+                    <p className="text-xs text-slate-500">وصول مباشر لآلاف العملاء في المكلا وحضرموت</p>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                    <Headphones className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">دعم فني متميز 24/7</h4>
+                    <p className="text-xs text-slate-500">فريق غيم سبيس جاهز لمساعدتك عبر الهاتف 773058707</p>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">أمان وموثوقية في الدفع</h4>
+                    <p className="text-xs text-slate-500">تسوية سريعة للأرباح عبر الكريمي والعمقي</p>
                   </div>
                 </div>
               </div>
 
-              {/* Chart & Recent Orders & 3D Promo Section (Matching Image 3 Top) */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Sales Chart (6 Cols) */}
-                <div className="lg:col-span-6 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-extrabold text-[#172A46]">المبيعات خلال آخر 7 أيام</h3>
-                      <span className="text-xs text-slate-400">معدل الإيرادات اليومية</span>
-                    </div>
+            </div>
+          )}
 
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#F3F6FB] border border-slate-200 text-xs font-bold text-[#172A46]">
-                      <span>{timeFilter}</span>
-                      <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          {/* ==================================================================
+              TAB 2: STORE PROFILE (Screens 1 & 3: إدارة معلومات المتجر)
+              ================================================================== */}
+          {activeTab === 'store-profile' && (
+            <div className="space-y-8">
+              
+              <form onSubmit={handleSaveStoreProfile} className="space-y-8">
+                
+                {/* Store Header & Cover Preview */}
+                <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-5">
+                    <div>
+                      <h2 className="text-lg font-black text-slate-900">هوية المتجر والشعار</h2>
+                      <p className="text-xs text-slate-500">قم بتخصيص شعار متجرك وصورة الغلاف لجذب المزيد من الزبائن</p>
                     </div>
+                    <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 font-bold text-xs border border-emerald-200">
+                      متجر نشط ومعتمد
+                    </span>
                   </div>
 
-                  {/* SVG Chart with axes: 0, 500, 1000, 1500 */}
-                  <div className="relative pt-4">
-                    <div className="flex justify-between text-[10px] text-slate-400 font-mono pb-2 border-b border-slate-100">
-                      <span>0</span>
-                      <span>500</span>
-                      <span>1,000</span>
-                      <span>1,500</span>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                    {/* Logo upload mockup */}
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-28 h-28 rounded-3xl bg-slate-100 border-2 border-dashed border-blue-400 p-2 relative flex items-center justify-center shadow-md">
+                        <img
+                          src={merchantStore?.image || merchantStore?.logo || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&auto=format&fit=crop&q=80'}
+                          alt="شعار المتجر"
+                          className="w-full h-full object-cover rounded-2xl"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => showToast('يمكنك رفع شعار جديد من خلال إعدادات الوسائط')}
+                        className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>تغيير الشعار</span>
+                      </button>
                     </div>
 
-                    <div className="flex items-end justify-between pr-4 pl-2 pt-6 h-48 border-b border-slate-100">
-                      {salesData.map((d) => (
-                        <div key={d.day} className="flex flex-col items-center gap-2 group flex-1">
-                          <div className="relative w-full flex items-end justify-center h-36">
-                            <div
-                              style={{ height: d.height }}
-                              className="w-5 sm:w-7 rounded-t-lg bg-gradient-to-t from-[#172A46] to-[#54B9F2] group-hover:from-[#54B9F2] group-hover:to-sky-300 transition-all duration-300 relative shadow-sm"
-                            >
-                              <div className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-[#172A46] text-white text-[10px] font-bold opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none z-10">
-                                {d.val} ريال
-                              </div>
-                            </div>
-                          </div>
-                          <span className="text-[10px] font-bold text-slate-500">{d.day}</span>
-                        </div>
-                      ))}
+                    {/* Store quick info */}
+                    <div className="md:col-span-2 space-y-3">
+                      <div className="text-xl font-black text-slate-900">{storeForm.name}</div>
+                      <p className="text-xs text-slate-600 leading-relaxed">{storeForm.description}</p>
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        <span className="px-3 py-1 rounded-xl bg-slate-100 text-slate-600 text-xs font-semibold">
+                          📍 {storeForm.city} - {storeForm.neighborhood}
+                        </span>
+                        <span className="px-3 py-1 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold">
+                          📞 {storeForm.phone}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Recent Orders (3 Cols) matching Image 3 Top (#1045, #1044, #1043) */}
-                <div className="lg:col-span-3 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <h3 className="text-sm font-extrabold text-[#172A46]">أحدث الطلبات</h3>
+                {/* Basic Store Information */}
+                <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
+                  <h3 className="text-base font-black text-slate-900 border-b border-slate-100 pb-4">
+                    البيانات الأساسية للمتجر
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">اسم المتجر *</label>
+                      <input
+                        type="text"
+                        value={storeForm.name}
+                        onChange={(e) => setStoreForm({ ...storeForm, name: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">اسم المالك / التاجر المسؤول *</label>
+                      <input
+                        type="text"
+                        value={storeForm.ownerName}
+                        onChange={(e) => setStoreForm({ ...storeForm, ownerName: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">رقم الجوال (واتساب للتواصل) *</label>
+                      <input
+                        type="text"
+                        value={storeForm.phone}
+                        onChange={(e) => setStoreForm({ ...storeForm, phone: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold text-left font-mono"
+                        dir="ltr"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">البريد الإلكتروني الرسمي</label>
+                      <input
+                        type="email"
+                        value={storeForm.email}
+                        onChange={(e) => setStoreForm({ ...storeForm, email: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold text-left font-mono"
+                        dir="ltr"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">المدينة</label>
+                      <select
+                        value={storeForm.city}
+                        onChange={(e) => setStoreForm({ ...storeForm, city: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold bg-white"
+                      >
+                        <option value="المكلا">المكلا</option>
+                        <option value="الشحر">الشحر</option>
+                        <option value="سيئون">سيئون</option>
+                        <option value="تريم">تريم</option>
+                        <option value="عدن">عدن</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">الحي / الشارع التفصيلي</label>
+                      <input
+                        type="text"
+                        value={storeForm.neighborhood}
+                        onChange={(e) => setStoreForm({ ...storeForm, neighborhood: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-slate-700 mb-2">وصف ونبذة عن المتجر</label>
+                      <textarea
+                        rows={3}
+                        value={storeForm.description}
+                        onChange={(e) => setStoreForm({ ...storeForm, description: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-medium leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Media Links */}
+                <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
+                  <h3 className="text-base font-black text-slate-900 border-b border-slate-100 pb-4">
+                    حسابات التواصل الاجتماعي للمتجر
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">إنستغرام Instagram</label>
+                      <input
+                        type="text"
+                        value={storeForm.socialInstagram}
+                        onChange={(e) => setStoreForm({ ...storeForm, socialInstagram: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-semibold text-left font-mono"
+                        dir="ltr"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">تيك توك TikTok</label>
+                      <input
+                        type="text"
+                        value={storeForm.socialTikTok}
+                        onChange={(e) => setStoreForm({ ...storeForm, socialTikTok: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-semibold text-left font-mono"
+                        dir="ltr"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">منصة X (تويتر سابقاً)</label>
+                      <input
+                        type="text"
+                        value={storeForm.socialX}
+                        onChange={(e) => setStoreForm({ ...storeForm, socialX: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-semibold text-left font-mono"
+                        dir="ltr"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">يوتيوب YouTube</label>
+                      <input
+                        type="text"
+                        value={storeForm.socialYouTube}
+                        onChange={(e) => setStoreForm({ ...storeForm, socialYouTube: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-semibold text-left font-mono"
+                        dir="ltr"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bank Accounts Section (Screen 3 Layout) */}
+                <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                      <h3 className="text-base font-black text-slate-900">الحسابات البنكية لاستلام الأرباح</h3>
+                      <p className="text-xs text-slate-500">يتم تحويل أرباحك الأسبوعية والشهرية مباشرة إلى هذه الحسابات المعتمدة</p>
+                    </div>
                     <button
-                      onClick={() => setActiveTab('orders')}
-                      className="text-xs text-[#54B9F2] font-bold hover:underline"
+                      type="button"
+                      onClick={() => setNewBankModal(true)}
+                      className="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold text-xs flex items-center gap-1.5 transition-colors"
                     >
-                      عرض الكل ➔
+                      <Plus className="w-4 h-4" />
+                      <span>إضافة حساب بنكي</span>
                     </button>
                   </div>
 
                   <div className="space-y-3">
-                    <div className="p-3 rounded-2xl border border-slate-100 bg-[#F3F6FB]/80 flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-black text-[#172A46] font-mono">#1045</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            تم التوصيل
-                          </span>
+                    {storeForm.bankAccounts.map((acc) => (
+                      <div key={acc.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">
+                            <Building2 className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-sm text-slate-900">{acc.bank}</span>
+                              {acc.isDefault && (
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold">
+                                  الحساب الأساسي
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-slate-500 mt-0.5 font-mono">
+                              الاسم: <span className="font-semibold text-slate-700 font-sans">{acc.accountName}</span> | الحساب: <span className="font-bold text-slate-900">{acc.accountNumber}</span>
+                            </div>
+                          </div>
                         </div>
-                        <span className="text-[10px] text-slate-400 block mt-1">منذ ساعة</span>
-                      </div>
-                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500">
-                        📦
-                      </div>
-                    </div>
 
-                    <div className="p-3 rounded-2xl border border-slate-100 bg-[#F3F6FB]/80 flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-black text-[#172A46] font-mono">#1044</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
-                            قيد التوصيل
-                          </span>
+                        <div className="flex items-center gap-2 self-end sm:self-center">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteBankAccount(acc.id)}
+                            className="p-2 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
+                            title="حذف الحساب"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
-                        <span className="text-[10px] text-slate-400 block mt-1">منذ ساعتين</span>
                       </div>
-                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500">
-                        📦
-                      </div>
-                    </div>
-
-                    <div className="p-3 rounded-2xl border border-slate-100 bg-[#F3F6FB]/80 flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-black text-[#172A46] font-mono">#1043</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                            قيد التجهيز
-                          </span>
-                        </div>
-                        <span className="text-[10px] text-slate-400 block mt-1">منذ 3 ساعات</span>
-                      </div>
-                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500">
-                        📦
-                      </div>
-                    </div>
+                    ))}
                   </div>
+                </div>
 
+                {/* Save Button */}
+                <div className="flex justify-end pt-4">
                   <button
-                    onClick={() => setActiveTab('orders')}
-                    className="w-full py-2.5 rounded-xl bg-[#172A46] hover:bg-[#233f66] text-white text-xs font-bold transition text-center"
+                    type="submit"
+                    className="px-8 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-xl shadow-blue-500/20 transition-transform hover:scale-[1.02] flex items-center gap-2"
                   >
-                    إدارة وتجهيز كافة الطلبات
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>حفظ كافة التغييرات</span>
                   </button>
                 </div>
 
-                {/* 3D Blue Gift Box Promo Card (3 Cols) matching Image 3 Top */}
-                <div className="lg:col-span-3 bg-gradient-to-b from-[#11243e] via-[#0d1c31] to-[#07111f] text-white rounded-3xl p-6 shadow-xl border border-[#233f66] flex flex-col justify-between relative overflow-hidden">
-                  <div className="space-y-2 relative z-10">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-[#54B9F2] inline-block">
-                      تخفيضات وعروض
-                    </span>
-                    <h3 className="text-lg font-black text-white leading-tight">
-                      عروض مميزة
-                    </h3>
-                    <p className="text-xs text-sky-200">على منتجات مختارة</p>
-                  </div>
+              </form>
 
-                  {/* 3D Gift Box Visual Graphic */}
-                  <div className="my-4 flex items-center justify-center relative z-10">
-                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 p-3 shadow-2xl flex items-center justify-center transform rotate-6 border border-sky-300/40 relative">
-                      <Gift className="w-12 h-12 text-white" />
-                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black flex items-center justify-center shadow">
-                        %
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => onBackToMarket ? onBackToMarket() : null}
-                    className="w-full py-3 rounded-xl bg-[#54B9F2] hover:bg-sky-400 text-[#172A46] font-black text-xs transition shadow-md flex items-center justify-center gap-2 relative z-10"
-                  >
-                    <span>تسوق الآن ➔</span>
-                  </button>
-                </div>
-              </div>
-            </>
+            </div>
           )}
 
-                    {/* TAB 2: PRODUCTS MANAGEMENT (إدارة المنتجات - إضافة، تعديل، حذف) */}
-          {activeTab === 'products' && (
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-                <div>
-                  <h3 className="text-sm font-black text-[#172A46] flex items-center gap-2">
-                    <Package className="w-4 h-4 text-[#54B9F2]" />
-                    <span>إدارة منتجات المتجر ({products.length} منتج)</span>
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    إضافة وتعديل وحذف المنتجات الحرفية وتحديد الأسعار والخصومات والكميات بالمخزون
+          {/* ==================================================================
+              TAB 3: PRICING & PROFIT CALCULATOR (Screen 2: التسعير وحاسبة الربح)
+              ================================================================== */}
+          {activeTab === 'pricing' && (
+            <div className="space-y-8">
+              
+              {/* Header Card with 3D Calculator Style */}
+              <div className="rounded-3xl bg-gradient-to-r from-[#0d223f] via-[#15345d] to-[#1e40af] text-white p-8 md:p-10 shadow-xl border border-blue-400/20">
+                <div className="max-w-2xl">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold mb-3">
+                    <Calculator className="w-3.5 h-3.5 text-amber-300" />
+                    <span>أداة التسعير الذكي وحاسبة هامش الربح</span>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-black mb-3 leading-snug">
+                    احسب تسعيرة منتجاتك وصافي ربحك بدقة متناهية
+                  </h2>
+                  <p className="text-blue-100 text-sm leading-relaxed">
+                    حدد تكاليف المواد والتغليف ونسبة ربحك المطلوبة، وستقوم الحاسبة تلقائياً باحتساب سعر البيع النهائي للزبون مع احتساب عمولة غيم سبيس المخفضة (2% فقط).
                   </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsManualModalOpen(true)}
-                    className="px-4 py-2 rounded-xl bg-[#172A46] text-white hover:bg-[#233f66] text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
-                  >
-                    <Plus className="w-3.5 h-3.5 text-[#54B9F2]" />
-                    <span>+ إضافة منتج جديد</span>
-                  </button>
-
-                  <button
-                    onClick={() => setIsAiModalOpen(true)}
-                    className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow-sm"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>توليد بالـ AI ✨</span>
-                  </button>
                 </div>
               </div>
 
-              {/* Products Table or Empty State */}
-              {products.length === 0 ? (
-                <div className="py-14 text-center space-y-4 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50">
-                  <div className="w-16 h-16 rounded-full bg-sky-50 text-[#54B9F2] flex items-center justify-center mx-auto border border-sky-100 shadow-sm">
-                    <Package className="w-8 h-8" />
+              {/* Calculator Inputs and Outputs Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                {/* Inputs Column */}
+                <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
+                  <h3 className="text-base font-black text-slate-900 border-b border-slate-100 pb-4 flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-blue-600" />
+                    <span>مدخلات التكلفة والربح</span>
+                  </h3>
+
+                  <div className="space-y-5">
+                    
+                    {/* Cost of product */}
+                    <div>
+                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-2">
+                        <span>تكلفة إنتاج / شراء المنتج الأساسية (ريال يمني)</span>
+                        <span className="text-blue-600 font-black">{Number(calcCost).toLocaleString()} ريال</span>
+                      </div>
+                      <input
+                        type="number"
+                        min="0"
+                        step="500"
+                        value={calcCost}
+                        onChange={(e) => setCalcCost(e.target.value)}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold text-slate-800"
+                      />
+                    </div>
+
+                    {/* Cost of packaging */}
+                    <div>
+                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-2">
+                        <span>تكلفة التغليف والعلب والملصقات (ريال يمني)</span>
+                        <span className="text-blue-600 font-black">{Number(calcPackaging).toLocaleString()} ريال</span>
+                      </div>
+                      <input
+                        type="number"
+                        min="0"
+                        step="100"
+                        value={calcPackaging}
+                        onChange={(e) => setCalcPackaging(e.target.value)}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold text-slate-800"
+                      />
+                    </div>
+
+                    {/* Desired profit margin */}
+                    <div>
+                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-2">
+                        <span>نسبة الربح المستهدفة للتاجر (%)</span>
+                        <span className="text-emerald-600 font-black">{calcProfitMargin}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="5"
+                        max="100"
+                        step="5"
+                        value={calcProfitMargin}
+                        onChange={(e) => setCalcProfitMargin(e.target.value)}
+                        className="w-full accent-blue-600 cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[11px] text-slate-400 mt-1">
+                        <span>5% (ربح سريع)</span>
+                        <span>25% (متوسط)</span>
+                        <span>50%</span>
+                        <span>100% (مضاعف)</span>
+                      </div>
+                    </div>
+
+                    {/* Promotional Discount */}
+                    <div>
+                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-2">
+                        <span>خصم ترويجي للعميل (اختياري - ريال يمني)</span>
+                        <span className="text-amber-600 font-black">{Number(calcDiscount).toLocaleString()} ريال</span>
+                      </div>
+                      <input
+                        type="number"
+                        min="0"
+                        step="500"
+                        value={calcDiscount}
+                        onChange={(e) => setCalcDiscount(e.target.value)}
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold text-slate-800"
+                      />
+                    </div>
+
                   </div>
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-black text-[#172A46]">لا توجد منتجات مضافة حتى الآن في متجرك</h4>
-                    <p className="text-xs text-slate-500 max-w-md mx-auto">
-                      ابدأ الآن بإضافة أول منتج يدوي أو تقليدي لجذب الزبائن والأسر في المكلا وحضرموت وعرض إبداعاتك!
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setIsManualModalOpen(true)}
-                    className="px-6 py-2.5 rounded-xl bg-[#172A46] hover:bg-[#233f66] text-white font-black text-xs transition inline-flex items-center gap-2 shadow-md"
-                  >
-                    <Plus className="w-4 h-4 text-[#54B9F2]" />
-                    <span>إضافة أول منتج في متجرك</span>
-                  </button>
                 </div>
-              ) : (
+
+                {/* Results Column (Screen 2 Layout) */}
+                <div className="lg:col-span-5 bg-gradient-to-br from-[#0f2444] to-[#132c54] text-white rounded-3xl p-6 md:p-8 shadow-xl flex flex-col justify-between border border-blue-500/30">
+                  <div>
+                    <h3 className="text-base font-black text-white border-b border-white/10 pb-4 mb-6 flex items-center justify-between">
+                      <span>النتيجة المالية والتسعير</span>
+                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                        عمولة 2% فقط
+                      </span>
+                    </h3>
+
+                    {/* Final Selling Price Display */}
+                    <div className="p-5 rounded-2xl bg-white/[0.08] border border-white/10 text-center mb-6">
+                      <div className="text-xs text-blue-200 font-semibold mb-1">سعر البيع المقترح النهائي للعميل</div>
+                      <div className="text-3xl md:text-4xl font-black text-amber-300 tracking-tight">
+                        {calcResults.finalPrice.toLocaleString()} <span className="text-sm font-normal text-white">ريال</span>
+                      </div>
+                      {calcDiscount > 0 && (
+                        <div className="text-[11px] text-emerald-400 mt-1">
+                          يشمل خصماً قدره {Number(calcDiscount).toLocaleString()} ريال
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Detailed Breakdown */}
+                    <div className="space-y-3.5 text-xs">
+                      <div className="flex justify-between text-blue-200">
+                        <span>إجمالي التكلفة (المنتج + التغليف):</span>
+                        <span className="font-bold text-white font-mono">{calcResults.baseCost.toLocaleString()} ريال</span>
+                      </div>
+
+                      <div className="flex justify-between text-blue-200">
+                        <span>إجمالي الربح الإجمالي للتاجر:</span>
+                        <span className="font-bold text-emerald-300 font-mono">+{calcResults.desiredProfit.toLocaleString()} ريال</span>
+                      </div>
+
+                      <div className="flex justify-between text-blue-200 border-t border-white/10 pt-3">
+                        <span className="flex items-center gap-1">
+                          <span>عمولة منصة غيم سبيس (2%):</span>
+                        </span>
+                        <span className="font-bold text-blue-300 font-mono">-{calcResults.platformCommission.toLocaleString()} ريال</span>
+                      </div>
+
+                      <div className="flex justify-between text-sm font-black text-white border-t border-white/15 pt-3">
+                        <span>صافي ربحك الفعلي المستلم:</span>
+                        <span className="text-emerald-400 text-base font-mono">+{calcResults.netProfit.toLocaleString()} ريال</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 pt-4 border-t border-white/10 text-[11px] text-blue-200/70 text-center">
+                    💡 عمولة غيم سبيس تخصم تلقائياً فقط عند تسليم الطلب للزبيل ونجاح العملية.
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Ready Examples Table (Screen 2) */}
+              <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-4">
+                <h3 className="text-base font-black text-slate-900">أمثلة ونماذج تسعير شائعة في السوق الحضرمي</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-right text-xs">
                     <thead>
-                      <tr className="border-b border-slate-100 text-slate-500 font-bold">
-                        <th className="pb-3 px-3">المنتج والصور</th>
-                        <th className="pb-3 px-3">التصنيف</th>
-                        <th className="pb-3 px-3">السعر (ر.ي)</th>
-                        <th className="pb-3 px-3">المخزون المتوفر</th>
-                        <th className="pb-3 px-3">حالة العرض</th>
-                        <th className="pb-3 px-3 text-center">الإجراءات</th>
+                      <tr className="text-slate-400 border-b border-slate-100">
+                        <th className="pb-3 font-semibold">نوع المنتج</th>
+                        <th className="pb-3 font-semibold">التكلفة الإجمالية</th>
+                        <th className="pb-3 font-semibold">نسبة الربح</th>
+                        <th className="pb-3 font-semibold">سعر البيع المقترح</th>
+                        <th className="pb-3 font-semibold">عمولة المنصة (2%)</th>
+                        <th className="pb-3 font-semibold">صافي ربح التاجر</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {products.map((prod) => (
-                        <tr key={prod.id} className="hover:bg-slate-50 transition">
-                          <td className="py-3 px-3">
-                            <div className="flex items-center gap-3">
-                              <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-slate-200 shadow-sm bg-slate-100">
-                                <img
-                                  src={prod.image || prod.images?.[0] || 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=800&auto=format&fit=crop&q=80'}
-                                  alt={prod.name}
-                                  className="w-full h-full object-cover"
-                                />
-                                {(prod.images?.length || 1) > 1 && (
-                                  <span className="absolute bottom-0 right-0 bg-slate-900/80 text-white text-[9px] px-1 font-bold rounded-tl">
-                                    +{prod.images.length}
-                                  </span>
-                                )}
-                              </div>
-                              <div>
-                                <h4 className="font-bold text-[#172A46] flex items-center gap-1.5">
-                                  <span>{prod.name}</span>
-                                  {prod.badge && (
-                                    <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800 font-bold">
-                                      {prod.badge}
-                                    </span>
-                                  )}
-                                </h4>
-                                <p className="text-[10px] text-slate-400 line-clamp-1 max-w-xs mt-0.5">
-                                  {prod.description || 'منتج مصنوع يدوياً بحب وإتقان في حضرموت'}
-                                </p>
-                                {((prod.sizes && prod.sizes.length > 0) || (prod.colors && prod.colors.length > 0)) && (
-                                  <div className="flex items-center gap-1.5 mt-1 text-[9px] text-slate-500">
-                                    {prod.sizes && prod.sizes.length > 0 && (
-                                      <span className="bg-slate-100 px-1.5 py-0.5 rounded">
-                                        مقاسات: {Array.isArray(prod.sizes) ? prod.sizes.join('، ') : prod.sizes}
-                                      </span>
-                                    )}
-                                    {prod.colors && prod.colors.length > 0 && (
-                                      <span className="bg-slate-100 px-1.5 py-0.5 rounded">
-                                        ألوان: {Array.isArray(prod.colors) ? prod.colors.join('، ') : prod.colors}
-                                      </span>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="py-3 px-3 font-medium text-slate-600">
-                            <span className="px-2 py-1 rounded-lg bg-[#F3F6FB] text-slate-700 font-bold">
-                              {prod.category}
-                            </span>
-                          </td>
-
-                          <td className="py-3 px-3 font-mono">
-                            {prod.discountPrice && Number(prod.discountPrice) < Number(prod.price) ? (
-                              <div className="space-y-0.5">
-                                <span className="font-black text-[#54B9F2] block text-sm">
-                                  {Number(prod.discountPrice).toLocaleString()} ر.ي
-                                </span>
-                                <span className="text-[10px] text-slate-400 line-through block">
-                                  {Number(prod.price).toLocaleString()} ر.ي
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="font-black text-[#172A46] text-sm">
-                                {Number(prod.price).toLocaleString()} ر.ي
-                              </span>
-                            )}
-                          </td>
-
-                          <td className="py-3 px-3">
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                onClick={() => updateProductStock(prod.id, Math.max(0, (prod.inStock || 0) - 1))}
-                                className="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs"
-                                title="إنقاص الكمية"
-                              >
-                                -
-                              </button>
-                              <span
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono ${
-                                  (prod.inStock || 0) === 0
-                                    ? 'bg-red-50 text-red-700 border border-red-200'
-                                    : (prod.inStock || 0) < 5
-                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                    : 'bg-emerald-50 text-emerald-700'
-                                }`}
-                              >
-                                {prod.inStock || 0} متوفر
-                              </span>
-                              <button
-                                onClick={() => updateProductStock(prod.id, (prod.inStock || 0) + 1)}
-                                className="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs"
-                                title="زيادة الكمية"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </td>
-
-                          <td className="py-3 px-3">
-                            <button
-                              onClick={() => updateProduct(prod.id, { isVisible: prod.isVisible === false ? true : false })}
-                              className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition flex items-center gap-1 ${
-                                prod.isVisible !== false
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                                  : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
-                              }`}
-                            >
-                              <span className={`w-1.5 h-1.5 rounded-full ${prod.isVisible !== false ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
-                              <span>{prod.isVisible !== false ? 'معروض للبيع' : 'مخفي مؤقتاً'}</span>
-                            </button>
-                          </td>
-
-                          <td className="py-3 px-3 text-center">
-                            <div className="flex items-center justify-center gap-1.5">
-                              <button
-                                onClick={() => setEditingProduct({ ...prod })}
-                                className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-sky-600 transition"
-                                title="تعديل المنتج"
-                              >
-                                <Edit className="w-3.5 h-3.5" />
-                              </button>
-
-                              <button
-                                onClick={() => {
-                                  if (confirm(`هل أنت متأكد من حذف منتج "${prod.name}"؟`)) {
-                                    deleteProduct(prod.id);
-                                  }
-                                }}
-                                className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition"
-                                title="حذف المنتج"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                    <tbody className="divide-y divide-slate-50 font-medium">
+                      <tr>
+                        <td className="py-3 font-bold text-slate-800">بخور مكلاوي ملكي (تولة)</td>
+                        <td className="py-3 text-slate-600">8,000 ريال</td>
+                        <td className="py-3 text-blue-600">30%</td>
+                        <td className="py-3 font-bold text-slate-900">10,600 ريال</td>
+                        <td className="py-3 text-slate-500">212 ريال</td>
+                        <td className="py-3 font-bold text-emerald-600">+2,388 ريال</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 font-bold text-slate-800">عطر شرقي خاص (50 مل)</td>
+                        <td className="py-3 text-slate-600">14,000 ريال</td>
+                        <td className="py-3 text-blue-600">35%</td>
+                        <td className="py-3 font-bold text-slate-900">19,250 ريال</td>
+                        <td className="py-3 text-slate-500">385 ريال</td>
+                        <td className="py-3 font-bold text-emerald-600">+4,865 ريال</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 font-bold text-slate-800">شموع معطرة باللبان الحوجري</td>
+                        <td className="py-3 text-slate-600">5,500 ريال</td>
+                        <td className="py-3 text-blue-600">40%</td>
+                        <td className="py-3 font-bold text-slate-900">7,850 ريال</td>
+                        <td className="py-3 text-slate-500">157 ريال</td>
+                        <td className="py-3 font-bold text-emerald-600">+2,193 ريال</td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
-              )}
+              </div>
+
             </div>
           )}
 
-                    {/* TAB 3: ORDERS MANAGEMENT (إدارة الطلبات وتحديث حالاتها) */}
-          {activeTab === 'orders' && (
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-              <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+          {/* ==================================================================
+              TAB 4: PRODUCTS (Screen 7: المنتجات)
+              ================================================================== */}
+          {activeTab === 'products' && (
+            <div className="space-y-8">
+              
+              {/* Header Box with Add Button (Screen 7 Layout) */}
+              <div className="bg-gradient-to-r from-[#11294a] to-[#1c4d87] rounded-3xl p-6 md:p-8 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
                 <div>
-                  <h3 className="text-sm font-black text-[#172A46]">إدارة وتجهيز طلبات العملاء ({orders.length})</h3>
-                  <p className="text-xs text-slate-500">
-                    عند تجهيز الطلب، اضغط على "جاهز للاستلام" لكي يظهر فوراً لمندوب التوصيل في المكلا 🛵
-                  </p>
+                  <h2 className="text-xl md:text-2xl font-black mb-1">كتالوج منتجات المتجر</h2>
+                  <p className="text-xs md:text-sm text-blue-200">تحكم بالأسعار، المخزون، والخيارات المعروضة للزبائن</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingProductId(null);
+                    setActiveTab('add-product');
+                  }}
+                  className="px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs shadow-lg transition-transform hover:scale-105 flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ إضافة منتج جديد</span>
+                </button>
+              </div>
+
+              {/* 4 Stat Cards for Products (Screen 7 Layout) */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">منتج مفعّل للبيع</div>
+                  <div className="text-2xl font-black text-emerald-600">
+                    {merchantProducts.filter(p => p.inStock > 0).length}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">إجمالي المنتجات</div>
+                  <div className="text-2xl font-black text-blue-600">
+                    {merchantProducts.length}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">بانتظار المراجعة</div>
+                  <div className="text-2xl font-black text-amber-600">0</div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">نفد من المخزون</div>
+                  <div className="text-2xl font-black text-red-500">
+                    {merchantProducts.filter(p => p.inStock === 0).length}
+                  </div>
                 </div>
               </div>
 
-              {orders.length === 0 ? (
-                <div className="py-14 text-center space-y-3 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50">
-                  <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                    <ShoppingBag className="w-8 h-8" />
+              {/* Search & Filter Bar */}
+              <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div className="relative w-full sm:w-80">
+                  <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5" />
+                  <input
+                    type="text"
+                    placeholder="ابحث باسم المنتج..."
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <select
+                    value={productCategoryFilter}
+                    onChange={(e) => setProductCategoryFilter(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700"
+                  >
+                    <option value="all">كافة الفئات</option>
+                    {categories.map((c, i) => (
+                      <option key={i} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={productStatusFilter}
+                    onChange={(e) => setProductStatusFilter(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700"
+                  >
+                    <option value="all">كافة الحالات</option>
+                    <option value="active">متوفر فقط</option>
+                    <option value="out">نفد المخزون</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Products Table (Screen 7 Layout) */}
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-right text-xs">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-500 border-b border-slate-100">
+                        <th className="py-4 px-6 font-bold">المنتج</th>
+                        <th className="py-4 px-4 font-bold">التصنيف</th>
+                        <th className="py-4 px-4 font-bold">السعر</th>
+                        <th className="py-4 px-4 font-bold">المخزون المتوفر</th>
+                        <th className="py-4 px-4 font-bold">الحالة</th>
+                        <th className="py-4 px-6 font-bold text-left">إجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 font-medium">
+                      {filteredProducts.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="py-12 text-center text-slate-400">
+                            لا توجد منتجات مطابقة لخيارات البحث
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredProducts.map((prod) => (
+                          <tr key={prod.id} className="hover:bg-slate-50/80 transition-colors">
+                            {/* Product Info with Image */}
+                            <td className="py-3.5 px-6">
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={prod.image || 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?w=100&auto=format&fit=crop&q=80'}
+                                  alt={prod.name}
+                                  className="w-12 h-12 rounded-xl object-cover border border-slate-200 flex-shrink-0"
+                                />
+                                <div>
+                                  <div className="font-bold text-slate-900 text-sm">{prod.name}</div>
+                                  <div className="text-[11px] text-slate-400 truncate max-w-[200px]">{prod.description || 'بخور وعطور فاخرة'}</div>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Category */}
+                            <td className="py-3.5 px-4 text-slate-600 font-semibold">{prod.category || 'عام'}</td>
+
+                            {/* Price */}
+                            <td className="py-3.5 px-4 font-bold text-slate-900">
+                              {prod.price ? Number(prod.price).toLocaleString() : '15,000'} <span className="text-[10px] text-slate-400">ريال</span>
+                            </td>
+
+                            {/* Stock */}
+                            <td className="py-3.5 px-4">
+                              <span className={`font-bold ${prod.inStock > 5 ? 'text-slate-800' : prod.inStock > 0 ? 'text-amber-600' : 'text-red-500'}`}>
+                                {prod.inStock || 0} قطعة
+                              </span>
+                            </td>
+
+                            {/* Status */}
+                            <td className="py-3.5 px-4">
+                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                                prod.inStock > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
+                              }`}>
+                                {prod.inStock > 0 ? 'متوفر' : 'نفد'}
+                              </span>
+                            </td>
+
+                            {/* Actions (Screen 7 buttons: View, Edit, Delete) */}
+                            <td className="py-3.5 px-6 text-left">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => handleEditProductClick(prod)}
+                                  className="p-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 transition-colors"
+                                  title="تعديل المنتج"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteProductClick(prod.id, prod.name)}
+                                  className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 transition-colors"
+                                  title="حذف المنتج"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* ==================================================================
+              TAB 5: ADD / EDIT PRODUCT (Screen 8: إضافة منتج جديد)
+              ================================================================== */}
+          {activeTab === 'add-product' && (
+            <div className="space-y-8">
+              
+              {/* Back to products button */}
+              <button
+                onClick={() => {
+                  setEditingProductId(null);
+                  setActiveTab('products');
+                }}
+                className="inline-flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-700"
+              >
+                <ArrowRight className="w-4 h-4" />
+                <span>العودة إلى قائمة المنتجات</span>
+              </button>
+
+              <form onSubmit={handleSaveProduct} className="space-y-8">
+                
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                  
+                  {/* Left Column: Product Images (Screen 8 Layout) */}
+                  <div className="lg:col-span-5 space-y-6">
+                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+                      <h3 className="text-sm font-black text-slate-900 border-b border-slate-100 pb-3">
+                        صور المنتج
+                      </h3>
+
+                      {/* Main Preview */}
+                      <div className="w-full aspect-square rounded-2xl bg-slate-50 border-2 border-dashed border-blue-400 p-2 flex items-center justify-center relative overflow-hidden group">
+                        <img
+                          src={productForm.image}
+                          alt="معاينة المنتج"
+                          className="w-full h-full object-cover rounded-xl"
+                        />
+                      </div>
+
+                      {/* Image URL input */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">رابط صورة المنتج (URL)</label>
+                        <input
+                          type="url"
+                          value={productForm.image}
+                          onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+                          className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-mono text-left"
+                          dir="ltr"
+                          placeholder="https://..."
+                        />
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-100 text-[11px] text-blue-700 leading-relaxed">
+                        💡 يُفضل استخدام صور مربعة واضحة ذات خلفية بيضاء أو نقية للحصول على أفضل ظهور للمنتج في تطبيق غيم سبيس.
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-black text-[#172A46]">لا توجد طلبات جديدة لمتجرك حتى الآن</h4>
-                    <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                      ستظهر هنا جميع طلبات الشراء الواردة من عملاء غيم سبيس فور إتمامها، لتتمكن من تجهيزها وتسليمها للمندوب.
-                    </p>
+
+                  {/* Right Column: Product Details (Screen 8 Layout) */}
+                  <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
+                    <h3 className="text-base font-black text-slate-900 border-b border-slate-100 pb-4">
+                      {editingProductId ? 'تعديل تفاصيل المنتج' : 'بيانات وتفاصيل المنتج الجديد'}
+                    </h3>
+
+                    <div className="space-y-5">
+                      
+                      {/* Product Name */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-2">اسم المنتج *</label>
+                        <input
+                          type="text"
+                          value={productForm.name}
+                          onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                          placeholder="مثال: بخور مكلاوي فاخر - تولة ملكية"
+                          className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold"
+                          required
+                        />
+                      </div>
+
+                      {/* Description */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-2">وصف المنتج ومكوناته *</label>
+                        <textarea
+                          rows={3}
+                          value={productForm.description}
+                          onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                          placeholder="اكتب وصفاً جذاباً يشمل المكونات وطريقة الاستخدام..."
+                          className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-medium leading-relaxed"
+                          required
+                        />
+                      </div>
+
+                      {/* Category & SubCategory */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-2">الفئة الرئيسية *</label>
+                          <select
+                            value={productForm.category}
+                            onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold bg-white"
+                          >
+                            {categories.map((c, i) => (
+                              <option key={i} value={c.name}>{c.name}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-2">الفئة الفرعية</label>
+                          <input
+                            type="text"
+                            value={productForm.subCategory}
+                            onChange={(e) => setProductForm({ ...productForm, subCategory: e.target.value })}
+                            placeholder="مثال: بخور وعود"
+                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Default Price & Stock */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-2">السعر الأصلي (ريال) *</label>
+                          <input
+                            type="number"
+                            value={productForm.price}
+                            onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-bold"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-2">سعر العرض / الخصم</label>
+                          <input
+                            type="number"
+                            value={productForm.discountPrice}
+                            onChange={(e) => setProductForm({ ...productForm, discountPrice: e.target.value })}
+                            placeholder="اختياري"
+                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-bold text-emerald-600"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-2">الكمية المتوفرة *</label>
+                          <input
+                            type="number"
+                            value={productForm.inStock}
+                            onChange={(e) => setProductForm({ ...productForm, inStock: e.target.value })}
+                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-bold"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Sizes and Variants Table (Screen 8 Layout) */}
+                <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                      <h3 className="text-base font-black text-slate-900">الأحجام والأسعار المتعددة (Variants)</h3>
+                      <p className="text-xs text-slate-500">أضف خيارات الأحجام أو الأوزان مع أسعارها الخاصة</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddSizeRow}
+                      className="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold text-xs flex items-center gap-1.5 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>+ إضافة حجم / وزن</span>
+                    </button>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-right text-xs">
+                      <thead>
+                        <tr className="text-slate-400 border-b border-slate-100">
+                          <th className="pb-3 font-semibold">الحجم / الخيار</th>
+                          <th className="pb-3 font-semibold">الكمية المتوفرة</th>
+                          <th className="pb-3 font-semibold">سعر المنتج</th>
+                          <th className="pb-3 font-semibold">سعر العرض</th>
+                          <th className="pb-3 font-semibold">الباركود / SKU</th>
+                          <th className="pb-3 font-semibold text-left">حذف</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {productForm.sizes.map((s) => (
+                          <tr key={s.id}>
+                            <td className="py-2.5">
+                              <input
+                                type="text"
+                                value={s.size}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setProductForm(prev => ({
+                                    ...prev,
+                                    sizes: prev.sizes.map(row => row.id === s.id ? { ...row, size: val } : row),
+                                  }));
+                                }}
+                                className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold"
+                              />
+                            </td>
+                            <td className="py-2.5">
+                              <input
+                                type="number"
+                                value={s.stock}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setProductForm(prev => ({
+                                    ...prev,
+                                    sizes: prev.sizes.map(row => row.id === s.id ? { ...row, stock: Number(val) } : row),
+                                  }));
+                                }}
+                                className="w-20 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold"
+                              />
+                            </td>
+                            <td className="py-2.5">
+                              <input
+                                type="number"
+                                value={s.price}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setProductForm(prev => ({
+                                    ...prev,
+                                    sizes: prev.sizes.map(row => row.id === s.id ? { ...row, price: Number(val) } : row),
+                                  }));
+                                }}
+                                className="w-24 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold"
+                              />
+                            </td>
+                            <td className="py-2.5">
+                              <input
+                                type="number"
+                                value={s.offerPrice}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setProductForm(prev => ({
+                                    ...prev,
+                                    sizes: prev.sizes.map(row => row.id === s.id ? { ...row, offerPrice: val } : row),
+                                  }));
+                                }}
+                                placeholder="اختياري"
+                                className="w-24 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-emerald-600"
+                              />
+                            </td>
+                            <td className="py-2.5">
+                              <input
+                                type="text"
+                                value={s.barcode}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setProductForm(prev => ({
+                                    ...prev,
+                                    sizes: prev.sizes.map(row => row.id === s.id ? { ...row, barcode: val } : row),
+                                  }));
+                                }}
+                                className="w-28 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-mono"
+                              />
+                            </td>
+                            <td className="py-2.5 text-left">
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveSizeRow(s.id)}
+                                className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {orders.map((ord) => (
-                    <div
-                      key={ord.id}
-                      className="p-4 rounded-2xl border border-slate-200 bg-[#F3F6FB]/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+
+                {/* Form Action Buttons */}
+                <div className="flex items-center justify-end gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingProductId(null);
+                      setActiveTab('products');
+                    }}
+                    className="px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+                  >
+                    إلغاء
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="px-8 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-lg shadow-blue-500/20 transition-transform hover:scale-105 flex items-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{editingProductId ? 'حفظ التعديلات' : 'نشر المنتج الآن في المتجر'}</span>
+                  </button>
+                </div>
+
+              </form>
+
+            </div>
+          )}
+
+          {/* ==================================================================
+              TAB 6: ORDERS (Screen 4: الطلبات)
+              ================================================================== */}
+          {activeTab === 'orders' && (
+            <div className="space-y-8">
+              
+              {/* 4 Stat Cards for Orders (Screen 4 Layout) */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">إجمالي الطلبات</div>
+                  <div className="text-2xl font-black text-slate-900">{orderStats.total}</div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">قيد الشحن والتوصيل</div>
+                  <div className="text-2xl font-black text-blue-600">{orderStats.shipping}</div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">قيد المعالجة والتجهيز</div>
+                  <div className="text-2xl font-black text-amber-600">{orderStats.processing}</div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">طلبات مكتملة</div>
+                  <div className="text-2xl font-black text-emerald-600">{orderStats.completed}</div>
+                </div>
+              </div>
+
+              {/* Orders Filters */}
+              <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div className="relative w-full sm:w-80">
+                  <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5" />
+                  <input
+                    type="text"
+                    placeholder="ابحث برقم الطلب أو اسم العميل..."
+                    value={orderSearch}
+                    onChange={(e) => setOrderSearch(e.target.value)}
+                    className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <select
+                  value={orderStatusFilter}
+                  onChange={(e) => setOrderStatusFilter(e.target.value)}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700"
+                >
+                  <option value="all">كافة حالات الطلب</option>
+                  <option value="placed">جديد</option>
+                  <option value="processing">قيد المعالجة والتجهيز</option>
+                  <option value="ready_for_pickup">جاهز للاستلام والتوصيل</option>
+                  <option value="delivered">مكتمل ومسلّم</option>
+                </select>
+              </div>
+
+              {/* Orders Table (Screen 4 Layout) */}
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-right text-xs">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-500 border-b border-slate-100">
+                        <th className="py-4 px-6 font-bold">رقم الطلب</th>
+                        <th className="py-4 px-4 font-bold">العميل</th>
+                        <th className="py-4 px-4 font-bold">المجموع</th>
+                        <th className="py-4 px-4 font-bold">الحالة</th>
+                        <th className="py-4 px-4 font-bold">التاريخ</th>
+                        <th className="py-4 px-6 font-bold text-left">إجراءات ومعالجة</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 font-medium">
+                      {filteredOrders.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="py-12 text-center text-slate-400">
+                            لا توجد طلبات في هذا السجل حالياً
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredOrders.map((order) => (
+                          <tr key={order.id} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="py-3.5 px-6 font-bold text-blue-600">{order.id}</td>
+                            <td className="py-3.5 px-4 font-bold text-slate-900">{order.customer || 'عميل غيم'}</td>
+                            <td className="py-3.5 px-4 font-bold text-slate-900">
+                              {(Number(order.total) || Number(order.amount) || 15000).toLocaleString()} <span className="text-[10px] text-slate-400">ريال</span>
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                                order.status === 'delivered' || order.status === 'مكتمل'
+                                  ? 'bg-emerald-50 text-emerald-700'
+                                  : order.status === 'ready_for_pickup' || order.status === 'delivering'
+                                  ? 'bg-blue-50 text-blue-700'
+                                  : 'bg-amber-50 text-amber-700'
+                              }`}>
+                                {order.status === 'delivered' ? 'مكتمل' : order.status === 'ready_for_pickup' ? 'جاهز للتوصيل' : 'قيد التجهيز'}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 text-slate-400">{order.date || 'اليوم'}</td>
+                            <td className="py-3.5 px-6 text-left">
+                              <div className="flex items-center justify-end gap-2">
+                                {order.status !== 'ready_for_pickup' && order.status !== 'delivered' && (
+                                  <button
+                                    onClick={() => {
+                                      markOrderReadyForPickup(order.id);
+                                      showToast(`تم تجهيز الطلب ${order.id} وجعله جاهزاً للتوصيل 🛵`);
+                                    }}
+                                    className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] shadow-sm transition-colors"
+                                  >
+                                    جاهز للتوصيل
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => setSelectedOrder(order)}
+                                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600"
+                                  title="عرض التفاصيل"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* ==================================================================
+              TAB 7: SALES & REPORTS (Screen 6: المبيعات والتقارير)
+              ================================================================== */}
+          {activeTab === 'sales' && (
+            <div className="space-y-8">
+              
+              {/* Time Period Filter Tabs (Screen 6 Layout) */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                <div className="flex gap-2">
+                  {[
+                    { id: '30days', label: 'آخر 30 يوم' },
+                    { id: '3months', label: 'آخر 3 أشهر' },
+                    { id: 'year', label: 'آخر سنة' },
+                    { id: 'custom', label: 'مخصص' },
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setSalesPeriod(tab.id)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                        salesPeriod === tab.id ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
                     >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="text-xs text-slate-500 font-semibold">
+                  التقارير المالية الصادرة بالريال اليمني (YER)
+                </div>
+              </div>
+
+              {/* 4 Stat Cards for Sales (Screen 6 Layout) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">عدد الطلبات</div>
+                  <div className="text-2xl font-black text-slate-900">{stats.totalOrdersCount} طلب</div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">إجمالي المبيعات</div>
+                  <div className="text-2xl font-black text-blue-600">{stats.totalSales.toLocaleString()} ريال</div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">أرباح التاجر الصافية</div>
+                  <div className="text-2xl font-black text-emerald-600">{stats.merchantNetEarnings.toLocaleString()} ريال</div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold mb-1">عمولات المنصة المسددة (2%)</div>
+                  <div className="text-2xl font-black text-slate-700">{stats.platformCommission.toLocaleString()} ريال</div>
+                </div>
+              </div>
+
+              {/* Interactive SVG Sales Movement Chart */}
+              <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h3 className="text-base font-black text-slate-900">حركة المبيعات خلال الفترة</h3>
+                    <p className="text-xs text-slate-500">مخطط بياني يوضح وتيرة نمو المبيعات</p>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
+                    <ArrowUpRight className="w-4 h-4" />
+                    <span>نمو بمعدل 18.4%</span>
+                  </span>
+                </div>
+
+                {/* SVG Line Chart */}
+                <div className="h-64 w-full pt-4">
+                  <svg className="w-full h-full" viewBox="0 0 600 200" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#2563eb" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#2563eb" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+                    {/* Area under curve */}
+                    <path
+                      d="M 0 160 Q 100 130 200 110 T 400 60 T 600 30 L 600 200 L 0 200 Z"
+                      fill="url(#salesGrad)"
+                    />
+                    {/* Line */}
+                    <path
+                      d="M 0 160 Q 100 130 200 110 T 400 60 T 600 30"
+                      fill="none"
+                      stroke="#2563eb"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                    />
+                    {/* Data dots */}
+                    <circle cx="200" cy="110" r="5" fill="#2563eb" />
+                    <circle cx="400" cy="60" r="5" fill="#2563eb" />
+                    <circle cx="600" cy="30" r="5" fill="#2563eb" />
+                  </svg>
+                </div>
+                <div className="flex justify-between text-[11px] text-slate-400 font-semibold px-2">
+                  <span>الأسبوع الأول</span>
+                  <span>الأسبوع الثاني</span>
+                  <span>الأسبوع الثالث</span>
+                  <span>الأسبوع الحالي</span>
+                </div>
+              </div>
+
+              {/* Subscriptions Log (Screen 6 Layout) */}
+              <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-4">
+                <h3 className="text-base font-black text-slate-900">سجل الاشتراكات الشهرية</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-right text-xs">
+                    <thead>
+                      <tr className="text-slate-400 border-b border-slate-100">
+                        <th className="pb-3 font-semibold">رقم الفاتورة</th>
+                        <th className="pb-3 font-semibold">الباقة</th>
+                        <th className="pb-3 font-semibold">المبلغ</th>
+                        <th className="pb-3 font-semibold">الحالة</th>
+                        <th className="pb-3 font-semibold">تاريخ السداد</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50 font-medium">
+                      <tr>
+                        <td className="py-3 font-mono font-bold text-blue-600">INV-2026-11</td>
+                        <td className="py-3 text-slate-800">باقة التاجر الفضي</td>
+                        <td className="py-3 font-bold text-slate-900">6,000 ريال</td>
+                        <td className="py-3">
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">
+                            مفعّل
+                          </span>
+                        </td>
+                        <td className="py-3 text-slate-500">1 نوفمبر 2026</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 font-mono font-bold text-blue-600">INV-2026-10</td>
+                        <td className="py-3 text-slate-800">باقة التاجر الفضي</td>
+                        <td className="py-3 font-bold text-slate-900">6,000 ريال</td>
+                        <td className="py-3">
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">
+                            مفعّل
+                          </span>
+                        </td>
+                        <td className="py-3 text-slate-500">1 أكتوبر 2026</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* ==================================================================
+              TAB 8: SETTINGS (الإعدادات)
+              ================================================================== */}
+          {activeTab === 'settings' && (
+            <div className="max-w-3xl space-y-6">
+              <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
+                <h3 className="text-base font-black text-slate-900 border-b border-slate-100 pb-4">
+                  إعدادات التنبيهات والإشعارات
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    { label: 'إشعارات الطلبات الجديدة عبر الواتساب', desc: 'استلام تنبيه فوري فور قيام العميل بالطلب', checked: true },
+                    { label: 'تنبيهات انخفاض المخزون', desc: 'إشعارك عندما يتبقى أقل من 3 قطع من أي منتج', checked: true },
+                    { label: 'تقارير المبيعات الأسبوعية', desc: 'ملخص أسبوعي للأرباح والمبيعات المحققة', checked: false },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-black text-sm text-[#172A46]">{ord.id}</span>
-                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                            ord.status === 'delivered'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : ord.status === 'ready_for_pickup'
-                              ? 'bg-blue-50 text-blue-700 border-blue-200'
-                              : ord.status === 'on_the_way'
-                              ? 'bg-purple-50 text-purple-700 border-purple-200'
-                              : 'bg-amber-50 text-amber-700 border-amber-200'
-                          }`}>
-                            {ord.statusLabel || ord.status}
-                          </span>
-                        </div>
-                        <div className="text-xs text-slate-600 mt-1 space-y-0.5">
-                          <p><strong className="text-slate-800">العميل:</strong> {ord.customerName} ({ord.phone})</p>
-                          <p><strong className="text-slate-800">العنوان:</strong> {ord.address}</p>
-                          <p><strong className="text-slate-800">طريقة الدفع:</strong> {ord.paymentMethod} {ord.paymentRef ? `(مرجع: ${ord.paymentRef})` : ''}</p>
-                        </div>
+                        <div className="text-xs font-bold text-slate-800">{item.label}</div>
+                        <div className="text-[11px] text-slate-400">{item.desc}</div>
                       </div>
-
-                      <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                        <span className="font-black text-sm text-[#54B9F2] font-mono">
-                          {ord.total?.toLocaleString()} ر.ي
-                        </span>
-
-                        {ord.status === 'pending' && (
-                          <button
-                            onClick={() => markOrderReadyForPickup(ord.id)}
-                            className="px-3.5 py-2 rounded-xl bg-[#54B9F2] text-[#172A46] font-black text-xs hover:bg-sky-400 transition shadow-sm"
-                          >
-                            جاهز لاستلام المندوب 📦
-                          </button>
-                        )}
-
-                        {ord.status === 'ready_for_pickup' && (
-                          <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200">
-                            بانتظار قبول المندوب... 🛵
-                          </span>
-                        )}
-
-                        {ord.status === 'on_the_way' && (
-                          <span className="text-[11px] font-bold text-purple-600 bg-purple-50 px-3 py-1.5 rounded-xl border border-purple-200">
-                            مع المندوب في الطريق 🛵
-                          </span>
-                        )}
-
-                        {ord.status === 'delivered' && (
-                          <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
-                            تم التسليم للعميل ✅
-                          </span>
-                        )}
-                      </div>
+                      <input type="checkbox" defaultChecked={item.checked} className="w-4 h-4 accent-blue-600 cursor-pointer" />
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
-          )}
-
-          {/* TAB 4: INVENTORY & PRICES (إدارة المخزون والأسعار) */}
-          {activeTab === 'inventory' && (
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-              <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-black text-[#172A46] flex items-center gap-2">
-                    <Tag className="w-4 h-4 text-[#54B9F2]" />
-                    <span>إدارة المخزون والأسعار السريعة</span>
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    عدّل كميات القطع المتوفرة والأسعار بالريال اليمني مباشرة دون الحاجة للدخول لصفحة المنتج
-                  </p>
-                </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-right text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-100 text-slate-500 font-bold">
-                      <th className="pb-3 px-3">المنتج</th>
-                      <th className="pb-3 px-3">السعر الحالي (ر.ي)</th>
-                      <th className="pb-3 px-3">كمية المخزون</th>
-                      <th className="pb-3 px-3">حالة التوفر</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {products.map((prod) => (
-                      <tr key={prod.id} className="hover:bg-slate-50 transition">
-                        <td className="py-3 px-3 font-bold text-[#172A46]">
-                          <div className="flex items-center gap-2">
-                            <img src={prod.image} alt={prod.name} className="w-8 h-8 rounded-lg object-cover" />
-                            <span>{prod.name}</span>
-                          </div>
-                        </td>
-
-                        <td className="py-3 px-3">
-                          <input
-                            type="number"
-                            defaultValue={prod.price}
-                            onBlur={(e) => updateProduct(prod.id, { price: Number(e.target.value) })}
-                            className="w-28 bg-[#F3F6FB] border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-[#172A46] focus:border-[#54B9F2] focus:outline-none"
-                          />
-                        </td>
-
-                        <td className="py-3 px-3">
-                          <input
-                            type="number"
-                            defaultValue={prod.inStock || 15}
-                            onBlur={(e) => updateProductStock(prod.id, e.target.value)}
-                            className="w-20 bg-[#F3F6FB] border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-[#172A46] focus:border-[#54B9F2] focus:outline-none"
-                          />
-                        </td>
-
-                        <td className="py-3 px-3">
-                          {(prod.inStock || 15) < 5 ? (
-                            <span className="text-red-600 font-bold flex items-center gap-1">
-                              <AlertTriangle className="w-3.5 h-3.5" />
-                              <span>مخزون منخفض! سارع بالتجهيز</span>
-                            </span>
-                          ) : (
-                            <span className="text-emerald-600 font-bold">متوفر بكمية كافية ✅</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          
-
-                    {/* TAB 5: STORE PROFILE & BRANDING (إدارة بيانات المتجر والغلاف) */}
-          {activeTab === 'store-profile' && (
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6">
-              <div className="border-b border-slate-100 pb-3">
-                <h3 className="text-sm font-black text-[#172A46]">بيانات وهوية المتجر والحسابات</h3>
-                <p className="text-xs text-slate-500">
-                  تعديل اسم المتجر، النبذة التعريفية، الشعار، صورة الغلاف، أرقام التواصل والحسابات البنكية لاستلام الأرباح
-                </p>
-              </div>
-
-              <form onSubmit={handleSaveStoreProfile} className="space-y-5 text-xs">
-                {/* Cover & Logo Section */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Cover */}
-                  <div className="md:col-span-2">
-                    <label className="block font-bold text-slate-700 mb-1">غلاف المتجر (Cover Banner)</label>
-                    <div className="relative h-36 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
-                      <img src={storeForm.coverImage} alt="Cover" className="w-full h-full object-cover" />
-                    </div>
-                    <input
-                      type="text"
-                      value={storeForm.coverImage}
-                      onChange={(e) => setStoreForm({ ...storeForm, coverImage: e.target.value })}
-                      className="w-full mt-2 bg-[#F3F6FB] border border-slate-200 rounded-xl px-3 py-2 text-slate-800"
-                      placeholder="رابط صورة الغلاف..."
-                    />
-                  </div>
-
-                  {/* Logo */}
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">شعار المتجر (Logo)</label>
-                    <div className="flex flex-col items-center justify-center p-3 border border-slate-200 rounded-2xl bg-slate-50 gap-2">
-                      <img src={storeForm.logo} alt="Logo" className="w-20 h-20 rounded-2xl object-cover border border-slate-200 shadow-sm" />
-                      <input
-                        type="text"
-                        value={storeForm.logo}
-                        onChange={(e) => setStoreForm({ ...storeForm, logo: e.target.value })}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-[10px] text-slate-800"
-                        placeholder="رابط الشعار..."
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">اسم المتجر الرسمي</label>
-                    <input
-                      type="text"
-                      required
-                      value={storeForm.name}
-                      onChange={(e) => setStoreForm({ ...storeForm, name: e.target.value })}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-[#54B9F2]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">المدينة في حضرموت</label>
-                    <input
-                      type="text"
-                      value={storeForm.city}
-                      onChange={(e) => setStoreForm({ ...storeForm, city: e.target.value })}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-[#54B9F2]"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <YemeniPhoneInput
-                    label="رقم هاتف التاجر المعتمد"
-                    required={true}
-                    value={storeForm.phone}
-                    onChange={(cleaned) => setStoreForm({ ...storeForm, phone: cleaned })}
-                    id="merchant-edit-phone"
-                  />
-
-                  <YemeniPhoneInput
-                    label="رقم الواتساب للطلبات"
-                    required={false}
-                    value={storeForm.whatsapp}
-                    onChange={(cleaned) => setStoreForm({ ...storeForm, whatsapp: cleaned })}
-                    id="merchant-edit-wa"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">رقم حساب الكريمي (كريمي جوال)</label>
-                    <input
-                      type="text"
-                      value={storeForm.kuraimiAccount}
-                      onChange={(e) => setStoreForm({ ...storeForm, kuraimiAccount: e.target.value })}
-                      placeholder="مثال: 30129841"
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-mono"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">رقم حساب العمقي للصرافة</label>
-                    <input
-                      type="text"
-                      value={storeForm.omgyAccount}
-                      onChange={(e) => setStoreForm({ ...storeForm, omgyAccount: e.target.value })}
-                      placeholder="مثال: AMQ-889021"
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">نبذة عن المتجر والمنتجات</label>
-                  <textarea
-                    rows={3}
-                    value={storeForm.description}
-                    onChange={(e) => setStoreForm({ ...storeForm, description: e.target.value })}
-                    className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-[#54B9F2]"
-                  />
-                </div>
-
-                <div className="pt-2 flex justify-end">
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-[#54B9F2] text-[#172A46] font-black hover:bg-sky-400 transition shadow-md"
-                  >
-                    حفظ التعديلات وتحديث واجهة المتجر
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* TAB 6: SALES & EARNINGS (متابعة المبيعات والأرباح) */}
-          {activeTab === 'sales' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-1">
-                  <span className="text-xs text-slate-500 font-bold">إجمالي المبيعات المحققة</span>
-                  <span className="text-2xl font-black text-[#172A46] block font-mono">
-                    {totalMerchantSales.toLocaleString()} ر.ي
-                  </span>
-                  <span className="text-[11px] text-emerald-600 font-bold block">مكتملة ومؤكدة ✅</span>
-                </div>
-
-                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-1">
-                  <span className="text-xs text-slate-500 font-bold">عمولة منصة غيم سبيس (5%)</span>
-                  <span className="text-2xl font-black text-slate-600 block font-mono">
-                    {platformFee.toLocaleString()} ر.ي
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-bold block">تشمل الاستضافة والتسويق</span>
-                </div>
-
-                <div className="bg-gradient-to-r from-[#172A46] to-[#25426d] text-white rounded-3xl p-6 shadow-sm space-y-2 flex flex-col justify-between">
-                  <div>
-                    <span className="text-xs text-sky-200 font-bold">صافي الأرباح القابلة للسحب</span>
-                    <span className="text-2xl font-black text-[#54B9F2] block font-mono">
-                      {netEarnings.toLocaleString()} ر.ي
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => setIsWithdrawModalOpen(true)}
-                    className="w-full py-2 rounded-xl bg-[#54B9F2] text-[#172A46] font-black text-xs hover:bg-sky-400 transition"
-                  >
-                    طلب سحب الأرباح لحسابي البنكي 💸
-                  </button>
-                </div>
-              </div>
-
-              {/* Transactions History */}
-              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-3">
-                <h3 className="text-sm font-black text-[#172A46]">سجل العمليات المالية والتحويلات</h3>
-                <div className="divide-y divide-slate-100 text-xs">
-                  <div className="py-3 flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-[#172A46] block">حوالة واردة - طلبية #1045</span>
-                      <span className="text-[10px] text-slate-400">كريمي جوال • منذ يومين</span>
-                    </div>
-                    <span className="font-bold text-emerald-600 font-mono">+48,000 ر.ي</span>
-                  </div>
-                  <div className="py-3 flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-[#172A46] block">حوالة واردة - طلبية #1044</span>
-                      <span className="text-[10px] text-slate-400">العمقي للصرافة • منذ 3 أيام</span>
-                    </div>
-                    <span className="font-bold text-emerald-600 font-mono">+24,000 ر.ي</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          
-
-          {/* TAB 7: REVIEWS & RATINGS (التقييمات والمراجعات) */}
-          {activeTab === 'reviews' && (
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-              <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-black text-[#172A46]">تقييمات ومراجعات العملاء</h3>
-                  <p className="text-xs text-slate-500">
-                    تفاعل مع عملائك في المكلا وقم بالرد على ملاحظاتهم لبناء الثقة
-                  </p>
-                </div>
-                <div className="flex items-center gap-1 text-amber-500 font-black text-sm">
-                  <span>4.8</span>
-                  <Star className="w-4 h-4 fill-amber-400" />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {reviewsList.map((rev) => (
-                  <div key={rev.id} className="p-4 rounded-2xl border border-slate-200 bg-[#F3F6FB]/50 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-[#172A46] text-white flex items-center justify-center font-bold text-xs">
-                          {rev.customer.charAt(0)}
-                        </div>
-                        <div>
-                          <span className="font-bold text-xs text-[#172A46]">{rev.customer}</span>
-                          <span className="text-[10px] text-slate-400 block">{rev.date} • {rev.productName}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-0.5 text-amber-400">
-                        {Array.from({ length: rev.rating }).map((_, i) => (
-                          <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
-                        ))}
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-slate-700 leading-relaxed pr-9">{rev.comment}</p>
-
-                    {/* Merchant Reply if exists */}
-                    {rev.reply && (
-                      <div className="mr-9 p-3 rounded-xl bg-white border border-slate-200 text-xs space-y-1">
-                        <span className="font-bold text-[#54B9F2] block">رد المتجر:</span>
-                        <p className="text-slate-600">{rev.reply}</p>
-                      </div>
-                    )}
-
-                    {/* Reply Input */}
-                    {!rev.reply && (
-                      <div className="mr-9 flex items-center gap-2 pt-1">
-                        <input
-                          type="text"
-                          placeholder="اكتب رد المتجر للعميل..."
-                          value={replyText[rev.id] || ''}
-                          onChange={(e) => setReplyText({ ...replyText, [rev.id]: e.target.value })}
-                          className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-[#54B9F2]"
-                        />
-                        <button
-                          onClick={() => handleAddReviewReply(rev.id)}
-                          className="px-3 py-1.5 rounded-xl bg-[#172A46] text-white font-bold text-xs hover:bg-[#233f66] transition flex items-center gap-1"
-                        >
-                          <Send className="w-3 h-3" />
-                          <span>إرسال</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          
-
-          {/* TAB 8: NOTIFICATIONS (الإشعارات) */}
-          {activeTab === 'notifications' && (
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-              <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-black text-[#172A46]">مركز التنبيهات والإشعارات</h3>
-                  <p className="text-xs text-slate-500">متابعة فورية للطلبات، المبيعات، ومراجعات العملاء</p>
-                </div>
-                <button
-                  onClick={markAllNotificationsAsRead}
-                  className="text-xs font-bold text-[#54B9F2] hover:underline"
-                >
-                  تحديد الكل كمقروء
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                {notifications.map((n) => (
-                  <div
-                    key={n.id}
-                    className={`p-3.5 rounded-2xl border transition flex items-start gap-3 ${
-                      n.unread ? 'bg-sky-50/60 border-sky-200' : 'bg-white border-slate-100'
-                    }`}
-                  >
-                    <div className="w-8 h-8 rounded-xl bg-[#172A46] text-white flex items-center justify-center shrink-0 mt-0.5">
-                      <Bell className="w-4 h-4 text-[#54B9F2]" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-[#172A46]">{n.title}</h4>
-                        <span className="text-[10px] text-slate-400">{n.time}</span>
-                      </div>
-                      <p className="text-xs text-slate-600 mt-0.5">{n.message}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          
-
-          {/* TAB 9: SETTINGS (إعدادات الحساب) */}
-          {activeTab === 'settings' && (
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6">
-              <div className="border-b border-slate-100 pb-3">
-                <h3 className="text-sm font-black text-[#172A46]">إعدادات الحساب والبيانات البنكية</h3>
-                <p className="text-xs text-slate-500">
-                  ربط حسابات البنوك اليمنية (الكريمي، العمقي) لتحويل أرباح المبيعات تلقائياً
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">حساب بنك الكريمي (رقم الحساب أو الآيبان)</label>
-                  <input
-                    type="text"
-                    defaultValue="30129841"
-                    className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 font-mono font-bold"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">حساب العمقي للصرافة</label>
-                  <input
-                    type="text"
-                    defaultValue="AMQ-889021"
-                    className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 font-mono font-bold"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">رقم الهاتف لرمز التحقق (OTP)</label>
-                  <input
-                    type="tel"
-                    defaultValue="771234567"
-                    className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">تغيير كلمة المرور</label>
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-2 flex justify-end">
-                <button
-                  onClick={() => alert('تم حفظ إعدادات الحساب والبيانات البنكية بنجاح!')}
-                  className="px-6 py-2.5 rounded-xl bg-[#172A46] text-white font-bold hover:bg-[#233f66] transition"
-                >
-                  حفظ الإعدادات
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 10: FINANCES & BANK SUBSCRIPTIONS (الاشتراك والمدفوعات البنكية) */}
-          {activeTab === 'finances' && (
-            <div className="space-y-6">
-              {/* Platform Free Month Policy Banner */}
-              <div className="rounded-3xl bg-gradient-to-r from-[#172A46] to-[#1e385e] p-6 text-white shadow-xl border border-sky-900/60 relative overflow-hidden">
-                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px]">
-                        سياسة المنصة الرسمية
-                      </span>
-                      <span className="text-xs text-sky-300 font-bold">
-                        اليمن • حضرموت والمكلا
-                      </span>
-                    </div>
-                    <h3 className="text-lg font-black text-white">
-                      الشهر الأول مجاني بالكامل لكافة المتاجر والأسر المنتجة
-                    </h3>
-                    <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-                      حرصاً على دعم الحرفيين ورواد الأعمال في المكلا وحضرموت، تقدم منصة غيم سبيس شهراً تجريبياً مجانياً كاملاً لكافة الخدمات من تاريخ إطلاق المتجر، وتبدأ الاشتراكات الرمزية بعد انقضاء الشهر لضمان استمرار الدعم اللوجستي وتطوير المنصة.
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setSelectedInvoiceForPayment(merchantInvoices[0] || null);
-                      setIsPaymentModalOpen(true);
-                    }}
-                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-lg transition transform hover:scale-105 shrink-0 flex items-center gap-2"
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    <span>سداد / تجديد الاشتراك عبر البنوك اليمنية</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Subscription Status Card */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* 1. Active Plan & Status */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <span className="text-xs font-bold text-slate-500">حالة الاشتراك الحالية</span>
-                    <span
-                      className={`text-xs px-2.5 py-1 rounded-full font-black ${
-                        merchantSubscription?.status === 'active_trial'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : merchantSubscription?.status === 'expiring_soon'
-                          ? 'bg-amber-50 text-amber-700 border border-amber-200 animate-pulse'
-                          : merchantSubscription?.status === 'active_paid'
-                          ? 'bg-sky-50 text-sky-700 border border-sky-200'
-                          : 'bg-red-50 text-red-700 border border-red-200'
-                      }`}
-                    >
-                      {merchantSubscription?.status === 'active_trial' && 'شهر تجريبي مجاني نشط ☁️'}
-                      {merchantSubscription?.status === 'expiring_soon' && '⚠️ يوشك الشهر المجاني على الانتهاء'}
-                      {merchantSubscription?.status === 'active_paid' && 'مشترك ومسدد ✅'}
-                      {merchantSubscription?.status === 'expired' && 'منتهي - يرجى السداد 🔴'}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h4 className="text-lg font-black text-[#172A46]">
-                      {merchantSubscription?.planName || 'باقة النمو والمتاجر المتميزة'}
-                    </h4>
-                    <div className="flex items-baseline gap-1 mt-1">
-                      <span className="text-2xl font-black text-[#172A46] font-mono">
-                        {merchantSubscription?.price?.toLocaleString()}
-                      </span>
-                      <span className="text-xs text-sky-600 font-bold">ريال يمني (ر.ي) / شهرياً</span>
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-[#F3F6FB] border border-slate-200 space-y-2 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">بداية الفترة:</span>
-                      <span className="font-bold text-[#172A46]">{merchantSubscription?.trialStartDate || '2026-10-20'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">تاريخ الاستحقاق والتجديد:</span>
-                      <span className="font-bold text-[#172A46] font-mono">{merchantSubscription?.currentPeriodEnd || '2026-11-19'}</span>
-                    </div>
-                    <div className="flex justify-between border-t border-slate-200 pt-1.5 font-bold">
-                      <span className="text-slate-700">المدة المتبقية:</span>
-                      <span className="text-sky-600">
-                        {calculateDaysRemaining(merchantSubscription?.currentPeriodEnd)} يوماً
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. Dues Summary */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                  <span className="text-xs font-bold text-slate-500 block border-b border-slate-100 pb-3">
-                    المبالغ المستحقة والمدفوعة
-                  </span>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-center">
-                      <span className="text-[10px] text-amber-800 font-bold block">المبلغ المستحق حالياً</span>
-                      <span className="text-lg font-black text-amber-900 font-mono mt-1 block">
-                        {(merchantInvoices.find(i => i.status === 'pending_payment')?.amount || 0).toLocaleString()} ر.ي
-                      </span>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
-                      <span className="text-[10px] text-emerald-800 font-bold block">إجمالي ما تم سداده</span>
-                      <span className="text-lg font-black text-emerald-900 font-mono mt-1 block">
-                        {(merchantPayments.filter(p => p.status === 'approved').reduce((acc, p) => acc + p.amount, 0)).toLocaleString()} ر.ي
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
-                    <span className="font-bold text-[#172A46] block">طرق السداد المعتمدة في اليمن:</span>
-                    <p className="text-slate-500">
-                      إيداع أو تحويل عبر بنك الكريمي، شركة العمقي، شركة القطيبي، وبنك بن دول مع رفع صورة الإشعار للمطابقة والاعتماد.
-                    </p>
-                  </div>
-                </div>
-
-                {/* 3. Quick Action & Instructions */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <span className="text-xs font-bold text-slate-500 block border-b border-slate-100 pb-3">
-                      إجراءات السداد
-                    </span>
-                    <h5 className="font-bold text-xs text-[#172A46]">كيف يتم سداد وتجديد الاشتراك؟</h5>
-                    <ol className="list-decimal list-inside space-y-1 text-slate-600 text-[11px] leading-relaxed">
-                      <li>اختر الفاتورة المستحقة من الجدول أدناه.</li>
-                      <li>قم بالتحويل إلى أحد حسابات المنصة البنكية.</li>
-                      <li>ارفع صورة إشعار أو إيصال التحويل.</li>
-                      <li>تقوم الإدارة بالتدقيق وتمديد اشتراكك تلقائياً.</li>
-                    </ol>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setSelectedInvoiceForPayment(merchantInvoices[0] || null);
-                      setIsPaymentModalOpen(true);
-                    }}
-                    className="w-full py-3 rounded-2xl bg-[#172A46] hover:bg-[#233f66] text-white font-black text-xs shadow-md transition flex items-center justify-center gap-2"
-                  >
-                    <CreditCard className="w-4 h-4 text-[#54B9F2]" />
-                    <span>سداد الاشتراك الآن 💳</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Invoices Table */}
-              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div>
-                    <h3 className="text-sm font-black text-[#172A46]">فواتير المتجر والاشتراكات</h3>
-                    <span className="text-xs text-slate-400">سجل الفواتير الصادرة وتواريخ الاستحقاق</span>
-                  </div>
-                  <span className="text-xs font-bold text-[#54B9F2] bg-sky-50 px-3 py-1 rounded-full border border-sky-100">
-                    {merchantInvoices.length} فواتير
-                  </span>
-                </div>
-
-                {merchantInvoices.length === 0 ? (
-                  <p className="text-center py-8 text-xs text-slate-400">لا توجد فواتير مستحقة حالياً</p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-right text-xs">
-                      <thead>
-                        <tr className="border-b border-slate-100 text-slate-400 font-bold">
-                          <th className="pb-3 pr-2">رقم الفاتورة</th>
-                          <th className="pb-3">الفترة والوصف</th>
-                          <th className="pb-3">الباقة</th>
-                          <th className="pb-3">المبلغ</th>
-                          <th className="pb-3">تاريخ الاستحقاق</th>
-                          <th className="pb-3">الحالة</th>
-                          <th className="pb-3 pl-2 text-center">الإجراء</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {merchantInvoices.map((inv) => (
-                          <tr key={inv.id} className="hover:bg-slate-50/60 transition">
-                            <td className="py-3.5 pr-2 font-mono font-bold text-[#172A46]">
-                              {inv.invoiceNumber}
-                            </td>
-                            <td className="py-3.5 font-bold text-slate-700">
-                              {inv.periodLabel}
-                            </td>
-                            <td className="py-3.5 text-slate-600">
-                              {inv.planName}
-                            </td>
-                            <td className="py-3.5 font-mono font-black text-[#172A46]">
-                              {inv.amount?.toLocaleString()} ر.ي
-                            </td>
-                            <td className="py-3.5 text-slate-500 font-mono">
-                              {inv.dueDate}
-                            </td>
-                            <td className="py-3.5">
-                              {inv.status === 'paid' && (
-                                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
-                                  مسددة بالكامل ✅
-                                </span>
-                              )}
-                              {inv.status === 'under_review' && (
-                                <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">
-                                  قيد التدقيق والمراجعة ⏳
-                                </span>
-                              )}
-                              {inv.status === 'pending_payment' && (
-                                <span className="px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 text-[10px] font-bold">
-                                  مستحقة السداد 🔴
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3.5 pl-2 text-center">
-                              {inv.status === 'pending_payment' ? (
-                                <button
-                                  onClick={() => {
-                                    setSelectedInvoiceForPayment(inv);
-                                    setIsPaymentModalOpen(true);
-                                  }}
-                                  className="px-3.5 py-1.5 rounded-xl bg-[#172A46] hover:bg-[#233f66] text-white text-xs font-bold transition shadow-sm"
-                                >
-                                  سداد الآن 💳
-                                </button>
-                              ) : inv.status === 'under_review' ? (
-                                <span className="text-[11px] text-amber-600 font-bold">
-                                  بانتظار المشرف
-                                </span>
-                              ) : (
-                                <span className="text-[11px] text-emerald-600 font-bold">
-                                  مكتملة
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-
-              {/* Submitted Payment Receipts History */}
-              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div>
-                    <h3 className="text-sm font-black text-[#172A46]">سجل إيصالات التحويل البنكي</h3>
-                    <span className="text-xs text-slate-400">حالات تدقيق التحويلات من قبل الإدارة المالية</span>
-                  </div>
-                  <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                    {merchantPayments.length} عمليات سداد
-                  </span>
-                </div>
-
-                {merchantPayments.length === 0 ? (
-                  <p className="text-center py-8 text-xs text-slate-400">لم يتم رفع أي إيصالات سداد بعد</p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-right text-xs">
-                      <thead>
-                        <tr className="border-b border-slate-100 text-slate-400 font-bold">
-                          <th className="pb-3 pr-2">رقم العملية</th>
-                          <th className="pb-3">البنك المحول إليه</th>
-                          <th className="pb-3">رقم الحوالة / الإشعار</th>
-                          <th className="pb-3">المبلغ</th>
-                          <th className="pb-3">تاريخ الإرسال</th>
-                          <th className="pb-3">صورة الإيصال</th>
-                          <th className="pb-3 pl-2">حالة المراجعة</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {merchantPayments.map((pay) => (
-                          <tr key={pay.id} className="hover:bg-slate-50/60 transition">
-                            <td className="py-3.5 pr-2 font-mono font-bold text-[#172A46]">
-                              {pay.id}
-                            </td>
-                            <td className="py-3.5 font-bold text-slate-700">
-                              {pay.bankName}
-                            </td>
-                            <td className="py-3.5 font-mono text-sky-600 font-bold">
-                              {pay.transferRef}
-                            </td>
-                            <td className="py-3.5 font-mono font-black text-[#172A46]">
-                              {pay.amount?.toLocaleString()} ر.ي
-                            </td>
-                            <td className="py-3.5 text-slate-500 font-mono text-[11px]">
-                              {pay.createdAt || pay.transferDate}
-                            </td>
-                            <td className="py-3.5">
-                              {pay.receiptImage ? (
-                                <a
-                                  href={pay.receiptImage}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="inline-flex items-center gap-1.5 p-1 rounded-lg border border-slate-200 hover:border-sky-400 transition"
-                                  title="عرض الإيصال"
-                                >
-                                  <img
-                                    src={pay.receiptImage}
-                                    alt="الإيصال"
-                                    className="w-8 h-8 rounded object-cover shadow-sm"
-                                  />
-                                </a>
-                              ) : (
-                                <span className="text-slate-400 text-[10px]">لا يوجد</span>
-                              )}
-                            </td>
-                            <td className="py-3.5 pl-2">
-                              {pay.status === 'approved' && (
-                                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
-                                  معتمد ومقبول ✅
-                                </span>
-                              )}
-                              {pay.status === 'pending_verification' && (
-                                <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">
-                                  قيد التدقيق ⏳
-                                </span>
-                              )}
-                              {pay.status === 'rejected' && (
-                                <div className="space-y-0.5">
-                                  <span className="px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 text-[10px] font-bold">
-                                    مرفوض ❌
-                                  </span>
-                                  {pay.rejectionReason && (
-                                    <p className="text-[10px] text-red-600 mt-1">
-                                      السبب: {pay.rejectionReason}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-
-      {/* MODAL 1: MANUAL ADD PRODUCT */}
-      {isManualModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto" dir="rtl">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div
-              onClick={() => setIsManualModalOpen(false)}
-              className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm transition-opacity"
-            ></div>
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-3xl text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-slate-100 p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 className="text-base font-black text-[#172A46] flex items-center gap-2">
-                  <Package className="w-5 h-5 text-[#54B9F2]" />
-                  <span>إضافة منتج يدوي جديد إلى المتجر</span>
+              <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-4">
+                <h3 className="text-base font-black text-slate-900 border-b border-slate-100 pb-4">
+                  أمان الحساب
                 </h3>
-                <button
-                  onClick={() => setIsManualModalOpen(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <form onSubmit={handleAddManualProduct} className="space-y-4 text-xs max-h-[75vh] overflow-y-auto pr-1">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    اسم المنتج <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="مثال: بخور مكلاوي ملكي مسقى بالعود والمسك"
-                    value={newProduct.name}
-                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                    className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-[#54B9F2]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      التصنيف <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={newProduct.category}
-                      onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-[#54B9F2]"
-                    >
-                      {categories.length > 0 ? (
-                        categories.map((c) => (
-                          <option key={c.id} value={c.name}>
-                            {c.name}
-                          </option>
-                        ))
-                      ) : (
-                        <>
-                          <option value="بخور وعطور">بخور وعطور</option>
-                          <option value="صناعات يدوية">صناعات يدوية</option>
-                          <option value="ديكور وهدايا">ديكور وهدايا</option>
-                          <option value="أسر منتجة">أسر منتجة</option>
-                          <option value="ملابس وأزياء">ملابس وأزياء</option>
-                          <option value="حلويات ومخبوزات">حلويات ومخبوزات</option>
-                        </>
-                      )}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      الكمية بالمخزون المتوفر <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      value={newProduct.inStock}
-                      onChange={(e) => setNewProduct({ ...newProduct, inStock: e.target.value })}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:border-[#54B9F2]"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      السعر الأساسي (ر.ي) <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      min="1"
-                      placeholder="24000"
-                      value={newProduct.price}
-                      onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-mono font-bold focus:outline-none focus:border-[#54B9F2]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      السعر بعد الخصم (اختياري - ر.ي)
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      placeholder="اتركه فارغاً إن لم يوجد خصم"
-                      value={newProduct.discountPrice}
-                      onChange={(e) => setNewProduct({ ...newProduct, discountPrice: e.target.value })}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-mono focus:outline-none focus:border-[#54B9F2]"
-                    />
-                  </div>
-                </div>
-
-                {/* Multi-Image Upload & Preview Gallery */}
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    صور المنتج (متعددة - مع تحديد الصورة الرئيسية)
-                  </label>
-                  
-                  {/* Thumbnails list */}
-                  <div className="flex flex-wrap gap-2.5 mb-2.5">
-                    {(newProduct.images || []).map((img, idx) => (
-                      <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-slate-200 group bg-slate-100">
-                        <img src={img} alt="Product" className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveNewProductImage(idx)}
-                          className="absolute top-1 left-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-bold shadow hover:bg-red-700"
-                          title="حذف الصورة"
-                        >
-                          ✕
-                        </button>
-                        {newProduct.image === img ? (
-                          <span className="absolute bottom-1 right-1 text-[8px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded shadow">
-                            الرئيسية ⭐
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleSetPrimaryImage(img)}
-                            className="absolute bottom-1 right-1 text-[8px] bg-slate-900/80 text-white font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition shadow"
-                          >
-                            تعيين كرئيسية
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Upload button & URL input */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <label className="cursor-pointer py-2 px-3 rounded-xl border border-dashed border-sky-400 bg-sky-50 hover:bg-sky-100 text-sky-800 text-[11px] font-bold text-center flex items-center justify-center gap-1.5 transition">
-                      <ImageIcon className="w-4 h-4 text-sky-600" />
-                      <span>رفع صورة من الجهاز</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleAddNewProductImage}
-                      />
-                    </label>
-
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="text"
-                        placeholder="أو ألصق رابط صورة..."
-                        value={newImageUrlInput}
-                        onChange={(e) => setNewImageUrlInput(e.target.value)}
-                        className="flex-1 bg-[#F3F6FB] border border-slate-200 rounded-xl px-2.5 py-2 text-[11px] text-slate-800 focus:outline-none"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddImageUrl}
-                        className="px-2.5 py-2 bg-[#172A46] text-white rounded-xl text-[11px] font-bold shrink-0"
-                      >
-                        إضافة
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Options (Sizes & Colors) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      خيارات المقاسات (مفصولة بفاصلة)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="مثال: صغير، وسط، كبير، أو 100ml"
-                      value={newProduct.sizes}
-                      onChange={(e) => setNewProduct({ ...newProduct, sizes: e.target.value })}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      خيارات الألوان أو النكهات (مفصولة بفاصلة)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="مثال: أحمر، كحلي، بيج"
-                      value={newProduct.colors}
-                      onChange={(e) => setNewProduct({ ...newProduct, colors: e.target.value })}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Visibility Toggle */}
-                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <div>
-                    <span className="block font-bold text-slate-800">حالة ظهور المنتج في المنصة</span>
-                    <span className="text-[10px] text-slate-500">
-                      {newProduct.isVisible ? 'نشط ومعروض للشراء للجميع في السوق' : 'مخفي مؤقتاً كمسودة'}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setNewProduct({ ...newProduct, isVisible: !newProduct.isVisible })}
-                    className={`px-3 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 ${
-                      newProduct.isVisible
-                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                        : 'bg-slate-200 text-slate-600'
-                    }`}
-                  >
-                    <span>{newProduct.isVisible ? '🟢 معروض للبيع' : '⚪ مخفي مؤقتاً'}</span>
-                  </button>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">الوصف التسويقي للمنتج</label>
-                  <textarea
-                    rows={2}
-                    placeholder="اكتب وصفاً جذاباً لمكونات المنتج وطريقة صنعه التراثية..."
-                    value={newProduct.description}
-                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                    className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-[#54B9F2]"
-                  />
-                </div>
-
-                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
-                  <button
-                    type="button"
-                    onClick={() => setIsManualModalOpen(false)}
-                    className="px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-100 font-bold"
-                  >
-                    إلغاء
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-[#54B9F2] text-[#172A46] font-black hover:bg-sky-400 transition shadow-md"
-                  >
-                    حفظ المنتج وإدراجه بالمتجر
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 2: AI ASSISTANT PRODUCT GENERATOR */}
-      {isAiModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto" dir="rtl">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div
-              onClick={() => setIsAiModalOpen(false)}
-              className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity"
-            ></div>
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-3xl text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-100 p-6 space-y-4">
-              <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 flex items-center justify-center font-bold">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-[#172A46]">
-                    مساعد الذكاء الاصطناعي لتوليد المنتجات (AI Generator)
-                  </h3>
-                  <p className="text-[11px] text-slate-500">
-                    اكتب فقط فكرة أو اسم منتجك، وسيقوم الذكاء الاصطناعي بكتابة العنوان والوصف والسعر المناسب
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-3 text-xs">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    ما هو المنتج الذي تريد بيعه؟ (اكتب بالعامية أو الفصحى):
-                  </label>
-                  <input
-                    type="text"
-                    value={aiPrompt}
-                    onChange={(e) => setAiPrompt(e.target.value)}
-                    placeholder="مثال: بخور دقة عود مكلاوي مسقى أو شمعة لبان حوجري"
-                    className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-bold focus:outline-none focus:border-[#54B9F2]"
-                  />
-                </div>
-
+                <p className="text-xs text-slate-500">
+                  حسابك محمي بواسطة نظام التحقق الموحد لمنصة غيم سبيس السحابية.
+                </p>
                 <button
                   type="button"
-                  disabled={isGeneratingAi}
-                  onClick={handleGenerateWithAi}
-                  className="w-full py-3 rounded-xl bg-[#172A46] text-white hover:bg-[#233f66] font-bold text-xs transition flex items-center justify-center gap-2 disabled:opacity-50"
+                  onClick={() => showToast('رابط إعادة تعيين كلمة المرور أُرسل إلى جوالك')}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
                 >
-                  {isGeneratingAi ? (
-                    <>
-                      <Bot className="w-4 h-4 animate-spin text-[#54B9F2]" />
-                      <span>الذكاء الاصطناعي يقوم بصياغة المنتج الآن...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 text-amber-400" />
-                      <span>توليد تفاصيل المنتج بالذكاء الاصطناعي</span>
-                    </>
-                  )}
-                </button>
-
-                {/* AI Result Card */}
-                {aiResult && (
-                  <div className="p-4 rounded-2xl bg-sky-50 border border-sky-200 space-y-2 animate-fadeIn">
-                    <span className="text-[10px] font-bold text-[#54B9F2] uppercase tracking-wider block">
-                      النتيجة المقترحة من الـ AI:
-                    </span>
-                    <h4 className="font-extrabold text-sm text-[#172A46]">{aiResult.name}</h4>
-                    <p className="text-xs text-slate-600 leading-relaxed">{aiResult.description}</p>
-                    <div className="flex items-center justify-between pt-2 border-t border-sky-200/60 font-bold text-xs">
-                      <span>السعر المقترح: {aiResult.price.toLocaleString()} ر.ي</span>
-                      <span>التصنيف: {aiResult.category}</span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleConfirmAiProduct}
-                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#54B9F2] to-sky-600 text-[#172A46] font-black text-xs hover:from-sky-400 hover:to-[#54B9F2] transition mt-2 shadow-sm"
-                    >
-                      اعتماد وإضافة المنتج فورياً إلى متجري ✅
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 3: EDIT PRODUCT MODAL */}
-      {editingProduct && (
-        <div className="fixed inset-0 z-50 overflow-y-auto" dir="rtl">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div
-              onClick={() => setEditingProduct(null)}
-              className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm transition-opacity"
-            ></div>
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-3xl text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-slate-100 p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 className="text-base font-black text-[#172A46] flex items-center gap-2">
-                  <Edit className="w-5 h-5 text-[#54B9F2]" />
-                  <span>تعديل بيانات المنتج #{editingProduct.id}</span>
-                </h3>
-                <button
-                  onClick={() => setEditingProduct(null)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
-                >
-                  ✕
+                  تغيير كلمة المرور
                 </button>
               </div>
+            </div>
+          )}
 
-              <form onSubmit={handleSaveProductEdit} className="space-y-4 text-xs max-h-[75vh] overflow-y-auto pr-1">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">اسم المنتج</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingProduct.name}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                    className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none"
-                  />
-                </div>
+          {/* ==================================================================
+              TAB 9: SUPPORT (الدعم والمساعدة)
+              ================================================================== */}
+          {activeTab === 'support' && (
+            <div className="max-w-3xl space-y-6">
+              <div className="bg-gradient-to-r from-[#0e213d] to-[#1a3d6d] text-white rounded-3xl p-8 shadow-xl">
+                <h2 className="text-2xl font-black mb-2">مركز دعم تجار غيم سبيس 🎧</h2>
+                <p className="text-blue-200 text-xs leading-relaxed">
+                  فريقنا في المكلا متواجد على مدار الساعة لخدمتك والإجابة على استفساراتك وتذليل كافة العقبات.
+                </p>
+              </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a
+                  href="https://wa.me/967773058707"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Phone className="w-6 h-6" />
+                  </div>
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">التصنيف</label>
-                    <select
-                      value={editingProduct.category}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none"
-                    >
-                      {categories.map((c) => (
-                        <option key={c.id} value={c.name}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="text-sm font-bold text-slate-900">تواصل عبر واتساب الدعم</div>
+                    <div className="text-xs text-slate-500 font-mono" dir="ltr">+967 773 058 707</div>
                   </div>
+                </a>
 
+                <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <Mail className="w-6 h-6" />
+                  </div>
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">الكمية بالمخزون</label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      value={editingProduct.inStock ?? 10}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, inStock: e.target.value })}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-mono focus:outline-none"
-                    />
+                    <div className="text-sm font-bold text-slate-900">البريد الإلكتروني للشكاوى</div>
+                    <div className="text-xs text-slate-500 font-mono">support@ghaym.space</div>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">السعر الأساسي (ر.ي)</label>
-                    <input
-                      type="number"
-                      required
-                      min="1"
-                      value={editingProduct.price}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-mono font-bold focus:outline-none"
-                    />
-                  </div>
+        </div>
 
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">السعر بعد الخصم (اختياري)</label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={editingProduct.discountPrice || ''}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, discountPrice: e.target.value })}
-                      placeholder="بدون خصم"
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-mono focus:outline-none"
-                    />
-                  </div>
-                </div>
+      </main>
 
-                {/* Multi-Image Gallery in Edit */}
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">صور المنتج</label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {(editingProduct.images || [editingProduct.image]).filter(Boolean).map((img, idx) => (
-                      <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
-                        <img src={img} alt="Thumb" className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveEditingProductImage(idx)}
-                          className="absolute top-1 left-1 w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[9px] font-bold"
-                        >
-                          ✕
-                        </button>
-                        {editingProduct.image === img && (
-                          <span className="absolute bottom-0 right-0 bg-amber-400 text-slate-950 text-[8px] font-bold px-1 rounded-tl">
-                            رئيسية
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+      {/* ==========================================================================
+          MODALS
+          ========================================================================== */}
+      
+      {/* 1. Add Bank Account Modal */}
+      {newBankModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-100 space-y-5 animate-in fade-in">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-black text-slate-900 text-base">إضافة حساب بنكي جديد</h3>
+              <button onClick={() => setNewBankModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-                  <label className="cursor-pointer py-1.5 px-3 rounded-xl border border-dashed border-sky-400 bg-sky-50 text-sky-800 text-[11px] font-bold inline-flex items-center gap-1.5">
-                    <ImageIcon className="w-3.5 h-3.5 text-sky-600" />
-                    <span>إضافة صورة أخرى للمنتج</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleEditProductImageUpload}
-                    />
-                  </label>
-                </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">اسم البنك أو شركة الصرافة *</label>
+                <select
+                  value={newBankData.bank}
+                  onChange={(e) => setNewBankData({ ...newBankData, bank: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white"
+                >
+                  <option value="بنك الكريمي للتمويل الأصغر">بنك الكريمي للتمويل الأصغر</option>
+                  <option value="شركة العمقي وإخوانه للصرافة">شركة العمقي وإخوانه للصرافة</option>
+                  <option value="بنك التضامن">بنك التضامن</option>
+                  <option value="بنك القطيبي الإسلامي">بنك القطيبي الإسلامي</option>
+                  <option value="بنك البسيري">بنك البسيري</option>
+                </select>
+              </div>
 
-                {/* Visibility Toggle */}
-                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <div>
-                    <span className="block font-bold text-slate-800">ظهور المنتج في المتجر</span>
-                    <span className="text-[10px] text-slate-500">
-                      {editingProduct.isVisible !== false ? 'المنتج معروض ونشط في المنصة' : 'المنتج مخفي مؤقتاً'}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setEditingProduct({ ...editingProduct, isVisible: editingProduct.isVisible === false ? true : false })}
-                    className={`px-3 py-1.5 rounded-xl font-bold text-xs transition ${
-                      editingProduct.isVisible !== false
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-slate-200 text-slate-600'
-                    }`}
-                  >
-                    <span>{editingProduct.isVisible !== false ? '🟢 معروض للبيع' : '⚪ مخفي مؤقتاً'}</span>
-                  </button>
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">اسم صاحب الحساب الثلاثي *</label>
+                <input
+                  type="text"
+                  value={newBankData.accountName}
+                  onChange={(e) => setNewBankData({ ...newBankData, accountName: e.target.value })}
+                  placeholder="مثال: أحمد سعيد باقازي"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold"
+                />
+              </div>
 
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">الوصف</label>
-                  <textarea
-                    rows={2}
-                    value={editingProduct.description || ''}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
-                    className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">رقم الحساب أو المحفظة *</label>
+                <input
+                  type="text"
+                  value={newBankData.accountNumber}
+                  onChange={(e) => setNewBankData({ ...newBankData, accountNumber: e.target.value })}
+                  placeholder="مثال: 30129841"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                  dir="ltr"
+                />
+              </div>
+            </div>
 
-                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
-                  <button
-                    type="button"
-                    onClick={() => setEditingProduct(null)}
-                    className="px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-100 font-bold"
-                  >
-                    إلغاء
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-[#54B9F2] text-[#172A46] font-black hover:bg-sky-400 transition shadow-md"
-                  >
-                    حفظ التعديلات
-                  </button>
-                </div>
-              </form>
+            <div className="flex items-center justify-end gap-2 pt-3">
+              <button
+                type="button"
+                onClick={() => setNewBankModal(false)}
+                className="px-4 py-2 rounded-xl text-slate-600 font-bold text-xs hover:bg-slate-100"
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                onClick={handleAddBankAccount}
+                className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md"
+              >
+                تأكيد الإضافة
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL 4: WITHDRAWAL REQUEST MODAL */}
-      {isWithdrawModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto" dir="rtl">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div
-              onClick={() => setIsWithdrawModalOpen(false)}
-              className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity"
-            ></div>
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-3xl text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-slate-100 p-6 space-y-4">
-              <h3 className="text-base font-black text-[#172A46] border-b border-slate-100 pb-3 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-[#54B9F2]" />
-                <span>طلب سحب أرباح التاجر</span>
-              </h3>
+      {/* 2. Order Details Modal */}
+      {selectedOrder && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border border-slate-100 space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-xs text-blue-600 font-bold">تفاصيل الطلب</span>
+                <h3 className="font-black text-slate-900 text-lg">{selectedOrder.id}</h3>
+              </div>
+              <button onClick={() => setSelectedOrder(null)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-              {withdrawSuccess ? (
-                <div className="p-6 text-center space-y-2">
-                  <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
-                  <h4 className="text-sm font-black text-[#172A46]">تم رفع طلب السحب بنجاح!</h4>
-                  <p className="text-xs text-slate-500">
-                    سيتم إيداع المبلغ في حسابك بـ ({withdrawBank}) خلال 24 ساعة عمل.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleWithdrawalSubmit} className="space-y-3 text-xs">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">المبلغ المراد سحبه (ر.ي)</label>
-                    <input
-                      type="number"
-                      required
-                      max={netEarnings}
-                      value={withdrawAmount}
-                      onChange={(e) => setWithdrawAmount(e.target.value)}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 font-mono font-bold"
-                    />
-                  </div>
+            <div className="space-y-3 text-xs">
+              <div className="flex justify-between py-1.5 border-b border-slate-50">
+                <span className="text-slate-500">اسم العميل:</span>
+                <span className="font-bold text-slate-800">{selectedOrder.customer || 'عميل غيم سبيس'}</span>
+              </div>
+              <div className="flex justify-between py-1.5 border-b border-slate-50">
+                <span className="text-slate-500">رقم الهاتف:</span>
+                <span className="font-mono font-bold text-slate-800" dir="ltr">{selectedOrder.phone || '771234567'}</span>
+              </div>
+              <div className="flex justify-between py-1.5 border-b border-slate-50">
+                <span className="text-slate-500">العنوان وموقع التسليم:</span>
+                <span className="font-semibold text-slate-800">{selectedOrder.address || 'المكلا - الديس'}</span>
+              </div>
+              <div className="flex justify-between py-1.5 border-b border-slate-50">
+                <span className="text-slate-500">المبلغ الإجمالي:</span>
+                <span className="font-black text-blue-600 text-sm">{(Number(selectedOrder.total) || Number(selectedOrder.amount) || 15000).toLocaleString()} ريال</span>
+              </div>
+            </div>
 
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">البنك / محفظة الاستلام</label>
-                    <select
-                      value={withdrawBank}
-                      onChange={(e) => setWithdrawBank(e.target.value)}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800"
-                    >
-                      <option value="الكريمي">بنك الكريمي للتمويل الأصغر الإسلامي</option>
-                      <option value="العمقي">شركة العمقي وإخوانه للصرافة</option>
-                      <option value="القطيبي">بنك القطيبي الإسلامي</option>
-                      <option value="بن دول">شركة بن دول للصرافة</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">رقم الحساب / الآيبان</label>
-                    <input
-                      type="text"
-                      required
-                      value={withdrawAccount}
-                      onChange={(e) => setWithdrawAccount(e.target.value)}
-                      className="w-full bg-[#F3F6FB] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 font-mono"
-                    />
-                  </div>
-
-                  <div className="pt-2 flex justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setIsWithdrawModalOpen(false)}
-                      className="px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-100 font-bold"
-                    >
-                      إلغاء
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-5 py-2 rounded-xl bg-[#54B9F2] text-[#172A46] font-black hover:bg-sky-400 transition"
-                    >
-                      تأكيد طلب السحب
-                    </button>
-                  </div>
-                </form>
-              )}
+            <div className="pt-2">
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs"
+              >
+                إغلاق
+              </button>
             </div>
           </div>
         </div>
       )}
-      {/* MODAL 5: BANK TRANSFER PAYMENT MODAL */}
-      <MerchantPaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        invoice={selectedInvoiceForPayment}
-      />
+
+      {/* 3. Subscription Payment Modal */}
+      {isPaymentModalOpen && (
+        <MerchantPaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          invoice={selectedInvoice || { id: 'INV-NEW', amount: 6000, description: 'تجديد باقة التاجر الفضي' }}
+          merchantStore={merchantStore}
+          onSuccess={() => {
+            setIsPaymentModalOpen(false);
+            showToast('تم إرسال طلب تجديد الاشتراك بنجاح ✨');
+          }}
+        />
+      )}
+
     </div>
   );
 }

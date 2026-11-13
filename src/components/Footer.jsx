@@ -32,36 +32,11 @@ export default function Footer({ onNavigate }) {
 
   return (
     <footer className="w-full relative mt-16 select-none overflow-hidden" dir="rtl">
-      {/* 1. Organic Wavy Top Boundary (Exact Two-Crest Curve Matching Figma Node 4-7) */}
-      <div className="w-full overflow-hidden leading-none pointer-events-none -mb-1 bg-[#F8FAFC]">
-        <svg
-          viewBox="0 0 1440 90"
-          preserveAspectRatio="none"
-          className="relative block w-full h-12 sm:h-16 lg:h-20 text-[#07132B] fill-current"
-        >
-          <path d="M0,45 C160,12 340,15 500,38 C680,62 820,58 980,32 C1150,10 1310,14 1440,46 L1440,90 L0,90 Z" />
-        </svg>
-      </div>
-
-      {/* 2. Main Footer Body with Deep Space Navy Background & Celestial Glowing Clouds */}
-      <div className="relative bg-gradient-to-b from-[#07132B] via-[#091736] to-[#050E24] text-white pt-8 pb-6 overflow-hidden">
-        {/* Soft Dreamy Ambient Clouds in Corners (Exact Figma Match) */}
-        <div className="absolute -bottom-8 -left-12 w-64 h-48 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 -right-12 w-72 h-52 bg-sky-400/10 rounded-full blur-3xl pointer-events-none" />
-        
-        {/* Fluffy SVG Cloud Silhouettes on Bottom Corners matching Figma Canvas */}
-        <div className="absolute bottom-0 left-0 opacity-20 pointer-events-none select-none">
-          <svg width="220" height="110" viewBox="0 0 220 110" fill="none">
-            <path d="M20 90C10 90 0 82 0 70C0 60 8 52 18 50C20 32 36 18 56 18C68 18 78 24 84 32C92 20 108 12 126 12C150 12 170 28 174 50C188 52 198 62 198 74C198 88 186 98 172 98L20 90Z" fill="#38BDF8" fillOpacity="0.35"/>
-            <path d="M50 110C35 110 22 100 22 85C22 72 32 62 45 60C47 38 68 22 92 22C106 22 118 28 126 38C136 24 154 15 175 15C204 15 228 35 232 62C248 64 260 76 260 92C260 108 246 120 230 120L50 110Z" fill="#7DD3FC" fillOpacity="0.25"/>
-          </svg>
-        </div>
-
-        <div className="absolute bottom-0 right-0 opacity-20 pointer-events-none select-none">
-          <svg width="220" height="110" viewBox="0 0 220 110" fill="none">
-            <path d="M200 90C210 90 220 82 220 70C220 60 212 52 202 50C200 32 184 18 164 18C152 18 142 24 136 32C128 20 112 12 94 12C70 12 50 28 46 50C32 52 22 62 22 74C22 88 34 98 48 98L200 90Z" fill="#38BDF8" fillOpacity="0.35"/>
-          </svg>
-        </div>
+      {/* 2. Main Footer Body with Deep Navy Background & Subtle Elegant Ambient Glow */}
+      <div className="relative bg-gradient-to-b from-[#07132B] via-[#091736] to-[#040C1D] text-white pt-10 pb-8 border-t border-white/10">
+        {/* Soft Dreamy Ambient Glow in Corners */}
+        <div className="absolute top-0 right-1/4 w-96 h-48 bg-sky-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-96 h-48 bg-blue-600/5 rounded-full blur-3xl pointer-events-none" />
 
         {/* 3. Main Footer Interactive Content Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

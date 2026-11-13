@@ -43,14 +43,32 @@ export default function Footer({ onNavigate }) {
         </svg>
       </div>
 
-      {/* 2. Main Footer Body with Deep Space Navy Background */}
-      <div className="relative bg-gradient-to-b from-[#07132B] via-[#091736] to-[#050E24] text-white pt-8 pb-6">
+      {/* 2. Main Footer Body with Deep Space Navy Background & Celestial Glowing Clouds */}
+      <div className="relative bg-gradient-to-b from-[#07132B] via-[#091736] to-[#050E24] text-white pt-8 pb-6 overflow-hidden">
+        {/* Soft Dreamy Ambient Clouds in Corners (Exact Figma Match) */}
+        <div className="absolute -bottom-8 -left-12 w-64 h-48 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 -right-12 w-72 h-52 bg-sky-400/10 rounded-full blur-3xl pointer-events-none" />
+        
+        {/* Fluffy SVG Cloud Silhouettes on Bottom Corners matching Figma Canvas */}
+        <div className="absolute bottom-0 left-0 opacity-20 pointer-events-none select-none">
+          <svg width="220" height="110" viewBox="0 0 220 110" fill="none">
+            <path d="M20 90C10 90 0 82 0 70C0 60 8 52 18 50C20 32 36 18 56 18C68 18 78 24 84 32C92 20 108 12 126 12C150 12 170 28 174 50C188 52 198 62 198 74C198 88 186 98 172 98L20 90Z" fill="#38BDF8" fillOpacity="0.35"/>
+            <path d="M50 110C35 110 22 100 22 85C22 72 32 62 45 60C47 38 68 22 92 22C106 22 118 28 126 38C136 24 154 15 175 15C204 15 228 35 232 62C248 64 260 76 260 92C260 108 246 120 230 120L50 110Z" fill="#7DD3FC" fillOpacity="0.25"/>
+          </svg>
+        </div>
+
+        <div className="absolute bottom-0 right-0 opacity-20 pointer-events-none select-none">
+          <svg width="220" height="110" viewBox="0 0 220 110" fill="none">
+            <path d="M200 90C210 90 220 82 220 70C220 60 212 52 202 50C200 32 184 18 164 18C152 18 142 24 136 32C128 20 112 12 94 12C70 12 50 28 46 50C32 52 22 62 22 74C22 88 34 98 48 98L200 90Z" fill="#38BDF8" fillOpacity="0.35"/>
+          </svg>
+        </div>
+
         {/* 3. Main Footer Interactive Content Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-0 items-center justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-6 items-center justify-between">
             
             {/* COLUMN 1 (Far Right in RTL): Newsletter Capsule Subscription */}
-            <div className="lg:col-span-4 space-y-4 text-right order-1 lg:pl-6">
+            <div className="lg:col-span-4 space-y-4 text-right order-1">
               <div className="flex items-center justify-start gap-2.5">
                 <div className="w-7 h-7 rounded-lg border border-white/60 flex items-center justify-center text-white shrink-0 shadow-sm">
                   <Mail className="w-4 h-4 text-white" />
@@ -96,7 +114,7 @@ export default function Footer({ onNavigate }) {
             </div>
 
             {/* COLUMN 2 (Center-Right in RTL): Customer Service */}
-            <div className="lg:col-span-2 space-y-3 text-right lg:border-r lg:border-white/15 lg:pr-8 lg:pl-4 order-2">
+            <div className="lg:col-span-2 space-y-3 text-right order-2">
               <h3 className="text-base font-bold text-white tracking-wide mb-3">
                 خدمة العملاء
               </h3>
@@ -151,7 +169,7 @@ export default function Footer({ onNavigate }) {
             </div>
 
             {/* COLUMN 3 (Center-Left in RTL): Quick Links */}
-            <div className="lg:col-span-2 space-y-3 text-right lg:border-r lg:border-white/15 lg:pr-8 lg:pl-4 order-3">
+            <div className="lg:col-span-2 space-y-3 text-right order-3">
               <h3 className="text-base font-bold text-white tracking-wide mb-3">
                 روابط سريعة
               </h3>
@@ -183,8 +201,8 @@ export default function Footer({ onNavigate }) {
               </ul>
             </div>
 
-            {/* COLUMN 4 (Far Left in RTL): Logo & Social Links (Official Brand Assets) */}
-            <div className="lg:col-span-4 space-y-4 text-right lg:border-r lg:border-white/15 lg:pr-8 order-4">
+            {/* COLUMN 4 (Far Left in RTL): Logo & Social Links (Exact Figma Match) */}
+            <div className="lg:col-span-4 space-y-4 text-right order-4">
               {/* Brand Logo & Slogan */}
               <div
                 className="flex items-center gap-3.5 cursor-pointer group"
@@ -207,7 +225,7 @@ export default function Footer({ onNavigate }) {
               </div>
 
               {/* Real Clickable Social Media Outline Buttons with Authentic User Handles */}
-              <div className="flex items-center gap-3 pt-1" dir="ltr">
+              <div className="flex items-center gap-2.5 pt-1" dir="ltr">
                 {/* Instagram: ghay_m.space */}
                 <a
                   href="https://instagram.com/ghay_m.space"
@@ -273,7 +291,7 @@ export default function Footer({ onNavigate }) {
 
           {/* 4. Bottom Horizontal Divider & Copyright Bar (Exact Figma Match) */}
           <div className="mt-10 pt-5 border-t border-white/15 flex items-center justify-center text-xs text-slate-300 text-center gap-1.5 font-medium">
-            <span>جميع الحقوق محفوظة. 2026 Ghaym Space.</span>
+            <span>جميع الحقوق محفوظة 2026 Ghaym Space</span>
             <span className="text-sm">⊛</span>
           </div>
         </div>

@@ -393,7 +393,7 @@ export default function MerchantDashboard({ onBackToMarket }) {
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-lg text-white tracking-wide">منصتي</span>
+                  <span className="font-bold text-lg text-white tracking-wide">غيم سبيس</span>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-medium">التاجر</span>
                 </div>
                 <p className="text-xs text-blue-200/60 truncate max-w-[130px]">{merchantStore?.name || 'متجر وردة الأناقة'}</p>
@@ -1567,37 +1567,136 @@ export default function MerchantDashboard({ onBackToMarket }) {
                 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                   
-                  {/* Left Column: Product Images (Screen 8 Layout) */}
+                  {/* Left Column: Product Images (Screen 8 Layout - Upload from Album) */}
                   <div className="lg:col-span-5 space-y-6">
-                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
-                      <h3 className="text-sm font-black text-slate-900 border-b border-slate-100 pb-3">
-                        صور المنتج
-                      </h3>
-
-                      {/* Main Preview */}
-                      <div className="w-full aspect-square rounded-2xl bg-slate-50 border-2 border-dashed border-blue-400 p-2 flex items-center justify-center relative overflow-hidden group">
-                        <img
-                          src={productForm.image}
-                          alt="معاينة المنتج"
-                          className="w-full h-full object-cover rounded-xl"
-                        />
+                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-5">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 className="text-sm font-black text-slate-900">
+                          صورة المنتج الرئيسية
+                        </h3>
+                        <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">
+                          من الألبوم / الاستوديو
+                        </span>
                       </div>
 
-                      {/* Image URL input */}
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1.5">رابط صورة المنتج (URL)</label>
+                      {/* Main Preview & Drop Zone */}
+                      <div 
+                        onClick={() => document.getElementById('product-main-file-input')?.click()}
+                        className="w-full aspect-square rounded-2xl bg-gradient-to-b from-blue-50/40 to-slate-50 border-2 border-dashed border-blue-400 p-3 flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer hover:border-blue-600 hover:bg-blue-50/60 transition-all shadow-inner"
+                      >
+                        {productForm.image ? (
+                          <>
+                            <img
+                              src={productForm.image}
+                              alt="معاينة المنتج"
+                              className="w-full h-full object-cover rounded-xl"
+                            />
+                            <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-2 backdrop-blur-sm">
+                              <Upload className="w-8 h-8 text-sky-400 animate-bounce" />
+                              <span className="text-xs font-bold bg-white/20 px-3 py-1.5 rounded-xl border border-white/30">
+                                انقر لتغيير الصورة من الألبوم
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-center p-4">
+                            <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                              <Upload className="w-8 h-8" />
+                            </div>
+                            <span className="text-sm font-bold text-slate-800 mb-1">انقر لاختيار صورة من الألبوم</span>
+                            <span className="text-[11px] text-slate-400">يدعم PNG, JPG حتى 5 ميجابايت</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Hidden File Input for Album */}
+                      <input
+                        id="product-main-file-input"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            if (file.size > 5 * 1024 * 1024) {
+                              showToast('حجم الصورة كبير، يرجى اختيار صورة أقل من 5 ميجابايت', 'error');
+                              return;
+                            }
+                            const reader = new FileReader();
+                            reader.onload = (ev) => {
+                              const res = ev.target.result;
+                              setProductForm(prev => ({ ...prev, image: res }));
+                              showToast('تم اختيار الصورة من الألبوم بنجاح 📷');
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+
+                      {/* Direct Upload Button from Album */}
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('product-main-file-input')?.click()}
+                        className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                      >
+                        <Upload className="w-4 h-4 text-white" />
+                        <span>اختيار الصورة من ألبوم الصور / الاستوديو 📷</span>
+                      </button>
+
+                      {/* Optional Secondary Images */}
+                      <div className="pt-2 border-t border-slate-100">
+                        <label className="block text-xs font-bold text-slate-700 mb-2">صور إضافية للمنتج (اختياري)</label>
+                        <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                          {productForm.images?.map((img, idx) => (
+                            <div key={idx} className="w-14 h-14 rounded-xl border border-slate-200 overflow-hidden shrink-0 relative group">
+                              <img src={img} alt="إضافي" className="w-full h-full object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => setProductForm(prev => ({
+                                  ...prev,
+                                  images: prev.images.filter((_, i) => i !== idx)
+                                }))}
+                                className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[9px] opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('product-extra-file-input')?.click()}
+                            className="w-14 h-14 rounded-xl border-2 border-dashed border-blue-300 hover:border-blue-500 bg-blue-50/50 flex flex-col items-center justify-center text-blue-600 hover:bg-blue-100/50 shrink-0 transition-colors"
+                            title="إضافة صورة أخرى من الألبوم"
+                          >
+                            <Plus className="w-5 h-5" />
+                          </button>
+                        </div>
                         <input
-                          type="url"
-                          value={productForm.image}
-                          onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
-                          className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-mono text-left"
-                          dir="ltr"
-                          placeholder="https://..."
+                          id="product-extra-file-input"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (ev) => {
+                                const res = ev.target.result;
+                                setProductForm(prev => ({
+                                  ...prev,
+                                  images: [...(prev.images || []), res]
+                                }));
+                                showToast('تمت إضافة الصورة الإضافية');
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
                         />
                       </div>
 
-                      <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-100 text-[11px] text-blue-700 leading-relaxed">
-                        💡 يُفضل استخدام صور مربعة واضحة ذات خلفية بيضاء أو نقية للحصول على أفضل ظهور للمنتج في تطبيق غيم سبيس.
+                      <div className="p-3 rounded-2xl bg-sky-50/60 border border-sky-100 text-[11px] text-sky-800 leading-relaxed flex items-start gap-2">
+                        <span className="text-base leading-none">☁️</span>
+                        <span>يتم حفظ صور الألبوم مباشرة في قاعدة بيانات المتجر السحابية بجودة عالية وتظهر فوراً للعملاء.</span>
                       </div>
                     </div>
                   </div>

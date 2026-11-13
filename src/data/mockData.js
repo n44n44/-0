@@ -216,8 +216,8 @@ export const PRODUCTS = [
 export const FEATURED_STORES = [
   {
     id: 'store-1',
-    name: 'سر المنتجات المنزلية',
-    tagline: 'هدايا وديكورات وتحف فنية فريدة مصنوعة يدوياً',
+    name: 'متجر غيم للهدايا والديكور',
+    tagline: 'تصميم وتصنيع هدايا وتحف فنية وديكورات فريدة مصنوعة يدوياً',
     rating: 4.9,
     reviewsCount: 142,
     verified: true,

@@ -24,12 +24,12 @@ export default function ProductsPage({
 }) {
   const { products: platformProducts, isFavorite, toggleFavorite } = usePlatform();
 
-  // Combine authentic mock products and dynamic database products
+  // Always show authentic reference showcase products first, followed by custom/database products
   const allProducts = useMemo(() => {
-    const list = [...(platformProducts || [])];
-    INITIAL_PRODUCTS.forEach((mockP) => {
-      if (!list.some((p) => p.id === mockP.id)) {
-        list.push(mockP);
+    const list = [...INITIAL_PRODUCTS];
+    (platformProducts || []).forEach((p) => {
+      if (!list.some((existing) => existing.id === p.id)) {
+        list.push(p);
       }
     });
     return list;
@@ -41,11 +41,11 @@ export default function ProductsPage({
 
   const categoriesList = [
     { id: 'all', label: 'الكل' },
-    { id: 'fashion', label: 'أزياء نسائية', keywords: ['أزياء', 'ملابس', 'مخاوير', 'عبايات', 'تطريز'] },
-    { id: 'home', label: 'مستلزمات منزلية', keywords: ['منزلية', 'روائح', 'شموع', 'كونكريت'] },
-    { id: 'food', label: 'أطعمة ومشروبات', keywords: ['أسر منتجة', 'أطعمة', 'حلويات', 'مخبوزات', 'كيك', 'حلوى'] },
-    { id: 'crafts', label: 'منتجات يدوية', keywords: ['يدوية', 'حرف', 'تراث', 'صناعات', 'فخاريات', 'حقائب', 'مباخر'] },
-    { id: 'decor', label: 'ديكور وهدايا', keywords: ['ديكور', 'هدايا', 'تحف'] },
+    { id: 'fashion', label: 'أزياء نسائية', keywords: ['أزياء', 'حقيبة', 'ملابس', 'مخاوير', 'عبايات', 'تطريز', 'جلد'] },
+    { id: 'home', label: 'مستلزمات منزلية', keywords: ['منزلية', 'روائح', 'شمعة', 'شموع', 'برطمانات', 'كونكريت'] },
+    { id: 'food', label: 'أطعمة ومشروبات', keywords: ['أطعمة', 'حلويات', 'مخبوزات', 'كيك', 'كب كيك', 'حلوى'] },
+    { id: 'crafts', label: 'منتجات يدوية', keywords: ['يدوية', 'حرف', 'تراث', 'صناعات', 'فخاريات', 'مباخر', 'قماشية'] },
+    { id: 'decor', label: 'ديكور وهدايا', keywords: ['ديكور', 'هدايا', 'تحف', 'فازة', 'ورد', 'بوكس', 'صندوق'] },
     { id: 'perfumes', label: 'بخور وعطور', keywords: ['بخور', 'عطور', 'عود', 'لبان', 'مسك'] },
   ];
 
@@ -232,12 +232,16 @@ export default function ProductsPage({
                 className="bg-white rounded-3xl border border-slate-100/90 shadow-sm hover:shadow-xl transition-all duration-300 p-3.5 flex flex-col group cursor-pointer relative hover:-translate-y-1"
               >
                 {/* 1. Image Container with clean soft light background */}
-                <div className="w-full aspect-square bg-[#F8FAFC] rounded-2xl overflow-hidden relative mb-3.5 flex items-center justify-center border border-slate-100/80">
+                <div className="w-full aspect-square bg-[#F8FAFC] rounded-2xl overflow-hidden relative mb-3 flex items-center justify-center border border-slate-100/80">
                   <img
-                    src={prod.image}
+                    src={prod.image || 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80'}
                     alt={prod.name}
-                    className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80';
+                    }}
                   />
 
                   {/* Favorite Heart Button (Top-Left) */}
@@ -292,7 +296,9 @@ export default function ProductsPage({
                       <span className="text-base sm:text-lg font-black text-[#0066FF]">
                         {Number(prod.price).toLocaleString()}
                       </span>
-                      <span className="text-xs font-semibold text-slate-500">ر.ي</span>
+                      <span className="text-xs font-semibold text-slate-500">
+                        {prod.currency || 'ر.س'}
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-1 text-xs font-bold text-amber-500 bg-amber-50 px-2 py-0.5 rounded-full">

@@ -23,7 +23,7 @@ import {
 const PlatformContext = createContext(null);
 
 // UNIFIED DATABASE ROOT KEY IN LOCAL STORAGE
-const UNIFIED_DB_KEY = 'ghaym_space_unified_db_v5';
+const UNIFIED_DB_KEY = 'ghaym_space_unified_db_v6';
 const WISHLIST_STORAGE_KEY = 'ghaym_space_wishlist_v2';
 
 // Helper to calculate days remaining until a given date string (e.g. '2026-11-19')
@@ -537,6 +537,16 @@ export function PlatformProvider({ children }) {
           }
           if (parsed.isProductionMode === undefined) {
             parsed.isProductionMode = false;
+          }
+          // Ensure products use authentic photography instead of stale SVG mock data
+          if (Array.isArray(parsed.products)) {
+            parsed.products = parsed.products.map((p) => {
+              if (p.image && typeof p.image === 'string' && p.image.startsWith('data:image/svg')) {
+                const fresh = INITIAL_PRODUCTS.find((ip) => ip.id === p.id);
+                return fresh ? { ...p, image: fresh.image } : p;
+              }
+              return p;
+            });
           }
           return parsed;
         }

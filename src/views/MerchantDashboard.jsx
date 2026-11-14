@@ -889,7 +889,7 @@ export default function MerchantDashboard({ onBackToMarket }) {
                         <img
                           src={merchantStore?.image || merchantStore?.logo || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&auto=format&fit=crop&q=80'}
                           alt="شعار المتجر"
-                          className="w-full h-full object-cover rounded-2xl"
+                          className="w-full h-full object-contain rounded-2xl"
                         />
                       </div>
                       <button

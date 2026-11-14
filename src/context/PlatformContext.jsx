@@ -24,6 +24,7 @@ const PlatformContext = createContext(null);
 
 // UNIFIED DATABASE ROOT KEY IN LOCAL STORAGE
 const UNIFIED_DB_KEY = 'ghaym_space_unified_db_v5';
+const WISHLIST_STORAGE_KEY = 'ghaym_space_wishlist_v2';
 
 // Helper to calculate days remaining until a given date string (e.g. '2026-11-19')
 export function calculateDaysRemaining(endDateStr) {
@@ -568,6 +569,76 @@ export function PlatformProvider({ children }) {
     window.addEventListener('storage', handleStorageEvent);
     return () => window.removeEventListener('storage', handleStorageEvent);
   }, []);
+
+  // Favorites / Wishlist persistent state (Survives reload and user actions)
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const saved = localStorage.getItem(WISHLIST_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+      return ['prod-1', 'prod-5'];
+    } catch (e) {
+      return ['prod-1', 'prod-5'];
+    }
+  });
+
+  const [toastMessage, setToastMessage] = useState(null);
+  const [toastType, setToastType] = useState('success');
+
+  const showToast = (message, type = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
+  };
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlist));
+    } catch (e) {
+      console.warn('Error saving wishlist to storage:', e);
+    }
+  }, [wishlist]);
+
+  const toggleFavorite = (productOrId) => {
+    const prodId = typeof productOrId === 'object' && productOrId !== null ? productOrId.id : productOrId;
+    const prodName = typeof productOrId === 'object' && productOrId !== null ? productOrId.name : null;
+    if (!prodId) return false;
+
+    let willBeFavorite = false;
+    setWishlist((prev) => {
+      const exists = prev.includes(prodId);
+      if (exists) {
+        willBeFavorite = false;
+        return prev.filter((id) => id !== prodId);
+      } else {
+        willBeFavorite = true;
+        return [...prev, prodId];
+      }
+    });
+
+    const title = prodName || 'المنتج';
+    const isAdding = !wishlist.includes(prodId);
+    if (isAdding) {
+      showToast(`تمت إضافة "${title}" إلى قائمة المفضلة ❤️`, 'cart');
+    } else {
+      showToast(`تمت إزالة "${title}" من قائمة المفضلة`, 'success');
+    }
+
+    return isAdding;
+  };
+
+  const isFavorite = (productId) => {
+    if (!productId) return false;
+    return wishlist.includes(productId);
+  };
+
+  const allAvailableProducts = [
+    ...(db.products || []),
+    ...INITIAL_PRODUCTS.filter((ip) => !(db.products || []).some((dp) => dp.id === ip.id)),
+  ];
+  const wishlistProducts = allAvailableProducts.filter((p) => wishlist.includes(p.id));
+  const wishlistCount = wishlist.length;
 
   // Supabase live connection state
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(() => getSupabaseConfig().isConfigured);
@@ -2721,6 +2792,17 @@ export function PlatformProvider({ children }) {
     isSupabaseConnected,
     setIsSupabaseConnected,
     refreshFromSupabase,
+
+    // Favorites / Wishlist
+    wishlist,
+    wishlistCount,
+    wishlistProducts,
+    toggleFavorite,
+    isFavorite,
+    toastMessage,
+    toastType,
+    setToastMessage,
+    showToast,
   };
 
   return (

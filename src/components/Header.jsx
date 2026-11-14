@@ -13,6 +13,7 @@ import {
   Check,
 } from 'lucide-react';
 import { PRODUCTS, NEIGHBORHOODS_MUKALLA } from '../data/mockData';
+import { usePlatform } from '../context/PlatformContext';
 
 const STITCH_LOGO_URL = 'https://lh3.googleusercontent.com/aida-public/AB6AXuC0kTwyrOgVt1UikZzjl_8adoPbACflThuS0OAMs1NBAxfhdj0d6U5zy__p3zH1LwwSEoGCf-TrnUeEI9e7ofTlwvzBEkjkRq7dWVa2VM8YYzl6qDAYySLO14czo6P79cFjMAhBjFyf9NEde5r2LsURP2LZTDBAFNk7WWjYNfTnw_OMambwfjlKjSD-giwosQLJIjXhF6XEZHmA2tjH6DDME6VgOoNX5agZVPKSTOwWd7WRKHY8-450';
 
@@ -32,6 +33,7 @@ export default function Header({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const { wishlistCount = 0 } = usePlatform();
 
   const navLinks = [
     { id: 'home', label: 'الرئيسية' },
@@ -154,14 +156,20 @@ export default function Header({
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
 
-            {/* Wishlist Heart */}
+            {/* Wishlist Heart with Live Badge */}
             <button
               aria-label="المفضلة"
-              className="text-gray-300 hover:text-white p-2 transition-colors cursor-pointer"
+              className="text-gray-300 hover:text-white p-2 transition-colors cursor-pointer relative"
               type="button"
-              onClick={() => onNavigate && onNavigate('products')}
+              onClick={() => onNavigate && onNavigate('wishlist')}
+              title="قائمة المفضلة"
             >
-              <i className="fa-regular fa-heart text-lg"></i>
+              <i className={`text-lg transition-colors ${wishlistCount > 0 ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart'}`}></i>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md animate-in zoom-in">
+                  {wishlistCount}
+                </span>
+              )}
             </button>
 
             {/* Shopping Cart Icon with Badge */}
@@ -319,6 +327,23 @@ export default function Header({
               </div>
               <span className="text-[10px] text-sky-300 bg-sky-900/40 px-2 py-0.5 rounded">
                 {customerUser ? 'حسابي' : 'دخول'}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (onNavigate) onNavigate('wishlist');
+                setMobileMenuOpen(false);
+              }}
+              className="text-right px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-between bg-rose-500/10 text-rose-300 border border-rose-500/20 mb-2 cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-heart text-sm text-rose-400"></i>
+                <span>قائمة المفضلة</span>
+              </div>
+              <span className="text-[10px] bg-rose-500 text-white font-bold px-2 py-0.5 rounded-full">
+                {wishlistCount}
               </span>
             </button>
 

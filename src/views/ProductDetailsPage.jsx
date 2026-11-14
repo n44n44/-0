@@ -26,7 +26,7 @@ export default function ProductDetailsPage({
   onAddToCart,
   onOpenStoreModal,
 }) {
-  const { products, stores } = usePlatform();
+  const { products, stores, isFavorite: checkFavorite, toggleFavorite } = usePlatform();
 
   const product = initialProduct || products[0] || {
     id: 'prod-cake-1',
@@ -250,10 +250,13 @@ export default function ProductDetailsPage({
               {/* Favorite Toggle */}
               <button
                 type="button"
-                onClick={() => setIsFavorite(!isFavorite)}
-                className="absolute top-6 left-6 z-10 w-11 h-11 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-rose-500 hover:scale-110 active:scale-95 transition cursor-pointer"
+                onClick={() => toggleFavorite(product)}
+                className={`absolute top-6 left-6 z-10 w-11 h-11 rounded-full backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center hover:scale-110 active:scale-95 transition cursor-pointer ${
+                  checkFavorite(product.id) ? 'bg-rose-50 text-rose-500' : 'bg-white/90 text-slate-400'
+                }`}
+                title={checkFavorite(product.id) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
               >
-                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}`} />
+                <Heart className={`w-5 h-5 transition-colors ${checkFavorite(product.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}`} />
               </button>
 
               {/* Store Badge */}

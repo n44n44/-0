@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePlatform } from '../context/PlatformContext';
 
 const STITCH_LOGO_URL = 'https://lh3.googleusercontent.com/aida-public/AB6AXuC0kTwyrOgVt1UikZzjl_8adoPbACflThuS0OAMs1NBAxfhdj0d6U5zy__p3zH1LwwSEoGCf-TrnUeEI9e7ofTlwvzBEkjkRq7dWVa2VM8YYzl6qDAYySLO14czo6P79cFjMAhBjFyf9NEde5r2LsURP2LZTDBAFNk7WWjYNfTnw_OMambwfjlKjSD-giwosQLJIjXhF6XEZHmA2tjH6DDME6VgOoNX5agZVPKSTOwWd7WRKHY8-450';
 
@@ -9,6 +10,7 @@ export default function HomePage({
   onOpenSellerModal,
   onSelectProduct,
 }) {
+  const { isFavorite, toggleFavorite } = usePlatform();
   // 4 Featured Stores
   const featuredStores = [
     {
@@ -341,33 +343,38 @@ export default function HomePage({
               key={store.id}
               className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group"
             >
-              {/* Store Cover with Avatar Overlap */}
-              <div className="relative w-full h-36 rounded-xl overflow-hidden mb-8 shadow-inner">
-                <img
-                  alt={store.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                  src={store.cover}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10"></div>
+              {/* Store Cover with Avatar Overlap - Fixed: Removed overflow-hidden from parent to prevent avatar clipping */}
+              <div className="relative w-full mb-8">
+                <div className="w-full h-36 rounded-xl overflow-hidden shadow-inner relative">
+                  <img
+                    alt={store.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    src={store.cover}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10"></div>
+                </div>
                 
-                {/* Store Profile Image Overlap */}
-                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md bg-[#07132b] flex items-center justify-center overflow-hidden p-1 z-10">
-                  {store.avatarType === 'logo' && (
+                {/* Store Profile Image Overlap - Fully Visible without clipping */}
+                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-2 border-white shadow-lg bg-[#07132b] flex items-center justify-center overflow-hidden p-1 z-20">
+                  {store.avatar ? (
+                    <img alt={store.name} className="w-full h-full object-contain rounded-full" src={store.avatar} />
+                  ) : store.avatarType === 'logo' ? (
                     <img alt={store.name} className="w-full h-full object-contain filter drop-shadow" src={STITCH_LOGO_URL} />
-                  )}
-                  {store.avatarType === 'burner' && (
+                  ) : store.avatarType === 'burner' ? (
                     <div className="w-full h-full bg-[#2b1810] flex items-center justify-center text-amber-300 font-bold text-xs rounded-full">
-                      <i className="fa-solid fa-fire-burner text-xl text-amber-400"></i>
+                      <i className="fa-solid fa-fire-burner text-lg text-amber-400"></i>
                     </div>
-                  )}
-                  {store.avatarType === 'jaziza' && (
-                    <div className="w-full h-full bg-black flex items-center justify-center text-amber-300 font-bold text-[11px] tracking-wider rounded-full">
+                  ) : store.avatarType === 'jaziza' ? (
+                    <div className="w-full h-full bg-black flex items-center justify-center text-amber-300 font-black text-[10px] tracking-wider rounded-full px-1">
                       JAZIZA
                     </div>
-                  )}
-                  {store.avatarType === 'samar' && (
-                    <div className="w-full h-full bg-[#1a1412] flex items-center justify-center text-amber-200 font-bold text-[11px] tracking-wider rounded-full">
+                  ) : store.avatarType === 'samar' ? (
+                    <div className="w-full h-full bg-[#1a1412] flex items-center justify-center text-amber-200 font-black text-[10px] tracking-wider rounded-full px-1">
                       SAMAR
+                    </div>
+                  ) : (
+                    <div className="w-full h-full bg-sky-900 flex items-center justify-center text-white font-bold text-xs rounded-full">
+                      <i className="fa-solid fa-store text-sky-300 text-sm"></i>
                     </div>
                   )}
                 </div>
@@ -465,13 +472,19 @@ export default function HomePage({
                 </span>
                 <button
                   type="button"
-                  aria-label="أضف للمفضلة"
+                  aria-label="المفضلة"
                   onClick={(e) => {
                     e.stopPropagation();
+                    toggleFavorite(prod);
                   }}
-                  className="absolute top-2 left-2 w-7 h-7 rounded-full bg-white/80 hover:bg-white text-gray-600 hover:text-red-500 flex items-center justify-center backdrop-blur-sm transition cursor-pointer"
+                  className={`absolute top-2 left-2 w-7 h-7 rounded-full shadow-sm flex items-center justify-center backdrop-blur-sm transition-all duration-200 active:scale-90 cursor-pointer ${
+                    isFavorite(prod.id)
+                      ? 'bg-rose-50 text-rose-500 scale-105'
+                      : 'bg-white/80 hover:bg-white text-gray-500 hover:text-rose-500'
+                  }`}
+                  title={isFavorite(prod.id) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
                 >
-                  <i className="fa-regular fa-heart text-xs"></i>
+                  <i className={`text-xs ${isFavorite(prod.id) ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart'}`}></i>
                 </button>
               </div>
 

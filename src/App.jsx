@@ -17,6 +17,7 @@ import AdminDashboard from './views/AdminDashboard';
 import AboutPage from './views/AboutPage';
 import ContactPage from './views/ContactPage';
 import LoginPage from './views/LoginPage';
+import WishlistPage from './views/WishlistPage';
 
 import { Database, Store, Bike, ShieldCheck, Lock, ArrowRight, User } from 'lucide-react';
 import LocationModal from './components/LocationModal';
@@ -86,6 +87,9 @@ function AppContent() {
     switchCustomerAccount,
     orders,
     placeOrder,
+    toastMessage: contextToastMessage,
+    setToastMessage: setContextToastMessage,
+    toastType: contextToastType,
   } = usePlatform();
 
   // Sub-navigation inside Marketplace
@@ -113,6 +117,18 @@ function AppContent() {
       if (hash.startsWith('#/merchant')) switchPortal('merchant');
       else if (hash.startsWith('#/courier')) switchPortal('courier');
       else if (hash.startsWith('#/admin')) switchPortal('admin');
+      else if (hash.startsWith('#/products') || hash.includes('view=products')) {
+        switchPortal('marketplace');
+        setCurrentMarketView('products');
+      }
+      else if (hash.startsWith('#/wishlist') || hash.includes('view=wishlist')) {
+        switchPortal('marketplace');
+        setCurrentMarketView('wishlist');
+      }
+      else if (hash.startsWith('#/stores') || hash.includes('view=stores')) {
+        switchPortal('marketplace');
+        setCurrentMarketView('stores');
+      }
       else if (hash === '#/' || !hash) switchPortal('marketplace');
     };
     handleHash();
@@ -302,6 +318,14 @@ function AppContent() {
             {currentMarketView === 'store-details' && (
               <StoreDetailsPage
                 store={selectedStore}
+                onNavigate={(nav) => setCurrentMarketView(nav)}
+                onAddToCart={handleAddToCart}
+                onSelectProduct={handleOpenProduct}
+              />
+            )}
+
+            {currentMarketView === 'wishlist' && (
+              <WishlistPage
                 onNavigate={(nav) => setCurrentMarketView(nav)}
                 onAddToCart={handleAddToCart}
                 onSelectProduct={handleOpenProduct}
@@ -518,9 +542,12 @@ function AppContent() {
 
       {/* Toast Alerts */}
       <Toast
-        message={toastMessage}
-        type="cart"
-        onClose={() => setToastMessage(null)}
+        message={toastMessage || contextToastMessage}
+        type={toastMessage ? 'cart' : (contextToastType || 'cart')}
+        onClose={() => {
+          setToastMessage(null);
+          if (setContextToastMessage) setContextToastMessage(null);
+        }}
       />
     </div>
   );

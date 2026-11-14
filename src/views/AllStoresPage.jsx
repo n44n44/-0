@@ -441,10 +441,14 @@ export default function AllStoresPage({
               {/* Card Content Body */}
               <div className="px-5 pt-0 pb-5 flex-1 flex flex-col items-center text-center -mt-10">
                 {/* Store Avatar */}
-                <div className={`w-20 h-20 rounded-full ${st.avatarBg} border-4 border-white shadow-md flex flex-col items-center justify-center p-2 mb-3 ring-2 ring-primary/10 relative z-10 shrink-0`}>
-                  <span className={`text-[11px] font-black ${st.avatarTextColor} tracking-tight`}>
-                    {st.avatarText}
-                  </span>
+                <div className={`w-20 h-20 rounded-full ${st.avatarBg || 'bg-white'} border-4 border-white shadow-md flex flex-col items-center justify-center p-2 mb-3 ring-2 ring-primary/10 relative z-10 shrink-0 overflow-hidden`}>
+                  {st.avatar ? (
+                    <img src={st.avatar} alt={st.name} className="w-full h-full object-contain rounded-full" />
+                  ) : (
+                    <span className={`text-[11px] font-black ${st.avatarTextColor} tracking-tight text-center leading-tight`}>
+                      {st.avatarText}
+                    </span>
+                  )}
                 </div>
 
                 {/* Name & Verified Badge */}

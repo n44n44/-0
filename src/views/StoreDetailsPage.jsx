@@ -22,7 +22,7 @@ export default function StoreDetailsPage({
   onAddToCart,
   onSelectProduct,
 }) {
-  const { stores, products } = usePlatform();
+  const { stores, products, isFavorite, toggleFavorite } = usePlatform();
   const store = initialStore || stores[0] || {
     id: 'store-jaziza',
     name: 'متجر جازيزا (JAZIZA)',
@@ -158,11 +158,11 @@ export default function StoreDetailsPage({
             
             {/* Avatar & Details */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-5 text-center md:text-right">
-              <div className="w-28 h-28 rounded-2xl bg-[#07132B] p-1 border-4 border-white shadow-xl overflow-hidden shrink-0">
+              <div className="w-28 h-28 rounded-2xl bg-[#07132B] p-2 border-4 border-white shadow-xl overflow-hidden shrink-0 flex items-center justify-center">
                 <img
                   src={store.avatar || store.image || 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?w=200&auto=format&fit=crop&q=80'}
                   alt={store.name}
-                  className="w-full h-full object-cover rounded-xl"
+                  className="w-full h-full object-contain rounded-xl"
                 />
               </div>
 
@@ -299,6 +299,24 @@ export default function StoreDetailsPage({
                   alt={prod.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
+
+                {/* Favorite Button */}
+                <button
+                  type="button"
+                  aria-label="المفضلة"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(prod);
+                  }}
+                  className={`absolute top-3 left-3 w-8 h-8 rounded-full shadow-sm flex items-center justify-center backdrop-blur-md transition-all active:scale-90 z-10 cursor-pointer ${
+                    isFavorite(prod.id)
+                      ? 'bg-rose-50 text-rose-500 scale-105'
+                      : 'bg-white/80 hover:bg-white text-slate-500 hover:text-rose-500'
+                  }`}
+                  title={isFavorite(prod.id) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+                >
+                  <Heart className={`w-4 h-4 ${isFavorite(prod.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-500'}`} />
+                </button>
                 {prod.tag && (
                   <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#07132B]/80 text-[#EAB839] backdrop-blur-md text-[10px] font-bold">
                     {prod.tag}

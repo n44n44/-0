@@ -40,9 +40,8 @@ export default function CourierDashboard({ onBackToMarket }) {
     courierProfile,
     setCourierProfile,
     notifications,
-    couriersList = [],
     activeCourierId,
-    switchCourierAccount,
+    logoutCourier,
     currentCourierUser,
   } = usePlatform();
 
@@ -162,30 +161,20 @@ export default function CourierDashboard({ onBackToMarket }) {
             </button>
           </div>
 
-          {/* Multi-Tenant Courier Account Switcher */}
-          <div className="px-4 py-2.5 bg-[#050c1a] border-b border-sky-950/80 space-y-1">
-            <div className="flex items-center justify-between text-[11px] text-slate-400 font-bold">
-              <span className="flex items-center gap-1.5 text-sky-400">
-                <Bike className="w-3.5 h-3.5" />
-                <span>المندوب النشط:</span>
-              </span>
-              <span className="text-[10px] bg-sky-500/20 text-sky-300 px-1.5 py-0.2 rounded font-mono">
-                {currentCourierUser?.id}
-              </span>
-            </div>
-            <div className="relative">
-              <select
-                value={currentCourierUser?.id}
-                onChange={(e) => switchCourierAccount(e.target.value)}
-                className="w-full bg-[#081226] text-white text-xs font-bold py-1.5 pr-2 pl-6 rounded-xl border border-sky-800 focus:outline-none focus:ring-1 focus:ring-sky-400 appearance-none cursor-pointer"
-              >
-                {couriersList.map((c) => (
-                  <option key={c.id} value={c.id} className="bg-[#081226] text-white">
-                    {c.name} ({c.vehicle})
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-sky-400 absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+          {/* Authenticated Courier Badge (Strictly isolated) */}
+          <div className="px-4 py-3 bg-[#050c1a] border-b border-sky-950/80">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center justify-center shrink-0">
+                <Bike className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 text-right">
+                <div className="text-xs font-black text-white truncate">
+                  {currentCourierUser?.name || 'كابتن التوصيل'}
+                </div>
+                <div className="text-[10px] text-sky-400 font-medium truncate">
+                  {currentCourierUser?.vehicle || 'دراجة نارية معتمدة'}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -237,11 +226,14 @@ export default function CourierDashboard({ onBackToMarket }) {
           )}
 
           <button
-            onClick={() => alert('تم تسجيل خروج المندوب')}
-            className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 text-xs font-bold transition text-right"
+            onClick={() => {
+              if (logoutCourier) logoutCourier();
+              if (onBackToMarket) onBackToMarket();
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 text-xs font-bold transition text-right cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
-            <span>تسجيل الخروج</span>
+            <span>تسجيل الخروج والعودة للمنصة</span>
           </button>
         </div>
       </aside>

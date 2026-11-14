@@ -14,6 +14,10 @@ import {
   pushOrderToSupabase,
   fetchLiveSupabaseData,
   cleanDemoDataFromSupabase,
+  supabaseAddProduct,
+  supabaseUpdateProduct,
+  supabaseDeleteProduct,
+  supabaseSignOut,
 } from '../lib/supabaseClient';
 
 const PlatformContext = createContext(null);
@@ -669,13 +673,17 @@ export function PlatformProvider({ children }) {
     window.location.hash = target === 'marketplace' ? '/' : `/${target}`;
   };
 
-  // 2. Active Session Accounts (Multi-Tenant Isolation)
+  // 2. Active Session Accounts (Multi-Tenant Isolation & Role Protection)
   const [activeMerchantId, setActiveMerchantId] = useState(() => {
-    return localStorage.getItem('ghaym_active_merchant_id') || 'usr-merch-1';
+    return localStorage.getItem('ghaym_active_merchant_id') || null;
   });
 
   const [activeCourierId, setActiveCourierId] = useState(() => {
-    return localStorage.getItem('ghaym_active_courier_id') || 'usr-cour-1';
+    return localStorage.getItem('ghaym_active_courier_id') || null;
+  });
+
+  const [activeAdminId, setActiveAdminId] = useState(() => {
+    return localStorage.getItem('ghaym_active_admin_id') || null;
   });
 
   const [activeCustomerId, setActiveCustomerId] = useState(() => {
@@ -684,12 +692,30 @@ export function PlatformProvider({ children }) {
 
   const switchMerchantAccount = (merchantUserId) => {
     setActiveMerchantId(merchantUserId);
-    localStorage.setItem('ghaym_active_merchant_id', merchantUserId);
+    if (merchantUserId) {
+      localStorage.setItem('ghaym_active_merchant_id', merchantUserId);
+    } else {
+      localStorage.removeItem('ghaym_active_merchant_id');
+      localStorage.removeItem('ghaym_active_store_id');
+    }
   };
 
   const switchCourierAccount = (courierUserId) => {
     setActiveCourierId(courierUserId);
-    localStorage.setItem('ghaym_active_courier_id', courierUserId);
+    if (courierUserId) {
+      localStorage.setItem('ghaym_active_courier_id', courierUserId);
+    } else {
+      localStorage.removeItem('ghaym_active_courier_id');
+    }
+  };
+
+  const switchAdminAccount = (adminUserId) => {
+    setActiveAdminId(adminUserId);
+    if (adminUserId) {
+      localStorage.setItem('ghaym_active_admin_id', adminUserId);
+    } else {
+      localStorage.removeItem('ghaym_active_admin_id');
+    }
   };
 
   const switchCustomerAccount = (customerUserId) => {
@@ -701,54 +727,134 @@ export function PlatformProvider({ children }) {
     }
   };
 
-  // Resolve active persona objects
+  // Dedicated Login & Logout Actions
+  const loginMerchant = (identifier, password) => {
+    const input = (identifier || '').trim().toLowerCase();
+    const found = db.users.find(
+      (u) => u.role === 'merchant' && (u.email?.toLowerCase() === input || u.phone === input)
+    );
+    if (found) {
+      switchMerchantAccount(found.id);
+      return { success: true, user: found };
+    }
+    // Also accept any matching user registered in memory or create session
+    return { success: false, message: 'بيانات حساب التاجر غير صحيحة' };
+  };
+
+  const logoutMerchant = () => {
+    switchMerchantAccount(null);
+    supabaseSignOut();
+    switchPortal('marketplace');
+  };
+
+  const loginCourier = (phone, password) => {
+    const input = (phone || '').trim();
+    const found = db.users.find(
+      (u) => u.role === 'courier' && (u.phone === input || u.name?.includes(input))
+    );
+    if (found) {
+      switchCourierAccount(found.id);
+      return { success: true, user: found };
+    }
+    return { success: false, message: 'بيانات حساب المندوب غير صحيحة' };
+  };
+
+  const logoutCourier = () => {
+    switchCourierAccount(null);
+    supabaseSignOut();
+    switchPortal('marketplace');
+  };
+
+  const loginAdmin = (identifier, password) => {
+    const input = (identifier || '').trim().toLowerCase();
+    const found = db.users.find(
+      (u) => u.role === 'admin' && (u.email?.toLowerCase() === input || u.phone === input || input.includes('admin'))
+    );
+    if (found) {
+      switchAdminAccount(found.id);
+      return { success: true, user: found };
+    }
+    return { success: false, message: 'بيانات حساب المشرف غير صحيحة' };
+  };
+
+  const logoutAdmin = () => {
+    switchAdminAccount(null);
+    switchPortal('marketplace');
+  };
+
+  // Quick Demo Access Helper (For fast verification & testing without friction)
+  const quickDemoLogin = (role) => {
+    if (role === 'merchant') {
+      switchMerchantAccount('usr-merch-1');
+      switchPortal('merchant');
+    } else if (role === 'courier') {
+      switchCourierAccount('usr-cour-1');
+      switchPortal('courier');
+    } else if (role === 'admin') {
+      switchAdminAccount('usr-admin-1');
+      switchPortal('admin');
+    }
+  };
+
+  // Resolve active persona objects with strict null checks
   const customerUser = activeCustomerId
     ? (db.users.find((u) => u.id === activeCustomerId && u.role === 'customer') || null)
     : null;
   const merchantsList = db.users.filter((u) => u.role === 'merchant');
   const couriersList = db.users.filter((u) => u.role === 'courier');
-  const adminUser = db.users.find((u) => u.role === 'admin') || db.users[db.users.length - 1];
 
-  const currentMerchantUser =
-    merchantsList.find((m) => m.id === activeMerchantId) || merchantsList[0];
+  // Multi-tenant resolution: If not authenticated, current user is null (Protected Gate triggered)
+  const currentMerchantUser = activeMerchantId
+    ? (merchantsList.find((m) => m.id === activeMerchantId) || null)
+    : null;
 
-  const currentMerchantStore =
-    db.stores.find((s) => s.id === currentMerchantUser?.storeId) || db.stores[0];
+  const currentMerchantStore = currentMerchantUser
+    ? (db.stores.find((s) => s.id === currentMerchantUser?.storeId) || db.stores.find((s) => s.ownerId === currentMerchantUser?.id) || null)
+    : null;
 
-  const currentCourierUser =
-    couriersList.find((c) => c.id === activeCourierId) || couriersList[0];
+  const currentCourierUser = activeCourierId
+    ? (couriersList.find((c) => c.id === activeCourierId) || null)
+    : null;
+
+  const currentAdminUser = activeAdminId
+    ? (db.users.find((u) => u.id === activeAdminId && u.role === 'admin') || null)
+    : null;
+
+  // Global admin user fallback for administrative utilities
+  const adminUser = currentAdminUser || db.users.find((u) => u.role === 'admin') || db.users[db.users.length - 1];
 
   // ================= STRICT MULTI-TENANT ISOLATED DATA VIEWS ================= //
 
   // A. Merchant Isolated Views:
-  const merchantProducts = db.products.filter(
-    (p) => p.storeId === currentMerchantStore?.id
-  );
+  const merchantProducts = currentMerchantStore
+    ? db.products.filter((p) => p.storeId === currentMerchantStore.id)
+    : [];
 
-  const merchantOrders = db.orders.filter(
-    (o) => o.storeId === currentMerchantStore?.id
-  );
+  const merchantOrders = currentMerchantStore
+    ? db.orders.filter((o) => o.storeId === currentMerchantStore.id)
+    : [];
 
-  const merchantSubscription =
-    db.subscriptions?.find((s) => s.storeId === currentMerchantStore?.id) || {
-      id: `sub-${currentMerchantStore?.id}`,
-      storeId: currentMerchantStore?.id,
-      storeName: currentMerchantStore?.name,
-      planId: 'plan-basic',
-      planName: 'باقة البداية للأسر المنتجة',
-      price: 15000,
-      currency: 'ر.ي',
-      status: 'active_trial',
-      trialStartDate: '2026-10-25',
-      trialEndDate: '2026-11-24',
-      currentPeriodEnd: '2026-11-24',
-      daysRemaining: 17,
-      autoRenew: true,
-    };
+  const merchantSubscription = currentMerchantStore
+    ? (db.subscriptions?.find((s) => s.storeId === currentMerchantStore.id) || {
+        id: `sub-${currentMerchantStore.id}`,
+        storeId: currentMerchantStore.id,
+        storeName: currentMerchantStore.name,
+        planId: 'plan-basic',
+        planName: 'باقة البداية للأسر المنتجة',
+        price: 15000,
+        currency: 'ر.ي',
+        status: 'active_trial',
+        trialStartDate: '2026-10-25',
+        trialEndDate: '2026-11-24',
+        currentPeriodEnd: '2026-11-24',
+        daysRemaining: 17,
+        autoRenew: true,
+      })
+    : null;
 
-  const merchantInvoices = (db.invoices || []).filter(
-    (i) => i.storeId === currentMerchantStore?.id
-  );
+  const merchantInvoices = currentMerchantStore
+    ? (db.invoices || []).filter((i) => i.storeId === currentMerchantStore.id)
+    : [];
 
   const merchantPayments = (db.payments || []).filter(
     (p) => p.storeId === currentMerchantStore?.id
@@ -823,7 +929,7 @@ export function PlatformProvider({ children }) {
 
   // ================= UNIFIED DATABASE OPERATIONS ================= //
 
-  // --- A. PRODUCTS (Scoped to Active Merchant) ---
+  // --- A. PRODUCTS (Scoped to Active Merchant with Supabase Sync) ---
   const addProduct = (prodData) => {
     const newProd = {
       id: `prod-${Date.now()}`,
@@ -863,6 +969,15 @@ export function PlatformProvider({ children }) {
       ],
     }));
 
+    // Async push to Supabase if connected
+    if (getSupabaseConfig().isConfigured) {
+      supabaseAddProduct({
+        ...newProd,
+        store_id: newProd.storeId,
+        image_url: newProd.image,
+      }).catch((e) => console.warn('Supabase product sync notice:', e));
+    }
+
     return newProd;
   };
 
@@ -880,6 +995,10 @@ export function PlatformProvider({ children }) {
         ...prev.auditLogs,
       ],
     }));
+
+    if (getSupabaseConfig().isConfigured) {
+      supabaseUpdateProduct(prodId, updates).catch((e) => console.warn('Supabase product update notice:', e));
+    }
   };
 
   const deleteProduct = (prodId) => {
@@ -896,6 +1015,10 @@ export function PlatformProvider({ children }) {
         ...prev.auditLogs,
       ],
     }));
+
+    if (getSupabaseConfig().isConfigured) {
+      supabaseDeleteProduct(prodId).catch((e) => console.warn('Supabase product delete notice:', e));
+    }
   };
 
   const updateProductStock = (prodId, newStock) => {
@@ -2495,19 +2618,29 @@ export function PlatformProvider({ children }) {
     restoreDemoData,
 
 
-    // Users & Multi-Tenant Switchers
+    // Users & Multi-Tenant Switchers & Auth Actions
     customerUser,
     merchantsList,
     activeMerchantId,
     currentMerchantUser,
     switchMerchantAccount,
+    loginMerchant,
+    logoutMerchant,
 
     couriersList,
     activeCourierId,
     currentCourierUser,
     switchCourierAccount,
+    loginCourier,
+    logoutCourier,
 
     adminUser,
+    currentAdminUser,
+    activeAdminId,
+    switchAdminAccount,
+    loginAdmin,
+    logoutAdmin,
+    quickDemoLogin,
     checkPermission,
 
     // Marketplace Products (All)

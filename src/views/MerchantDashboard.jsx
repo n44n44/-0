@@ -55,10 +55,9 @@ import MerchantPaymentModal from '../components/MerchantPaymentModal';
 export default function MerchantDashboard({ onBackToMarket }) {
   const {
     categories = [],
-    merchantsList = [],
     activeMerchantId,
     currentMerchantUser,
-    switchMerchantAccount,
+    logoutMerchant,
     merchantProducts = [],
     addProduct,
     updateProduct,
@@ -410,45 +409,23 @@ export default function MerchantDashboard({ onBackToMarket }) {
             </button>
           </div>
 
-          {/* Current Merchant Pill / Store Switcher */}
+          {/* Authenticated Merchant Store Badge (Strictly isolated - No switcher) */}
           <div className="px-5 pt-5 pb-2">
-            <div className="relative">
-              <button
-                onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
-                className="w-full p-3 rounded-2xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 transition-all flex items-center justify-between text-right group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-sm text-white shadow-md">
-                    {merchantStore?.name ? merchantStore.name.charAt(0) : 'م'}
+            <div className="w-full p-3.5 rounded-2xl bg-white/[0.06] border border-white/10 flex items-center justify-between text-right">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center font-black text-sm text-[#07132B] shadow-md">
+                  {merchantStore?.name ? merchantStore.name.charAt(0) : 'م'}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>متجر معتمد ومستقل</span>
                   </div>
-                  <div>
-                    <div className="text-xs font-medium text-blue-300">المتجر الحالي</div>
-                    <div className="text-sm font-bold text-white truncate max-w-[120px]">{merchantStore?.name || 'متجر وردة الأناقة'}</div>
+                  <div className="text-sm font-black text-white truncate max-w-[130px]" title={merchantStore?.name}>
+                    {merchantStore?.name || currentMerchantUser?.name || 'متجري'}
                   </div>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-blue-300 transition-transform ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {/* Account Dropdown */}
-              {isAccountMenuOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-[#12233f] border border-blue-500/20 rounded-2xl p-2 shadow-2xl z-50 backdrop-blur-xl">
-                  <div className="text-[11px] font-semibold text-blue-300/80 px-2.5 py-1.5">تبديل حساب التاجر:</div>
-                  {merchantsList.map(m => (
-                    <button
-                      key={m.id}
-                      onClick={() => {
-                        switchMerchantAccount(m.id);
-                        setIsAccountMenuOpen(false);
-                        showToast(`تم التبديل إلى متجر ${m.name}`);
-                      }}
-                      className={`w-full text-right px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${activeMerchantId === m.id ? 'bg-blue-600 text-white font-bold' : 'hover:bg-white/5 text-slate-300'}`}
-                    >
-                      <span className="truncate">{m.name}</span>
-                      {activeMerchantId === m.id && <Check className="w-3.5 h-3.5" />}
-                    </button>
-                  ))}
-                </div>
-              )}
+              </div>
             </div>
           </div>
 
@@ -499,8 +476,11 @@ export default function MerchantDashboard({ onBackToMarket }) {
         {/* Sidebar Footer: Logout / Store status */}
         <div className="p-4 border-t border-blue-900/40">
           <button
-            onClick={onBackToMarket}
-            className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl bg-white/5 hover:bg-red-500/20 text-slate-300 hover:text-red-300 transition-all text-sm font-bold border border-white/5"
+            onClick={() => {
+              if (logoutMerchant) logoutMerchant();
+              if (onBackToMarket) onBackToMarket();
+            }}
+            className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl bg-white/5 hover:bg-red-500/20 text-slate-300 hover:text-red-300 transition-all text-sm font-bold border border-white/5 cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             <span>تسجيل الخروج والعودة للمنصة</span>

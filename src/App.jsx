@@ -18,7 +18,7 @@ import AboutPage from './views/AboutPage';
 import ContactPage from './views/ContactPage';
 import LoginPage from './views/LoginPage';
 
-import { Database } from 'lucide-react';
+import { Database, Store, Bike, ShieldCheck, Lock, ArrowRight, User } from 'lucide-react';
 import LocationModal from './components/LocationModal';
 import SellerModal from './components/SellerModal';
 import CustomerAuthModal from './components/CustomerAuthModal';
@@ -29,11 +29,60 @@ import Toast from './components/Toast';
 
 import { PlatformProvider, usePlatform } from './context/PlatformContext';
 
+function ProtectedRouteGate({ title, subtitle, icon: Icon, badgeText, onLogin, onDemo, onBack }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-[#07132B] via-[#0A162B] to-[#07132B] text-white" dir="rtl">
+      <div className="w-full max-w-md bg-white/[0.04] border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl text-center space-y-6 animate-fadeIn">
+        <div className="w-16 h-16 rounded-2xl bg-sky-500/10 border border-sky-500/25 text-sky-400 mx-auto flex items-center justify-center shadow-lg">
+          <Icon className="w-8 h-8" />
+        </div>
+        
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20 text-xs font-bold">
+            <Lock className="w-3.5 h-3.5 text-amber-400" />
+            <span>{badgeText || 'منطقة وصول محمية ومقيدة'}</span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-black text-white">{title}</h2>
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{subtitle}</p>
+        </div>
+
+        <div className="space-y-3 pt-2">
+          <button
+            onClick={onLogin}
+            className="w-full py-3.5 px-5 rounded-2xl bg-[#EAB839] hover:bg-[#D9A726] text-[#07132B] font-black text-sm shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>تسجيل الدخول / فتح حساب جديد</span>
+            <ArrowRight className="w-4 h-4 rotate-180" />
+          </button>
+
+          <button
+            onClick={onDemo}
+            className="w-full py-3 px-5 rounded-2xl bg-white/10 hover:bg-white/15 text-sky-200 border border-white/15 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>⚡ دخول سريع للتجربة (حساب تجريبي)</span>
+          </button>
+
+          <button
+            onClick={onBack}
+            className="w-full py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white transition cursor-pointer"
+          >
+            العودة للمنصة الرئيسية (سوق العملاء)
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AppContent() {
   const {
     currentPortal,
     switchPortal,
     customerUser,
+    currentMerchantUser,
+    currentCourierUser,
+    currentAdminUser,
+    quickDemoLogin,
     switchCustomerAccount,
     orders,
     placeOrder,
@@ -41,6 +90,7 @@ function AppContent() {
 
   // Sub-navigation inside Marketplace
   const [currentMarketView, setCurrentMarketView] = useState('home');
+  const [loginDefaultRole, setLoginDefaultRole] = useState('customer');
   const [selectedLocation, setSelectedLocation] = useState('المكلا');
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isSellerModalOpen, setIsSellerModalOpen] = useState(false);
@@ -55,16 +105,20 @@ function AppContent() {
   // Synchronize hash for direct portal access without exposing buttons to customer
   useEffect(() => {
     const handleHash = () => {
-      const hash = window.location.hash;
-      if (hash === '#/merchant') switchPortal('merchant');
-      else if (hash === '#/courier') switchPortal('courier');
-      else if (hash === '#/admin') switchPortal('admin');
+      const hash = window.location.hash || '';
+      if (hash.includes('demo=merchant')) quickDemoLogin('merchant');
+      if (hash.includes('demo=courier')) quickDemoLogin('courier');
+      if (hash.includes('demo=admin')) quickDemoLogin('admin');
+
+      if (hash.startsWith('#/merchant')) switchPortal('merchant');
+      else if (hash.startsWith('#/courier')) switchPortal('courier');
+      else if (hash.startsWith('#/admin')) switchPortal('admin');
       else if (hash === '#/' || !hash) switchPortal('marketplace');
     };
     handleHash();
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
-  }, [switchPortal]);
+  }, [switchPortal, quickDemoLogin]);
 
   // Cart state
   const [cartItems, setCartItems] = useState([
@@ -151,13 +205,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#07132B] flex flex-col font-sans" dir="rtl">
-      {/* 1. TOP PORTAL BAR: Only shown in Internal Dashboard Portals (Merchant, Courier, Admin) */}
-      {currentPortal !== 'marketplace' && (
-        <PortalTopBar
-          cartCount={totalCartCount}
-          onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
-        />
-      )}
+
 
       {/* Floating Platform Rating Controls */}
       <div className="fixed bottom-5 left-5 z-40 flex items-center gap-2.5">
@@ -298,6 +346,7 @@ function AppContent() {
 
             {currentMarketView === 'login' && (
               <LoginPage
+                defaultRole={loginDefaultRole}
                 onNavigate={(nav) => setCurrentMarketView(nav)}
                 onLoginSuccess={(user, role) => {
                   if (role === 'merchant') {
@@ -321,36 +370,96 @@ function AppContent() {
         </div>
       )}
 
-      {/* PORTAL 2: MERCHANT DASHBOARD */}
+      {/* PORTAL 2: MERCHANT DASHBOARD (Guarded & Isolated) */}
       {currentPortal === 'merchant' && (
         <div className="flex-1 flex flex-col">
-          <MerchantDashboard onBackToMarket={() => {
-            window.location.hash = '#/';
-            switchPortal('marketplace');
-          }} />
-        </div>
-      )}
-
-      {/* PORTAL 3: COURIER DASHBOARD */}
-      {currentPortal === 'courier' && (
-        <div className="flex-1 flex flex-col">
-          <CourierDashboard onBackToMarket={() => {
-            window.location.hash = '#/';
-            switchPortal('marketplace');
-          }} />
-        </div>
-      )}
-
-      {/* PORTAL 4: ADMIN DASHBOARD */}
-      {currentPortal === 'admin' && (
-        <div className="flex-1 flex flex-col">
-          <AdminDashboard
-            onBackToMarket={() => {
+          {!currentMerchantUser ? (
+            <ProtectedRouteGate
+              icon={Store}
+              title="لوحة تحكم التاجر محمية 🏪"
+              badgeText="بوابة أصحاب المتاجر والأسر المنتجة"
+              subtitle="لوحة تحكم التاجر مخصصة فقط لأصحاب المتاجر والأسر المنتجة لإدارة المنتجات، متابعة المبيعات والطلبات، وحساب الأرباح."
+              onLogin={() => {
+                setLoginDefaultRole('merchant');
+                setCurrentMarketView('login');
+                switchPortal('marketplace');
+                window.location.hash = '#/';
+              }}
+              onDemo={() => quickDemoLogin('merchant')}
+              onBack={() => {
+                window.location.hash = '#/';
+                switchPortal('marketplace');
+              }}
+            />
+          ) : (
+            <MerchantDashboard onBackToMarket={() => {
               window.location.hash = '#/';
               switchPortal('marketplace');
-            }}
-            onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
-          />
+            }} />
+          )}
+        </div>
+      )}
+
+      {/* PORTAL 3: COURIER DASHBOARD (Guarded & Isolated) */}
+      {currentPortal === 'courier' && (
+        <div className="flex-1 flex flex-col">
+          {!currentCourierUser ? (
+            <ProtectedRouteGate
+              icon={Bike}
+              title="بوابة كابتن التوصيل محمية 🛵"
+              badgeText="أسطول مناديب غيم سبيس المكلا"
+              subtitle="هذه اللوحة مخصصة لكباتن أسطول التوصيل المعتمدين في المكلا وحضرموت لاستلام وتوصيل الشحنات والطلبات للعملاء."
+              onLogin={() => {
+                setLoginDefaultRole('courier');
+                setCurrentMarketView('login');
+                switchPortal('marketplace');
+                window.location.hash = '#/';
+              }}
+              onDemo={() => quickDemoLogin('courier')}
+              onBack={() => {
+                window.location.hash = '#/';
+                switchPortal('marketplace');
+              }}
+            />
+          ) : (
+            <CourierDashboard onBackToMarket={() => {
+              window.location.hash = '#/';
+              switchPortal('marketplace');
+            }} />
+          )}
+        </div>
+      )}
+
+      {/* PORTAL 4: ADMIN DASHBOARD (Guarded & Isolated) */}
+      {currentPortal === 'admin' && (
+        <div className="flex-1 flex flex-col">
+          {!currentAdminUser ? (
+            <ProtectedRouteGate
+              icon={ShieldCheck}
+              title="لوحة الإدارة العامة محمية 🛡️"
+              badgeText="منطقة مشفرة لمشرفي النظام"
+              subtitle="منطقة محظورة ومخصصة لإدارة منصة غيم سبيس، اعتماد المتاجر وتدقيق المعاملات المالية وتقارير العمليات."
+              onLogin={() => {
+                setLoginDefaultRole('customer');
+                setCurrentMarketView('login');
+                switchPortal('marketplace');
+                window.location.hash = '#/';
+              }}
+              onDemo={() => quickDemoLogin('admin')}
+              onBack={() => {
+                window.location.hash = '#/';
+                switchPortal('marketplace');
+              }}
+            />
+          ) : (
+            <AdminDashboard
+              onBackToMarket={() => {
+                window.location.hash = '#/';
+                switchPortal('marketplace');
+              }}
+              onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
+            />
+          )}
         </div>
       )}
 

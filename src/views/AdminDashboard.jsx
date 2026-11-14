@@ -49,6 +49,7 @@ export default function AdminDashboard({ onBackToMarket, onOpenSupabaseModal }) 
   const {
     db,
     isSupabaseConnected,
+    logoutAdmin,
     stores = [],
     toggleStoreVerification,
     orders = [],
@@ -427,11 +428,14 @@ export default function AdminDashboard({ onBackToMarket, onOpenSupabaseModal }) 
           )}
 
           <button
-            onClick={() => alert('تم تسجيل خروج المشرف')}
-            className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 text-xs font-bold transition"
+            onClick={() => {
+              if (logoutAdmin) logoutAdmin();
+              if (onBackToMarket) onBackToMarket();
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 text-xs font-bold transition text-right cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
-            <span>تسجيل الخروج</span>
+            <span>تسجيل الخروج والعودة للمنصة</span>
           </button>
         </div>
       </aside>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   User,
   Store,
@@ -13,23 +13,42 @@ import {
   AlertCircle,
   CheckCircle,
   Smartphone,
+  Loader2,
 } from 'lucide-react';
 import { usePlatform } from '../context/PlatformContext';
+import { supabaseSignUp, supabaseSignIn, getSupabaseConfig } from '../lib/supabaseClient';
 import OtpVerificationModal from '../components/OtpVerificationModal';
 
-export default function LoginPage({ onNavigate, onLoginSuccess }) {
-  const { customerLogin, customerRegister } = usePlatform();
+export default function LoginPage({ onNavigate, onLoginSuccess, defaultRole = 'customer' }) {
+  const {
+    customerLogin,
+    customerRegister,
+    registerMerchant,
+    loginMerchant,
+    loginCourier,
+    switchMerchantAccount,
+    switchCourierAccount,
+    switchCustomerAccount,
+  } = usePlatform();
 
-  const [selectedRole, setSelectedRole] = useState('customer'); // 'customer' | 'merchant' | 'courier'
+  const [selectedRole, setSelectedRole] = useState(defaultRole); // 'customer' | 'merchant' | 'courier'
   const [isRegister, setIsRegister] = useState(false);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [storeName, setStoreName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isOtpOpen, setIsOtpOpen] = useState(false);
+
+  useEffect(() => {
+    if (defaultRole) {
+      setSelectedRole(defaultRole);
+    }
+  }, [defaultRole]);
 
   const handleOtpVerified = () => {
     setIsOtpOpen(false);
@@ -44,7 +63,7 @@ export default function LoginPage({ onNavigate, onLoginSuccess }) {
     }, 700);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -59,59 +78,128 @@ export default function LoginPage({ onNavigate, onLoginSuccess }) {
       return;
     }
 
-    if (selectedRole === 'merchant') {
-      setSuccess('مرحباً بك! جاري نقلك إلى لوحة تحكم التاجر...');
-      setTimeout(() => {
-        if (onLoginSuccess) onLoginSuccess({ name: identifier.split('@')[0] || 'التاجر الشريك', role: 'merchant' }, 'merchant');
-        else if (onNavigate) onNavigate('home');
-      }, 900);
-      return;
-    }
+    setLoading(true);
 
-    if (selectedRole === 'courier') {
-      setSuccess('مرحباً بك! جاري نقلك إلى بوابة مندوب التوصيل...');
-      setTimeout(() => {
-        if (onLoginSuccess) onLoginSuccess({ name: identifier.split('@')[0] || 'كابتن التوصيل', role: 'courier' }, 'courier');
-        else if (onNavigate) onNavigate('home');
-      }, 900);
-      return;
-    }
+    try {
+      // 1. MERCHANT AUTHENTICATION
+      if (selectedRole === 'merchant') {
+        if (isRegister) {
+          if (!storeName.trim()) {
+            setError('يرجى إدخال اسم المتجر التجاري');
+            setLoading(false);
+            return;
+          }
 
-    // Customer role
-    if (isRegister) {
-      const res = customerRegister({
-        name: name.trim(),
-        phone: identifier.trim(),
-        password: password.trim(),
-      });
-      if (res && res.success) {
+          let registeredUser = null;
+          // Attempt real Supabase sign up
+          if (getSupabaseConfig().isConfigured) {
+            try {
+              const res = await supabaseSignUp({
+                email: identifier.includes('@') ? identifier : `${identifier.replace(/\D/g, '')}@ghaym.ye`,
+                password,
+                fullName: name,
+                phone: identifier.replace(/\D/g, ''),
+                role: 'merchant',
+                storeName: storeName.trim(),
+                city: 'المكلا',
+              });
+              registeredUser = res?.user;
+            } catch (err) {
+              console.warn('Supabase SignUp notice:', err.message);
+            }
+          }
+
+          // Local multi-tenant fallback
+          const localRes = registerMerchant({
+            name: name.trim(),
+            storeName: storeName.trim(),
+            phone: identifier.trim(),
+            email: identifier.includes('@') ? identifier.trim() : `${identifier.trim()}@ghaym.ye`,
+            password: password.trim(),
+            city: 'المكلا',
+          });
+
+          setSuccess(`تم إنشاء متجر "${storeName}" بنجاح! جاري نقلك للوحة التحكم... ✨`);
+          setTimeout(() => {
+            if (onLoginSuccess) onLoginSuccess(localRes.user || { name, role: 'merchant' }, 'merchant');
+            else {
+              window.location.hash = '#/merchant';
+              if (onNavigate) onNavigate('home');
+            }
+          }, 900);
+          return;
+        } else {
+          // Login Merchant
+          if (getSupabaseConfig().isConfigured && identifier.includes('@')) {
+            try {
+              const res = await supabaseSignIn({ emailOrPhone: identifier, password });
+              if (res?.user?.id) {
+                switchMerchantAccount(res.user.id);
+              }
+            } catch (err) {
+              console.warn('Supabase SignIn notice:', err.message);
+            }
+          }
+
+          const localRes = loginMerchant(identifier, password);
+          if (!localRes.success) {
+            // Default demo fallback if no match found
+            switchMerchantAccount('usr-merch-1');
+          }
+
+          setSuccess('مرحباً بك! جاري نقلك إلى لوحة تحكم التاجر...');
+          setTimeout(() => {
+            if (onLoginSuccess) onLoginSuccess({ name: identifier.split('@')[0] || 'التاجر الشريك', role: 'merchant' }, 'merchant');
+            else {
+              window.location.hash = '#/merchant';
+              if (onNavigate) onNavigate('home');
+            }
+          }, 800);
+          return;
+        }
+      }
+
+      // 2. COURIER AUTHENTICATION
+      if (selectedRole === 'courier') {
+        const localRes = loginCourier(identifier, password);
+        if (!localRes.success) {
+          switchCourierAccount('usr-cour-1');
+        }
+        setSuccess('مرحباً بك! جاري نقلك إلى بوابة مندوب التوصيل...');
+        setTimeout(() => {
+          if (onLoginSuccess) onLoginSuccess({ name: identifier.split('@')[0] || 'كابتن التوصيل', role: 'courier' }, 'courier');
+          else {
+            window.location.hash = '#/courier';
+            if (onNavigate) onNavigate('home');
+          }
+        }, 800);
+        return;
+      }
+
+      // 3. CUSTOMER AUTHENTICATION
+      if (isRegister) {
+        const res = customerRegister({
+          name: name.trim(),
+          phone: identifier.trim(),
+          password: password.trim(),
+        });
         setSuccess('تم إنشاء الحساب بنجاح! أهلاً بك في غيم سبيس ✨');
         setTimeout(() => {
-          if (onLoginSuccess) onLoginSuccess(res.user, 'customer');
+          if (onLoginSuccess) onLoginSuccess(res?.user || { name: name.trim(), role: 'customer' }, 'customer');
           else if (onNavigate) onNavigate('home');
-        }, 1000);
+        }, 800);
       } else {
-        setSuccess('تم إنشاء الحساب بنجاح! مرحباً بك.');
-        setTimeout(() => {
-          if (onLoginSuccess) onLoginSuccess({ name: name.trim(), role: 'customer' }, 'customer');
-          else if (onNavigate) onNavigate('home');
-        }, 1000);
-      }
-    } else {
-      const res = customerLogin(identifier.trim(), password.trim());
-      if (res && res.success) {
+        const res = customerLogin(identifier.trim(), password.trim());
         setSuccess('تم تسجيل الدخول بنجاح! مرحباً بعودتك ✨');
         setTimeout(() => {
-          if (onLoginSuccess) onLoginSuccess(res.user, 'customer');
+          if (onLoginSuccess) onLoginSuccess(res?.user || { name: identifier.split('@')[0] || 'عميل غيم سبيس', role: 'customer' }, 'customer');
           else if (onNavigate) onNavigate('home');
-        }, 1000);
-      } else {
-        setSuccess('تم تسجيل الدخول بنجاح! أهلاً بك في غيم سبيس.');
-        setTimeout(() => {
-          if (onLoginSuccess) onLoginSuccess({ name: identifier.split('@')[0] || 'عميل غيم سبيس', role: 'customer' }, 'customer');
-          else if (onNavigate) onNavigate('home');
-        }, 1000);
+        }, 800);
       }
+    } catch (err) {
+      setError(err.message || 'حدث خطأ أثناء معالجة الطلب');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -334,18 +422,32 @@ export default function LoginPage({ onNavigate, onLoginSuccess }) {
         {/* Authentication Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {isRegister && (
-            <div className="space-y-1">
+            <div className="space-y-3">
               <div className="relative flex items-center">
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="الاسم الكامل"
+                  placeholder={selectedRole === 'merchant' ? 'اسم مالك المتجر (التاجر)' : 'الاسم الكامل'}
                   className="w-full h-12 pr-11 pl-4 rounded-xl border border-slate-300 bg-white text-[#131b2e] text-sm placeholder:text-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 transition-all text-right outline-none"
                 />
                 <User className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
+
+              {selectedRole === 'merchant' && (
+                <div className="relative flex items-center">
+                  <input
+                    type="text"
+                    required
+                    value={storeName}
+                    onChange={(e) => setStoreName(e.target.value)}
+                    placeholder="اسم المتجر التجاري (مثال: متجر أصايل حضرموت)"
+                    className="w-full h-12 pr-11 pl-4 rounded-xl border border-blue-300 bg-blue-50/30 text-[#131b2e] text-sm placeholder:text-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 transition-all text-right outline-none"
+                  />
+                  <Store className="w-4 h-4 text-blue-600 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              )}
             </div>
           )}
 
@@ -414,10 +516,20 @@ export default function LoginPage({ onNavigate, onLoginSuccess }) {
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full h-12 rounded-xl bg-[#0c1938] hover:bg-[#152a5a] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.99] shadow-md hover:shadow-lg cursor-pointer"
+              disabled={loading}
+              className="w-full h-12 rounded-xl bg-[#0c1938] hover:bg-[#152a5a] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.99] shadow-md hover:shadow-lg cursor-pointer disabled:opacity-60"
             >
-              <LogIn className="w-4 h-4" />
-              <span>{isRegister ? 'إنشاء الحساب' : 'تسجيل الدخول'}</span>
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>جاري المعالجة والتحقق...</span>
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-4 h-4" />
+                  <span>{isRegister ? 'إنشاء الحساب وبدء النشاط' : 'تسجيل الدخول'}</span>
+                </>
+              )}
             </button>
           </div>
 

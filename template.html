@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/jpeg" href="./logo.jpg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="screen-orientation" content="landscape" />
+    <meta name="theme-color" content="#07132B" />
     <title>غيم سبيس | Ghaym Space - منصة الحرفيين والأسر المنتجة</title>
 
     <!-- Google Fonts: Cairo, Tajawal, IBM Plex Sans Arabic, Outfit & Material Symbols -->
@@ -55,6 +57,22 @@
         color: #07132B;
         direction: rtl;
         overflow-x: hidden;
+      }
+
+      /* 🌟 Landscape Optimization: Platform operates horizontally across wide screens & mobile landscape */
+      @media (orientation: landscape) {
+        .landscape-wide-container {
+          max-width: 1440px !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+          width: 100% !important;
+        }
+        .landscape-grid-4 {
+          grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        }
+        .landscape-grid-3 {
+          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
       }
 
       .material-symbols-outlined {

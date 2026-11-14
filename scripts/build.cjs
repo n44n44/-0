@@ -13,5 +13,9 @@ execSync('npx vite build', { stdio: 'inherit', cwd: path.join(__dirname, '..') }
 console.log('3. Running prepare_distribution.cjs...');
 require('./prepare_distribution.cjs');
 
+// 4. Restore root index.html from template.html so that Vite dev server and Vite preview always run smoothly
+fs.copyFileSync(templatePath, indexPath);
+console.log('4. Restored clean source index.html for Vite dev server.');
+
 console.log('Build & distribution completed successfully!');
 

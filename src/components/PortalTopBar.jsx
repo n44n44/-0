@@ -130,7 +130,7 @@ export default function PortalTopBar({ cartCount = 0, onOpenSupabaseModal }) {
                 ? `${currentCourierUser?.name} (مندوب المكلا)`
                 : currentPortal === 'admin'
                 ? 'المشرف العام (Super Admin)'
-                : customerUser?.name || 'فاطمة باوزير (عميل)'}
+                : customerUser?.name || 'زائر (غير مسجل)'}
             </span>
           </div>
         </div>

@@ -34,6 +34,7 @@ function AppContent() {
     currentPortal,
     switchPortal,
     customerUser,
+    switchCustomerAccount,
     orders,
     placeOrder,
   } = usePlatform();
@@ -306,6 +307,9 @@ function AppContent() {
                     window.location.hash = '#/courier';
                     switchPortal('courier');
                   } else {
+                    if (user?.id && switchCustomerAccount) {
+                      switchCustomerAccount(user.id);
+                    }
                     setCurrentMarketView('home');
                   }
                 }}

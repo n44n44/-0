@@ -678,6 +678,10 @@ export function PlatformProvider({ children }) {
     return localStorage.getItem('ghaym_active_courier_id') || 'usr-cour-1';
   });
 
+  const [activeCustomerId, setActiveCustomerId] = useState(() => {
+    return localStorage.getItem('ghaym_active_customer_id') || null;
+  });
+
   const switchMerchantAccount = (merchantUserId) => {
     setActiveMerchantId(merchantUserId);
     localStorage.setItem('ghaym_active_merchant_id', merchantUserId);
@@ -688,8 +692,19 @@ export function PlatformProvider({ children }) {
     localStorage.setItem('ghaym_active_courier_id', courierUserId);
   };
 
+  const switchCustomerAccount = (customerUserId) => {
+    setActiveCustomerId(customerUserId);
+    if (customerUserId) {
+      localStorage.setItem('ghaym_active_customer_id', customerUserId);
+    } else {
+      localStorage.removeItem('ghaym_active_customer_id');
+    }
+  };
+
   // Resolve active persona objects
-  const customerUser = db.users.find((u) => u.role === 'customer') || db.users[0];
+  const customerUser = activeCustomerId
+    ? (db.users.find((u) => u.id === activeCustomerId && u.role === 'customer') || null)
+    : null;
   const merchantsList = db.users.filter((u) => u.role === 'merchant');
   const couriersList = db.users.filter((u) => u.role === 'courier');
   const adminUser = db.users.find((u) => u.role === 'admin') || db.users[db.users.length - 1];
@@ -1490,9 +1505,13 @@ export function PlatformProvider({ children }) {
   // --- E. CUSTOMER AUTH & ADDRESSES ---
   const loginCustomer = (emailOrPhone) => {
     const existing = db.users.find(
-      (u) => u.phone === emailOrPhone || u.email === emailOrPhone
+      (u) => (u.phone === emailOrPhone || u.email === emailOrPhone) && u.role === 'customer'
     );
-    if (existing) return existing;
+    if (existing) {
+      setActiveCustomerId(existing.id);
+      localStorage.setItem('ghaym_active_customer_id', existing.id);
+      return { success: true, user: existing };
+    }
     const newUser = {
       id: `usr-cust-${Date.now()}`,
       role: 'customer',
@@ -1501,10 +1520,12 @@ export function PlatformProvider({ children }) {
       email: emailOrPhone.includes('@') ? emailOrPhone : 'customer@ghaym.ye',
       city: 'المكلا',
       neighborhood: 'حي الورد - المكلا',
-      addresses: customerUser?.addresses || [],
+      addresses: [],
     };
     setDb((prev) => ({ ...prev, users: [...prev.users, newUser] }));
-    return newUser;
+    setActiveCustomerId(newUser.id);
+    localStorage.setItem('ghaym_active_customer_id', newUser.id);
+    return { success: true, user: newUser };
   };
 
   const registerCustomer = (userData) => {
@@ -1540,12 +1561,18 @@ export function PlatformProvider({ children }) {
         ...prev.auditLogs,
       ],
     }));
-    return newUser;
+    setActiveCustomerId(newUser.id);
+    localStorage.setItem('ghaym_active_customer_id', newUser.id);
+    return { success: true, user: newUser };
   };
 
-  const logoutCustomer = () => {};
+  const logoutCustomer = () => {
+    setActiveCustomerId(null);
+    localStorage.removeItem('ghaym_active_customer_id');
+  };
 
   const updateCustomerProfile = (updates) => {
+    if (!customerUser) return;
     setDb((prev) => ({
       ...prev,
       users: prev.users.map((u) => (u.id === customerUser.id ? { ...u, ...updates } : u)),
@@ -1553,6 +1580,7 @@ export function PlatformProvider({ children }) {
   };
 
   const addCustomerAddress = (newAddr) => {
+    if (!customerUser) return;
     const addr = {
       id: `addr-${Date.now()}`,
       ...newAddr,
@@ -1569,6 +1597,7 @@ export function PlatformProvider({ children }) {
   };
 
   const deleteCustomerAddress = (addrId) => {
+    if (!customerUser) return;
     setDb((prev) => ({
       ...prev,
       users: prev.users.map((u) =>
@@ -2533,6 +2562,9 @@ export function PlatformProvider({ children }) {
     // Customer Actions
     loginCustomer,
     registerCustomer,
+    customerLogin: loginCustomer,
+    customerRegister: registerCustomer,
+    switchCustomerAccount,
     logoutCustomer,
     updateCustomerProfile,
     addCustomerAddress,

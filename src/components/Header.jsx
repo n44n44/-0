@@ -239,15 +239,24 @@ export default function Header({
               <span>انضم كتاجر</span>
             </button>
 
-            {/* User Account / Auth Button */}
+            {/* Login / User Account Button */}
             <button
               type="button"
-              onClick={customerUser ? onOpenProfileModal : onOpenAuthModal}
-              className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-gray-200 hover:text-white transition border border-white/10 cursor-pointer"
-              title={customerUser ? 'حسابي والطلبات' : 'تسجيل الدخول'}
+              onClick={() => {
+                if (customerUser) {
+                  if (onOpenProfileModal) onOpenProfileModal();
+                } else {
+                  if (onNavigate) onNavigate('login');
+                  else if (onOpenAuthModal) onOpenAuthModal();
+                }
+              }}
+              className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 hover:border-sky-400 transition-all cursor-pointer shadow-sm active:scale-95 group"
+              title={customerUser ? `حسابي (${customerUser.name})` : 'تسجيل الدخول'}
             >
-              <User className="w-4 h-4 text-sky-400" />
-              <span className="hidden sm:inline text-xs font-bold">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400 group-hover:bg-sky-500/30 transition-colors shrink-0">
+                <i className="fa-regular fa-user text-xs"></i>
+              </div>
+              <span className="whitespace-nowrap font-bold text-xs sm:text-sm">
                 {customerUser ? customerUser.name.split(' ')[0] : 'تسجيل الدخول'}
               </span>
             </button>
@@ -291,6 +300,28 @@ export default function Header({
       {mobileMenuOpen && (
         <div className="md:hidden bg-[#07132b] border-t border-[#142346] px-4 py-4 space-y-3">
           <div className="flex flex-col space-y-1">
+            <button
+              type="button"
+              onClick={() => {
+                if (customerUser) {
+                  if (onOpenProfileModal) onOpenProfileModal();
+                } else {
+                  if (onNavigate) onNavigate('login');
+                  else if (onOpenAuthModal) onOpenAuthModal();
+                }
+                setMobileMenuOpen(false);
+              }}
+              className="text-right px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-between bg-white/10 text-white border border-white/15 mb-2 cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <i className="fa-regular fa-user text-sm text-sky-400"></i>
+                <span>{customerUser ? customerUser.name : 'تسجيل الدخول'}</span>
+              </div>
+              <span className="text-[10px] text-sky-300 bg-sky-900/40 px-2 py-0.5 rounded">
+                {customerUser ? 'حسابي' : 'دخول'}
+              </span>
+            </button>
+
             {navLinks.map((link) => (
               <button
                 key={link.id}

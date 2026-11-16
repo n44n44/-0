@@ -144,7 +144,7 @@ function AdminAccessDenied({ activeUser, onReturnHome, onReturnPortal }) {
 // Dedicated Security Gate: Secure Admin Credential Gate (No demo bypass, no public registration)
 function AdminSecureLoginGate({ onLoginSuccess, onBackToMarket }) {
   const { loginAdmin } = usePlatform();
-  const [identifier, setIdentifier] = useState('');
+  const [identifier, setIdentifier] = useState('nadoalgadeh@gmail.com');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

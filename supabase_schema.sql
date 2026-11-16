@@ -254,3 +254,145 @@ CREATE POLICY "Public read categories" ON public.categories FOR SELECT USING (tr
 CREATE POLICY "Admin manage categories" ON public.categories FOR ALL USING (
   EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
 );
+
+-- =========================================================================
+-- 6. MERCHANT JOIN REQUESTS TABLE (إدارة طلبات انضمام التجار)
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS public.merchant_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  email TEXT,
+  store_name TEXT NOT NULL,
+  activity_type TEXT NOT NULL,
+  city TEXT DEFAULT 'المكلا',
+  neighborhood TEXT,
+  description TEXT,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  admin_notes TEXT,
+  reviewed_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  reviewed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.merchant_requests ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can submit a merchant join request
+CREATE POLICY "Users can insert merchant requests"
+  ON public.merchant_requests FOR INSERT
+  WITH CHECK (true);
+
+-- User can view their own request; Admin can view all requests
+CREATE POLICY "Users view own or admin views all merchant requests"
+  ON public.merchant_requests FOR SELECT
+  USING (
+    user_id = auth.uid() 
+    OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+    OR (auth.uid() IS NULL)
+  );
+
+-- Only Admin can update merchant request status (Approve / Reject)
+CREATE POLICY "Only admin can update merchant requests"
+  ON public.merchant_requests FOR UPDATE
+  USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+  )
+  WITH CHECK (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+-- =========================================================================
+-- 7. DELIVERY INVITES TABLE (رموز دعوة المندوبين للاستخدام مرة واحدة)
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS public.delivery_invites (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code TEXT UNIQUE NOT NULL,
+  courier_name TEXT,
+  phone TEXT,
+  vehicle TEXT DEFAULT 'دراجة نارية',
+  city TEXT DEFAULT 'المكلا',
+  created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  is_used BOOLEAN DEFAULT FALSE,
+  used_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  used_at TIMESTAMPTZ,
+  status TEXT DEFAULT 'active' CHECK (status IN ('active', 'used', 'expired', 'revoked')),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.delivery_invites ENABLE ROW LEVEL SECURITY;
+
+-- Only Admin can insert or manage delivery invites
+CREATE POLICY "Admin can manage delivery invites"
+  ON public.delivery_invites FOR ALL
+  USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+-- Public can check unexpired active invites to verify valid code during signup
+CREATE POLICY "Public verify active invites"
+  ON public.delivery_invites FOR SELECT
+  USING (
+    status = 'active' AND is_used = FALSE AND expires_at > NOW()
+  );
+
+-- =========================================================================
+-- 8. ADMIN AUDIT LOGS TABLE (سجل عمليات الإدارة الحساسة)
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS public.admin_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  admin_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  admin_name TEXT NOT NULL,
+  action_type TEXT NOT NULL,
+  target_type TEXT NOT NULL,
+  target_id TEXT,
+  target_name TEXT,
+  details JSONB DEFAULT '{}'::jsonb,
+  ip_address TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.admin_logs ENABLE ROW LEVEL SECURITY;
+
+-- Only Admin can read admin audit logs
+CREATE POLICY "Only admin can view audit logs"
+  ON public.admin_logs FOR SELECT
+  USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+-- Admin or internal system can insert audit logs
+CREATE POLICY "Admin can insert audit logs"
+  ON public.admin_logs FOR INSERT
+  WITH CHECK (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+    OR (auth.uid() IS NULL)
+  );
+
+-- =========================================================================
+-- 9. SECURITY TRIGGER: PREVENT ROLE SELF-MUTATION ON PROFILES
+-- =========================================================================
+CREATE OR REPLACE FUNCTION public.protect_user_role()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- If role is changing, ensure only an Admin is authorized to change it
+  IF NEW.role <> OLD.role THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    ) THEN
+      RAISE EXCEPTION 'لا تملك الصلاحية لتغيير نوع الحساب بنفسك.';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_protect_user_role ON public.profiles;
+CREATE TRIGGER trg_protect_user_role
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.protect_user_role();
+

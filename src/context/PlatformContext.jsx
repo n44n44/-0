@@ -18,6 +18,17 @@ import {
   supabaseUpdateProduct,
   supabaseDeleteProduct,
   supabaseSignOut,
+  supabaseSubmitMerchantRequest,
+  supabaseFetchMerchantRequests,
+  supabaseApproveMerchantRequest,
+  supabaseRejectMerchantRequest,
+  supabaseCreateDeliveryInvite,
+  supabaseFetchDeliveryInvites,
+  supabaseVerifyDeliveryInvite,
+  supabaseUseDeliveryInvite,
+  supabaseRevokeDeliveryInvite,
+  supabaseAddAdminLog,
+  supabaseFetchAdminLogs,
 } from '../lib/supabaseClient';
 
 const PlatformContext = createContext(null);
@@ -525,6 +536,107 @@ const getInitialDatabase = () => {
       { id: 'mk-13', name: 'حي السلام', distanceKm: 3.0, fee: 1350, active: true, duration: '20-25 دقيقة' },
       { id: 'mk-14', name: 'المكلا القديمة', distanceKm: 2.2, fee: 1200, active: true, duration: '15-20 دقيقة' },
     ],
+
+    // 14. MERCHANT JOIN REQUESTS TABLE (Subject to Admin Approval)
+    merchantRequests: [
+      {
+        id: 'req-1',
+        fullName: 'سالم أحمد باحطاب',
+        phone: '774112233',
+        email: 'salem.bahtab@gmail.com',
+        storeName: 'متجر عسل دوعن الملكي',
+        activityType: 'عسل ومنتجات نحل طبيعية',
+        city: 'المكلا',
+        neighborhood: 'الديس',
+        status: 'pending',
+        notes: 'نمتلك مناحل وادي دوعن ونرغب في تسويق منتجاتنا للمستهلكين في ساحل حضرموت مع ضمان الجودة.',
+        createdAt: '2026-11-15T09:30:00Z',
+      },
+      {
+        id: 'req-2',
+        fullName: 'أروى محمد بابطاط',
+        phone: '775223344',
+        email: 'arwa.babtat@gmail.com',
+        storeName: 'بيت الخياطة والتطريز الحضرمي',
+        activityType: 'أزياء ومخاوير حضرمية مطرزة',
+        city: 'المكلا',
+        neighborhood: 'حي الورد',
+        status: 'pending',
+        notes: 'مشروع منزلي متخصص في التطريز اليدوي والتفصيل الراقي للمناسبات والأعراس.',
+        createdAt: '2026-11-15T14:15:00Z',
+      },
+      {
+        id: 'req-3',
+        fullName: 'عبدالله سعيد باوزير',
+        phone: '773456789',
+        email: 'abdullah.bawazir@ghaym.ye',
+        storeName: 'خزفيات وفخار تريم',
+        activityType: 'حرف وفخار تقليدي',
+        city: 'تريم',
+        neighborhood: 'السوق القديم',
+        status: 'approved',
+        notes: 'تم فحص المتجر واعتماده وتفعيل حسابه بنجاح.',
+        reviewedAt: '2026-11-14T11:00:00Z',
+        createdAt: '2026-11-13T10:30:00Z',
+      },
+    ],
+
+    // 15. COURIER SINGLE-USE DELIVERY INVITES TABLE
+    deliveryInvites: [
+      {
+        id: 'inv-1',
+        code: 'GHAYM-MUK-7891',
+        recipientName: 'سعيد صالح بوعيران',
+        recipientPhone: '771122334',
+        vehicleType: 'دراجة نارية (سكوتر)',
+        city: 'المكلا',
+        status: 'active',
+        expiresAt: '2026-12-01T23:59:59Z',
+        createdBy: 'المشرف العام',
+        createdAt: '2026-11-15T10:00:00Z',
+        notes: 'دعوة كابتن توصيل لمناطق الديس والشرج',
+      },
+      {
+        id: 'inv-2',
+        code: 'GHAYM-MUK-4512',
+        recipientName: 'محمد سالم الكندي',
+        recipientPhone: '772233445',
+        vehicleType: 'سيارة نقل خفيف',
+        city: 'المكلا',
+        status: 'active',
+        expiresAt: '2026-12-10T23:59:59Z',
+        createdBy: 'المشرف العام',
+        createdAt: '2026-11-14T15:20:00Z',
+        notes: 'دعوة للمناطق المتباعدة (فوة وروكب)',
+      },
+      {
+        id: 'inv-3',
+        code: 'GHAYM-MUK-1090',
+        recipientName: 'عمر مبارك بن هلابي',
+        recipientPhone: '774556677',
+        vehicleType: 'دراجة نارية سريعة',
+        city: 'المكلا',
+        status: 'used',
+        usedBy: 'usr-cour-2',
+        usedAt: '2026-11-10T12:00:00Z',
+        expiresAt: '2026-11-20T23:59:59Z',
+        createdBy: 'المشرف العام',
+        createdAt: '2026-11-09T08:00:00Z',
+        notes: 'تم التفعيل وتسجيل حساب المندوب بنجاح',
+      },
+    ],
+
+    // 16. ADMIN GOVERNANCE & SECURITY AUDIT LOGS
+    adminLogs: [
+      {
+        id: 'alog-1',
+        action: 'SYSTEM_BOOT',
+        target: 'نظام إدارة غيم سبيس',
+        details: 'تشغيل النظام الإداري الموحد وضوابط الصلاحيات RBAC 2026.',
+        actorName: 'المشرف العام',
+        createdAt: '2026-11-15T08:00:00Z',
+      },
+    ],
   };
 };
 
@@ -542,6 +654,7 @@ export function PlatformProvider({ children }) {
           parsed.subscriptionPlans &&
           parsed.platformBankAccounts
         ) {
+          const freshInitial = getInitialDatabase();
           if (!parsed.categories || parsed.categories.length === 0) {
             parsed.categories = INITIAL_CATEGORIES.map((c, i) => ({
               id: c.id,
@@ -567,7 +680,16 @@ export function PlatformProvider({ children }) {
             });
           }
           if (!parsed.shippingRates || parsed.shippingRates.length === 0) {
-            parsed.shippingRates = getInitialDatabase().shippingRates;
+            parsed.shippingRates = freshInitial.shippingRates;
+          }
+          if (!parsed.merchantRequests) {
+            parsed.merchantRequests = freshInitial.merchantRequests;
+          }
+          if (!parsed.deliveryInvites) {
+            parsed.deliveryInvites = freshInitial.deliveryInvites;
+          }
+          if (!parsed.adminLogs) {
+            parsed.adminLogs = freshInitial.adminLogs;
           }
           return parsed;
         }
@@ -2092,6 +2214,442 @@ export function PlatformProvider({ children }) {
     return { success: true, user: newCourierUser };
   };
 
+  // --- MERCHANT JOIN REQUESTS & APPROVAL WORKFLOW ---
+  const submitMerchantRequest = async (formData) => {
+    const cleanPhone = cleanYemeniPhone(formData.phone || '');
+    const cleanWhatsapp = cleanYemeniPhone(formData.whatsapp || formData.phone || '');
+    const newReq = {
+      id: `req-${Date.now()}`,
+      fullName: formData.name || formData.fullName,
+      phone: cleanPhone,
+      email: formData.email || `${cleanPhone}@ghaym.ye`,
+      password: formData.password || '******',
+      storeName: formData.storeName,
+      activityType: formData.activityType || formData.category || 'متجر منوع',
+      city: formData.city || 'المكلا',
+      neighborhood: formData.neighborhood || 'حضرموت',
+      notes: formData.notes || formData.description || '',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+
+    setDb((prev) => ({
+      ...prev,
+      merchantRequests: [newReq, ...(prev.merchantRequests || [])],
+      auditLogs: [
+        addAuditLog(
+          'SUBMIT_MERCHANT_REQUEST',
+          newReq.fullName,
+          'merchant',
+          `تقديم طلب انضمام كتاجر جديد: "${newReq.storeName}" (${newReq.activityType}) من قبل ${newReq.fullName}.`
+        ),
+        ...prev.auditLogs,
+      ],
+      notifications: [
+        {
+          id: `notif-${Date.now()}`,
+          title: 'طلب انضمام تاجر جديد 🏪',
+          message: `قدّم "${newReq.fullName}" طلباً لافتتاح متجر "${newReq.storeName}" في ${newReq.city}. بانتظار المراجعة والاعتماد.`,
+          time: 'الآن',
+          unread: true,
+          type: 'merchant_request',
+          role: 'admin',
+        },
+        ...prev.notifications,
+      ],
+    }));
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseSubmitMerchantRequest({
+          full_name: newReq.fullName,
+          phone: newReq.phone,
+          email: newReq.email,
+          store_name: newReq.storeName,
+          activity_type: newReq.activityType,
+          city: newReq.city,
+          neighborhood: newReq.neighborhood,
+          notes: newReq.notes,
+        });
+      } catch (e) {
+        console.warn('Supabase merchant request notice:', e);
+      }
+    }
+
+    return { success: true, request: newReq };
+  };
+
+  const adminApproveMerchantRequest = async (requestId) => {
+    let approvedUser = null;
+    let approvedStore = null;
+
+    setDb((prev) => {
+      const req = (prev.merchantRequests || []).find((r) => r.id === requestId);
+      if (!req) return prev;
+
+      const newUserId = `usr-merch-${Date.now()}`;
+      const newStoreId = `store-${Date.now()}`;
+
+      approvedUser = {
+        id: newUserId,
+        role: 'merchant',
+        status: 'active',
+        name: req.fullName,
+        phone: req.phone,
+        email: req.email,
+        city: req.city,
+        neighborhood: req.neighborhood,
+        whatsapp: req.phone,
+        storeId: newStoreId,
+        storeName: req.storeName,
+        createdAt: new Date().toISOString(),
+      };
+
+      approvedStore = {
+        id: newStoreId,
+        ownerId: newUserId,
+        name: req.storeName,
+        category: req.activityType,
+        description: req.notes || `متجر معتمد رسمياً في منصة غيم سبيس لـ ${req.storeName}.`,
+        logo: '/logo.jpg',
+        image: '/logo.jpg',
+        cover: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1200&auto=format&fit=crop&q=80',
+        coverImage: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1200&auto=format&fit=crop&q=80',
+        city: req.city,
+        neighborhood: req.neighborhood,
+        phone: req.phone,
+        whatsapp: req.phone,
+        rating: 5.0,
+        isVerified: true,
+        isApproved: true,
+        status: 'active',
+        productsCount: 0,
+        salesCount: 0,
+        createdAt: new Date().toISOString(),
+      };
+
+      const updatedRequests = (prev.merchantRequests || []).map((r) =>
+        r.id === requestId
+          ? {
+              ...r,
+              status: 'approved',
+              reviewedAt: new Date().toISOString(),
+              reviewedBy: adminUser?.name || 'المشرف العام',
+            }
+          : r
+      );
+
+      return {
+        ...prev,
+        merchantRequests: updatedRequests,
+        users: [approvedUser, ...prev.users],
+        stores: [approvedStore, ...prev.stores],
+        auditLogs: [
+          addAuditLog(
+            'APPROVE_MERCHANT_REQUEST',
+            adminUser?.name || 'المشرف العام',
+            'admin',
+            `قبول واعتماد طلب انضمام التاجر "${req.fullName}" وتفعيل متجره "${req.storeName}".`
+          ),
+          ...prev.auditLogs,
+        ],
+        notifications: [
+          {
+            id: `notif-${Date.now()}`,
+            title: 'تم اعتماد متجرك بنجاح 🎉',
+            message: `تهانينا ${req.fullName}، تمت الموافقة على طلب انضمامك لغيم سبيس وتفعيل متجرك "${req.storeName}"!`,
+            time: 'الآن',
+            unread: true,
+            type: 'merchant_approved',
+            role: 'merchant',
+            targetUserId: newUserId,
+          },
+          ...prev.notifications,
+        ],
+      };
+    });
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseApproveMerchantRequest(requestId);
+      } catch (e) {
+        console.warn('Supabase approve request notice:', e);
+      }
+    }
+
+    return { success: true, user: approvedUser, store: approvedStore };
+  };
+
+  const adminRejectMerchantRequest = async (requestId, reason = 'لم يستوفِ الشروط المحددة') => {
+    setDb((prev) => {
+      const req = (prev.merchantRequests || []).find((r) => r.id === requestId);
+      const updatedRequests = (prev.merchantRequests || []).map((r) =>
+        r.id === requestId
+          ? {
+              ...r,
+              status: 'rejected',
+              rejectionReason: reason,
+              reviewedAt: new Date().toISOString(),
+              reviewedBy: adminUser?.name || 'المشرف العام',
+            }
+          : r
+      );
+
+      return {
+        ...prev,
+        merchantRequests: updatedRequests,
+        auditLogs: [
+          addAuditLog(
+            'REJECT_MERCHANT_REQUEST',
+            adminUser?.name || 'المشرف العام',
+            'admin',
+            `رفض طلب انضمام التاجر "${req?.fullName || requestId}" بسبب: ${reason}.`
+          ),
+          ...prev.auditLogs,
+        ],
+      };
+    });
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseRejectMerchantRequest(requestId, reason);
+      } catch (e) {
+        console.warn('Supabase reject request notice:', e);
+      }
+    }
+
+    return { success: true };
+  };
+
+  // --- COURIER SINGLE-USE INVITES & RESTRICTED REGISTRATION ---
+  const adminCreateDeliveryInvite = async (inviteData) => {
+    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const code = `GHAYM-MUK-${randomSuffix}`;
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + (Number(inviteData.expiresInDays) || 7));
+
+    const newInvite = {
+      id: `inv-${Date.now()}`,
+      code,
+      recipientName: inviteData.recipientName || 'مندوب توصيل',
+      recipientPhone: cleanYemeniPhone(inviteData.recipientPhone || ''),
+      vehicleType: inviteData.vehicleType || 'دراجة نارية',
+      city: inviteData.city || 'المكلا',
+      notes: inviteData.notes || '',
+      status: 'active',
+      expiresAt: expiryDate.toISOString(),
+      createdBy: adminUser?.name || 'المشرف العام',
+      createdAt: new Date().toISOString(),
+    };
+
+    setDb((prev) => ({
+      ...prev,
+      deliveryInvites: [newInvite, ...(prev.deliveryInvites || [])],
+      auditLogs: [
+        addAuditLog(
+          'CREATE_DELIVERY_INVITE',
+          adminUser?.name || 'المشرف العام',
+          'admin',
+          `إنشاء كود دعوة مندوب فريد (${code}) لـ "${newInvite.recipientName}" صالح حتى ${expiryDate.toLocaleDateString('ar-YE')}.`
+        ),
+        ...prev.auditLogs,
+      ],
+    }));
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseCreateDeliveryInvite({
+          code: newInvite.code,
+          recipient_name: newInvite.recipientName,
+          recipient_phone: newInvite.recipientPhone,
+          vehicle_type: newInvite.vehicleType,
+          city: newInvite.city,
+          notes: newInvite.notes,
+          expires_at: newInvite.expiresAt,
+        });
+      } catch (e) {
+        console.warn('Supabase delivery invite notice:', e);
+      }
+    }
+
+    return newInvite;
+  };
+
+  const adminRevokeDeliveryInvite = async (inviteId) => {
+    setDb((prev) => ({
+      ...prev,
+      deliveryInvites: (prev.deliveryInvites || []).map((inv) =>
+        inv.id === inviteId ? { ...inv, status: 'revoked' } : inv
+      ),
+      auditLogs: [
+        addAuditLog(
+          'REVOKE_DELIVERY_INVITE',
+          adminUser?.name || 'المشرف العام',
+          'admin',
+          `إلغاء وتجميد كود دعوة المندوب #${inviteId}.`
+        ),
+        ...prev.auditLogs,
+      ],
+    }));
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseRevokeDeliveryInvite(inviteId);
+      } catch (e) {
+        console.warn('Supabase revoke invite notice:', e);
+      }
+    }
+  };
+
+  const verifyDeliveryInvite = async (code) => {
+    const cleanCode = (code || '').trim().toUpperCase();
+    if (!cleanCode) {
+      return { valid: false, error: 'يرجى إدخال رمز الدعوة' };
+    }
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        const cloudRes = await supabaseVerifyDeliveryInvite(cleanCode);
+        if (cloudRes?.valid) return cloudRes;
+        if (cloudRes?.error && cloudRes.error !== 'غير متصل') {
+          return cloudRes;
+        }
+      } catch (e) {
+        console.warn('Supabase verify invite fallback:', e);
+      }
+    }
+
+    const invite = (db.deliveryInvites || []).find((inv) => (inv.code || '').toUpperCase() === cleanCode);
+    if (!invite) {
+      return { valid: false, error: 'رمز الدعوة المدخل غير صحيح أو غير مسجل في النظام' };
+    }
+    if (invite.status === 'used') {
+      return { valid: false, error: 'تم استخدام رمز الدعوة هذا مسبقاً، كل رمز صالح للاستخدام مرة واحدة فقط' };
+    }
+    if (invite.status === 'revoked') {
+      return { valid: false, error: 'تم إلغاء رمز الدعوة هذا من قبل إدارة المنصة' };
+    }
+    if (new Date(invite.expiresAt) < new Date()) {
+      return { valid: false, error: 'انتهت صلاحية رمز الدعوة، يرجى طلب رمز دعوة جديد من الإدارة' };
+    }
+
+    return { valid: true, invite };
+  };
+
+  const registerCourierWithInvite = async (formData, inviteCode) => {
+    const verifyRes = await verifyDeliveryInvite(inviteCode);
+    if (!verifyRes.valid) {
+      return { success: false, error: verifyRes.error };
+    }
+
+    const newUserId = `usr-cour-${Date.now()}`;
+    const cleanPhone = cleanYemeniPhone(formData.phone || verifyRes.invite?.recipientPhone || '');
+
+    const newCourierUser = {
+      id: newUserId,
+      role: 'courier',
+      status: 'active',
+      name: formData.name || verifyRes.invite?.recipientName || 'كابتن توصيل غيم سبيس',
+      phone: cleanPhone,
+      email: formData.email || `${cleanPhone}@ghaym.ye`,
+      password: formData.password || '******',
+      city: formData.city || verifyRes.invite?.city || 'المكلا',
+      neighborhood: formData.neighborhood || 'حضرموت',
+      vehicle: formData.vehicle || verifyRes.invite?.vehicleType || 'دراجة نارية',
+      plateNumber: formData.plateNumber || 'حضرموت 14-8902',
+      isOnline: true,
+      rating: 5.0,
+      totalOrders: 0,
+      totalDeliveries: 0,
+      todayEarnings: 0,
+      totalEarnings: 0,
+      commitmentRate: 100,
+      inviteCode: (inviteCode || '').toUpperCase(),
+      createdAt: new Date().toISOString(),
+    };
+
+    setDb((prev) => ({
+      ...prev,
+      users: [newCourierUser, ...prev.users],
+      deliveryInvites: (prev.deliveryInvites || []).map((inv) =>
+        (inv.code || '').toUpperCase() === (inviteCode || '').toUpperCase()
+          ? {
+              ...inv,
+              status: 'used',
+              usedBy: newUserId,
+              usedAt: new Date().toISOString(),
+            }
+          : inv
+      ),
+      auditLogs: [
+        addAuditLog(
+          'REGISTER_COURIER_INVITE',
+          newCourierUser.name,
+          'courier',
+          `تسجيل كابتن توصيل جديد "${newCourierUser.name}" باستخدام رمز الدعوة (${inviteCode}).`
+        ),
+        ...prev.auditLogs,
+      ],
+    }));
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseUseDeliveryInvite(inviteCode, newUserId);
+      } catch (e) {
+        console.warn('Supabase use invite notice:', e);
+      }
+    }
+
+    switchCourierAccount(newUserId);
+    setCurrentPortal('courier');
+    window.location.hash = '#/courier';
+
+    return { success: true, user: newCourierUser };
+  };
+
+  const adminToggleUserStatus = (userId) => {
+    setDb((prev) => ({
+      ...prev,
+      users: prev.users.map((u) =>
+        u.id === userId
+          ? { ...u, status: u.status === 'suspended' ? 'active' : 'suspended' }
+          : u
+      ),
+      auditLogs: [
+        addAuditLog(
+          'TOGGLE_USER_STATUS',
+          adminUser?.name || 'المشرف العام',
+          'admin',
+          `تغيير حالة الحساب #${userId}.`
+        ),
+        ...prev.auditLogs,
+      ],
+    }));
+  };
+
+  const adminAddLog = (action, target, details) => {
+    const newLog = {
+      id: `alog-${Date.now()}`,
+      action,
+      target,
+      details,
+      actorName: adminUser?.name || 'المشرف العام',
+      createdAt: new Date().toISOString(),
+    };
+    setDb((prev) => ({
+      ...prev,
+      adminLogs: [newLog, ...(prev.adminLogs || [])],
+    }));
+    if (getSupabaseConfig().isConfigured) {
+      supabaseAddAdminLog({
+        action,
+        target,
+        details,
+        actor_name: adminUser?.name || 'المشرف العام',
+      }).catch((e) => console.warn('Supabase admin log notice:', e));
+    }
+  };
+
   const adminApproveMerchant = (merchantId) => {
     setDb((prev) => {
       const user = prev.users.find((u) => u.id === merchantId);
@@ -2796,6 +3354,19 @@ export function PlatformProvider({ children }) {
     adminDeleteCategory,
 
     // Merchant Onboarding & Moderation
+    merchantRequests: db.merchantRequests || [],
+    deliveryInvites: db.deliveryInvites || [],
+    adminLogs: db.adminLogs || [],
+    allUsers: db.users || [],
+    submitMerchantRequest,
+    adminApproveMerchantRequest,
+    adminRejectMerchantRequest,
+    adminCreateDeliveryInvite,
+    adminRevokeDeliveryInvite,
+    verifyDeliveryInvite,
+    registerCourierWithInvite,
+    adminToggleUserStatus,
+    adminAddLog,
     registerMerchant,
     adminApproveMerchant,
     adminRejectMerchant,

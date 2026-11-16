@@ -118,6 +118,10 @@ function AppContent() {
       if (hash.startsWith('#/merchant')) switchPortal('merchant');
       else if (hash.startsWith('#/courier')) switchPortal('courier');
       else if (hash.startsWith('#/admin')) switchPortal('admin');
+      else if (hash.startsWith('#/login') || hash.includes('view=login')) {
+        switchPortal('marketplace');
+        setCurrentMarketView('login');
+      }
       else if (hash.startsWith('#/products') || hash.includes('view=products')) {
         switchPortal('marketplace');
         setCurrentMarketView('products');
@@ -364,6 +368,9 @@ function AppContent() {
                   } else if (role === 'courier') {
                     window.location.hash = '#/courier';
                     switchPortal('courier');
+                  } else if (role === 'admin') {
+                    window.location.hash = '#/admin';
+                    switchPortal('admin');
                   } else {
                     if (user?.id && switchCustomerAccount) {
                       switchCustomerAccount(user.id);

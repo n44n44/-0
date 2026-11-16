@@ -659,3 +659,275 @@ export async function cleanDemoDataFromSupabase() {
     throw err;
   }
 }
+
+// =========================================================================
+// 8. MERCHANT JOIN REQUESTS SUPABASE API
+// =========================================================================
+
+export async function supabaseSubmitMerchantRequest({ fullName, phone, email, storeName, activityType, city = 'المكلا', neighborhood = '', description = '' }) {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  try {
+    const payload = {
+      full_name: fullName.trim(),
+      phone: phone.trim(),
+      email: email ? email.trim() : null,
+      store_name: storeName.trim(),
+      activity_type: activityType.trim(),
+      city,
+      neighborhood,
+      description,
+      status: 'pending',
+    };
+
+    const { data, error } = await client.from('merchant_requests').insert([payload]).select().single();
+    if (error) {
+      console.warn('supabaseSubmitMerchantRequest error:', error.message);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.warn('supabaseSubmitMerchantRequest exception:', err);
+    return null;
+  }
+}
+
+export async function supabaseFetchMerchantRequests() {
+  const client = getSupabaseClient();
+  if (!client) return [];
+
+  try {
+    const { data, error } = await client.from('merchant_requests').select('*').order('created_at', { ascending: false });
+    if (error) {
+      console.warn('supabaseFetchMerchantRequests error:', error.message);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    console.warn('supabaseFetchMerchantRequests exception:', err);
+    return [];
+  }
+}
+
+export async function supabaseApproveMerchantRequest(requestId, adminId, adminNotes = 'تمت الموافقة وتفعيل حساب التاجر') {
+  const client = getSupabaseClient();
+  if (!client) return false;
+
+  try {
+    const { data, error } = await client
+      .from('merchant_requests')
+      .update({
+        status: 'approved',
+        admin_notes: adminNotes,
+        reviewed_by: adminId,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq('id', requestId)
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('supabaseApproveMerchantRequest error:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('supabaseApproveMerchantRequest exception:', err);
+    return false;
+  }
+}
+
+export async function supabaseRejectMerchantRequest(requestId, adminId, reason = 'لم يستوفِ الشروط المحددة') {
+  const client = getSupabaseClient();
+  if (!client) return false;
+
+  try {
+    const { data, error } = await client
+      .from('merchant_requests')
+      .update({
+        status: 'rejected',
+        admin_notes: reason,
+        reviewed_by: adminId,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq('id', requestId)
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('supabaseRejectMerchantRequest error:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('supabaseRejectMerchantRequest exception:', err);
+    return false;
+  }
+}
+
+// =========================================================================
+// 9. DELIVERY INVITES SUPABASE API (Single-Use Secure Codes)
+// =========================================================================
+
+export async function supabaseCreateDeliveryInvite({ code, courierName, phone, vehicle = 'دراجة نارية', city = 'المكلا', expiresAt, adminId }) {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  try {
+    const payload = {
+      code: code.trim().toUpperCase(),
+      courier_name: courierName ? courierName.trim() : null,
+      phone: phone ? phone.trim() : null,
+      vehicle,
+      city,
+      created_by: adminId,
+      expires_at: expiresAt,
+      is_used: false,
+      status: 'active',
+    };
+
+    const { data, error } = await client.from('delivery_invites').insert([payload]).select().single();
+    if (error) {
+      console.warn('supabaseCreateDeliveryInvite error:', error.message);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.warn('supabaseCreateDeliveryInvite exception:', err);
+    return null;
+  }
+}
+
+export async function supabaseFetchDeliveryInvites() {
+  const client = getSupabaseClient();
+  if (!client) return [];
+
+  try {
+    const { data, error } = await client.from('delivery_invites').select('*').order('created_at', { ascending: false });
+    if (error) {
+      console.warn('supabaseFetchDeliveryInvites error:', error.message);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    console.warn('supabaseFetchDeliveryInvites exception:', err);
+    return [];
+  }
+}
+
+export async function supabaseVerifyDeliveryInvite(code) {
+  const client = getSupabaseClient();
+  if (!client) return { valid: false, message: 'تعذر التحقق من الخادم' };
+
+  try {
+    const cleanCode = (code || '').trim().toUpperCase();
+    const { data, error } = await client
+      .from('delivery_invites')
+      .select('*')
+      .eq('code', cleanCode)
+      .maybeSingle();
+
+    if (error || !data) {
+      return { valid: false, message: 'رمز الدعوة غير صحيح أو غير موجود' };
+    }
+
+    if (data.is_used || data.status === 'used') {
+      return { valid: false, message: 'رمز الدعوة هذا تم استخدامه مسبقاً' };
+    }
+
+    if (data.status === 'revoked') {
+      return { valid: false, message: 'تم إلغاء صلاحية هذا الرمز من قبل الإدارة' };
+    }
+
+    if (new Date(data.expires_at) < new Date()) {
+      return { valid: false, message: 'انتهت صلاحية رمز الدعوة هذا' };
+    }
+
+    return { valid: true, invite: data };
+  } catch (err) {
+    return { valid: false, message: err.message };
+  }
+}
+
+export async function supabaseUseDeliveryInvite(code, userId) {
+  const client = getSupabaseClient();
+  if (!client) return false;
+
+  try {
+    const cleanCode = (code || '').trim().toUpperCase();
+    const { error } = await client
+      .from('delivery_invites')
+      .update({
+        is_used: true,
+        used_by: userId,
+        used_at: new Date().toISOString(),
+        status: 'used',
+      })
+      .eq('code', cleanCode);
+
+    return !error;
+  } catch (err) {
+    return false;
+  }
+}
+
+export async function supabaseRevokeDeliveryInvite(inviteId) {
+  const client = getSupabaseClient();
+  if (!client) return false;
+
+  try {
+    const { error } = await client
+      .from('delivery_invites')
+      .update({ status: 'revoked' })
+      .eq('id', inviteId);
+
+    return !error;
+  } catch (err) {
+    return false;
+  }
+}
+
+// =========================================================================
+// 10. ADMIN AUDIT LOGS SUPABASE API
+// =========================================================================
+
+export async function supabaseAddAdminLog({ adminId, adminName = 'مدير غيم سبيس', actionType, targetType, targetId, targetName, details = {} }) {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  try {
+    const payload = {
+      admin_id: adminId || null,
+      admin_name: adminName,
+      action_type: actionType,
+      target_type: targetType,
+      target_id: targetId ? String(targetId) : null,
+      target_name: targetName || null,
+      details,
+    };
+
+    const { data, error } = await client.from('admin_logs').insert([payload]).select().single();
+    if (error) console.warn('supabaseAddAdminLog error:', error.message);
+    return data;
+  } catch (err) {
+    console.warn('supabaseAddAdminLog exception:', err);
+    return null;
+  }
+}
+
+export async function supabaseFetchAdminLogs() {
+  const client = getSupabaseClient();
+  if (!client) return [];
+
+  try {
+    const { data, error } = await client.from('admin_logs').select('*').order('created_at', { ascending: false }).limit(100);
+    if (error) {
+      console.warn('supabaseFetchAdminLogs error:', error.message);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    return [];
+  }
+}

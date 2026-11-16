@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مساري | تسجيل الدخول</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="icon" type="image/svg+xml" href="assets/logo/masari-logo.svg">
+</head>
+<body>
+
+  <!-- Top Device & Navigation Toolbar -->
+  <header class="device-toolbar">
+    <div class="toolbar-brand">
+      <strong>مساري | Masari</strong>
+      <span>تسجيل الدخول (Login)</span>
+    </div>
+
+    <div class="toolbar-modes">
+      <button class="mode-btn active" id="btnViewMobile">عرض الجوال</button>
+      <button class="mode-btn" id="btnViewDesktop">الشاشة الموسعة</button>
+    </div>
+
+    <div>
+      <select class="quick-nav-select" id="quickPageSelect">
+        <option value="index.html">1. واجهة البداية (Welcome)</option>
+        <option value="login.html" selected>2. تسجيل الدخول (Login)</option>
+        <option value="register.html">3. إنشاء حساب (Register)</option>
+        <option value="home.html">4. الصفحة الرئيسية (Home)</option>
+        <option value="flights.html">5. البحث عن رحلات (Flights)</option>
+        <option value="flight-details.html">6. تفاصيل الرحلة (Flight Details)</option>
+        <option value="hotels.html">7. الفنادق (Hotels)</option>
+        <option value="hospitals.html">8. المستشفيات (Hospitals)</option>
+        <option value="bookings.html">9. سجل الحجوزات (Bookings)</option>
+        <option value="payment.html">10. الدفع (Payment)</option>
+        <option value="confirmation.html">11. تأكيد الحجز (Confirmation)</option>
+      </select>
+    </div>
+  </header>
+
+  <main class="app-viewport">
+    <div class="app-screen" id="appScreen">
+      <!-- Notch Bar -->
+      <div class="phone-notch-bar">
+        <span id="notchTime">9:41</span>
+        <div class="notch-icons">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 22l7.03-4.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.66-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="16" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="9" width="10" height="6" fill="currentColor"/><path d="M20 11v2"/></svg>
+        </div>
+      </div>
+
+      <div class="screen-body no-bottom-nav">
+        <!-- Auth Header matching mockup -->
+        <div class="auth-header-card">
+          <div class="logo-box">
+            <img src="assets/logo/masari-logo.svg" alt="مساري" style="height: 52px; margin: 0 auto;">
+          </div>
+          <h1 class="auth-title">مرحباً بعودتك</h1>
+          <p class="auth-subtitle">سجل دخولك لمتابعة وإدارة رحلاتك وحجوزاتك بكل سهولة</p>
+        </div>
+
+        <!-- Auth Body Form -->
+        <div class="auth-body-card">
+          <form id="loginForm" novalidate>
+            <!-- Email -->
+            <div class="form-group" id="emailGroup">
+              <label class="form-label" for="loginEmail">البريد الإلكتروني</label>
+              <div class="input-container">
+                <input type="email" id="loginEmail" class="input-field" placeholder="example@domain.com" value="user@masari.com" required>
+                <div class="input-icon-right">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+              </div>
+              <div class="field-error">يرجى إدخال بريد إلكتروني صحيح</div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group" id="passwordGroup">
+              <label class="form-label" for="loginPassword">كلمة المرور</label>
+              <div class="input-container">
+                <input type="password" id="loginPassword" class="input-field" placeholder="••••••••" value="123456" required>
+                <div class="input-icon-right">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <div class="input-icon-left password-toggle-btn" title="إظهار / إخفاء كلمة المرور">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+              </div>
+              <div class="field-error">يرجى إدخال كلمة المرور (4 أحرف على الأقل)</div>
+            </div>
+
+            <!-- Options Row (Remember Me / Forgot Password) -->
+            <div class="auth-options-row">
+              <label class="checkbox-label">
+                <input type="checkbox" id="rememberMe" checked>
+                <span>تذكرني</span>
+              </label>
+              <a href="#" class="forgot-pass-link" onclick="MasariApp.toast('تم إرسال رابط استعادة كلمة المرور إلى بريدك', 'info'); return false;">نسيت كلمة المرور؟</a>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-primary" id="btnLoginSubmit">
+              دخول
+            </button>
+          </form>
+
+          <!-- Divider -->
+          <div class="auth-divider">
+            <span>أو</span>
+          </div>
+
+          <!-- Social Logins -->
+          <div class="social-login-grid">
+            <!-- Google -->
+            <button type="button" class="social-btn" data-provider="Google" title="الدخول باستخدام Google">
+              <svg width="22" height="22" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.9c2.28-2.1 3.645-5.2 3.645-9.15z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.9-3.05c-1.08.72-2.45 1.16-4.03 1.16-3.1 0-5.74-2.1-6.68-4.93H1.21v3.13C3.26 21.48 7.33 24 12 24z"/>
+                <path fill="#FBBC05" d="M5.32 14.27c-.24-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.6H1.21C.44 8.14 0 9.87 0 11.73s.44 3.59 1.21 5.13l4.11-3.13z"/>
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.52 1.21 6.6l4.11 3.13c.94-2.83 3.58-4.98 6.68-4.98z"/>
+              </svg>
+            </button>
+
+            <!-- Apple -->
+            <button type="button" class="social-btn" data-provider="Apple" title="الدخول باستخدام Apple">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#000000">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.66-.82 1.11-1.96.99-3.1-.96.04-2.11.64-2.79 1.44-.59.69-1.12 1.84-.98 2.95 1.07.08 2.13-.56 2.78-1.29z"/>
+              </svg>
+            </button>
+
+            <!-- Other options -->
+            <button type="button" class="social-btn" data-provider="الهاتف" title="الدخول برقم الهاتف">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Bottom Prompt -->
+          <div class="auth-footer-prompt">
+            ليس لديك حساب؟
+            <a href="register.html">إنشاء حساب جديد</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

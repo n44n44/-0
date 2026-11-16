@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مساري | الرئيسية</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="icon" type="image/svg+xml" href="assets/logo/masari-logo.svg">
+</head>
+<body>
+
+  <!-- Top Device Toolbar -->
+  <header class="device-toolbar">
+    <div class="toolbar-brand">
+      <strong>مساري | Masari</strong>
+      <span>الصفحة الرئيسية (Home)</span>
+    </div>
+
+    <div class="toolbar-modes">
+      <button class="mode-btn active" id="btnViewMobile">عرض الجوال</button>
+      <button class="mode-btn" id="btnViewDesktop">الشاشة الموسعة</button>
+    </div>
+
+    <div>
+      <select class="quick-nav-select" id="quickPageSelect">
+        <option value="index.html">1. واجهة البداية (Welcome)</option>
+        <option value="login.html">2. تسجيل الدخول (Login)</option>
+        <option value="register.html">3. إنشاء حساب (Register)</option>
+        <option value="home.html" selected>4. الصفحة الرئيسية (Home)</option>
+        <option value="flights.html">5. البحث عن رحلات (Flights)</option>
+        <option value="flight-details.html">6. تفاصيل الرحلة (Flight Details)</option>
+        <option value="hotels.html">7. الفنادق (Hotels)</option>
+        <option value="hospitals.html">8. المستشفيات (Hospitals)</option>
+        <option value="bookings.html">9. سجل الحجوزات (Bookings)</option>
+        <option value="payment.html">10. الدفع (Payment)</option>
+        <option value="confirmation.html">11. تأكيد الحجز (Confirmation)</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- Sliding Sidebar Drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop">
+    <div class="side-drawer">
+      <div class="drawer-header">
+        <div class="drawer-user-info">
+          <div class="drawer-avatar" id="drawerUserAvatar">ن</div>
+          <div>
+            <div style="font-weight: 800; font-size: 16px;" id="drawerUserName">ندى القاضي</div>
+            <div style="font-size: 12px; opacity: 0.85;">عضو بلاتيني</div>
+          </div>
+        </div>
+        <button class="drawer-close-btn" id="closeDrawerBtn" title="إغلاق">✕</button>
+      </div>
+
+      <nav class="drawer-nav">
+        <a href="home.html" class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          الرئيسية
+        </a>
+        <a href="flights.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>
+          الرحلات الجوية
+        </a>
+        <a href="hotels.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/></svg>
+          الفنادق والمنتجعات
+        </a>
+        <a href="hospitals.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          المستشفيات والرعاية الصحية
+        </a>
+        <a href="bookings.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          سجل الحجوزات
+        </a>
+      </nav>
+
+      <div class="drawer-footer">
+        <button class="logout-btn" id="drawerLogoutBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          تسجيل الخروج
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main class="app-viewport">
+    <div class="app-screen" id="appScreen">
+      <!-- Notch Bar -->
+      <div class="phone-notch-bar">
+        <span id="notchTime">9:41</span>
+        <div class="notch-icons">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 22l7.03-4.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.66-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="16" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="9" width="10" height="6" fill="currentColor"/><path d="M20 11v2"/></svg>
+        </div>
+      </div>
+
+      <!-- App Header Bar matching mockup -->
+      <div class="app-header">
+        <button class="header-btn icon-only" title="بحث سريع" onclick="window.location.href='flights.html'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+
+        <div class="header-title-logo">
+          <img src="assets/logo/masari-logo.svg" alt="مساري" style="height: 38px;">
+        </div>
+
+        <button class="header-btn icon-only" id="openDrawerBtn" title="القائمة الجانبية">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="screen-body">
+        <!-- Home Hero Banner with Skyline matching mockup -->
+        <div class="home-hero-banner">
+          <img src="assets/images/city-skyline.jpg" alt="سماء المدينة">
+          <div class="overlay">
+            <h1>مرحباً بك في مساري</h1>
+            <p>كل رحلاتك.. في مكان واحد معنا</p>
+          </div>
+        </div>
+
+        <!-- Three Category Cards matching mockup -->
+        <div class="category-cards-grid">
+          <!-- Card 1: رحلات الطيران -->
+          <a href="flights.html" class="category-card">
+            <div class="icon-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>
+            </div>
+            <div class="card-title">رحلات الطيران</div>
+          </a>
+
+          <!-- Card 2: الفنادق -->
+          <a href="hotels.html" class="category-card">
+            <div class="icon-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/></svg>
+            </div>
+            <div class="card-title">الفنادق</div>
+          </a>
+
+          <!-- Card 3: المستشفيات -->
+          <a href="hospitals.html" class="category-card">
+            <div class="icon-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            </div>
+            <div class="card-title">المستشفيات</div>
+          </a>
+        </div>
+
+        <!-- Section: خدماتنا المميزة matching mockup -->
+        <div class="featured-section">
+          <div class="section-header-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>خدماتنا المميزة</span>
+          </div>
+
+          <div class="promo-banner-card">
+            <img src="assets/images/plane-flight.jpg" alt="طائرة في السحب">
+            <div class="promo-overlay">
+              <div class="promo-content">
+                <h3>عروض الشتاء الحصرية</h3>
+                <p>خصومات تصل إلى 25% على الرحلات الدولية</p>
+              </div>
+              <a href="flights.html" class="btn-promo">
+                <span>اكتشف المزيد</span>
+                <span>&gt;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Navigation Bar matching mockup -->
+      <nav class="bottom-nav">
+        <!-- Right: الرئيسية (Active) -->
+        <a href="home.html" class="nav-item active">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>الرئيسية</span>
+        </a>
+
+        <!-- Center: حجوزاتي -->
+        <a href="bookings.html" class="nav-item">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>حجوزاتي</span>
+        </a>
+
+        <!-- Left: الملف الشخصي -->
+        <a href="javascript:void(0)" class="nav-item" onclick="document.getElementById('drawerBackdrop').classList.add('open')">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>الملف الشخصي</span>
+        </a>
+      </nav>
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "masari",
+  "version": "1.0.0",
+  "description": "مساري | Masari - تطبيق ويب متكامل لحجوزات الطيران والفنادق والمستشفيات",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve ."
+  },
+  "keywords": ["travel", "booking", "flights", "hotels", "hospitals", "masari"],
+  "author": "nadaa",
+  "license": "MIT"
+}

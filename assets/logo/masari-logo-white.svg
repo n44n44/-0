@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 70" fill="none" class="masari-logo-svg">
+  <!-- Dynamic Flight Swoosh -->
+  <path d="M 40 54 C 28 35, 65 14, 150 18" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.9" />
+  <path d="M 55 58 C 42 42, 75 22, 145 25" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.5" />
+  
+  <!-- Airplane icon at top of arc -->
+  <g transform="translate(155, 12) rotate(22) scale(0.9)">
+    <path d="M12 2L15 9L22 11L15 14L14 21L12 16L10 21L9 14L2 11L9 9Z" fill="#ffffff" />
+  </g>
+
+  <!-- Typography "مساري" -->
+  <text x="110" y="52" text-anchor="middle" font-family="'Tajawal', 'Cairo', sans-serif" font-weight="800" font-size="36" fill="#ffffff" letter-spacing="-0.5">مساري</text>
+</svg>

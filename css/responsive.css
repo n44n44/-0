@@ -1,0 +1,142 @@
+/* ==========================================================================
+   مساري | MASARI - Responsive Styles & Device Viewports
+   ========================================================================== */
+
+/* Tablet & Smaller Screens (< 768px) */
+@media (max-width: 768px) {
+  .device-toolbar {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+  
+  .device-toolbar .toolbar-brand span {
+    display: none;
+  }
+
+  .app-viewport {
+    padding: 12px 8px 30px;
+  }
+}
+
+/* Mobile Screens (< 540px) */
+@media (max-width: 540px) {
+  .device-toolbar {
+    display: none; /* Hide device toolbar on real mobile phones for seamless native app look */
+  }
+
+  .app-viewport {
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  .app-screen {
+    max-width: 100% !important;
+    min-height: 100vh;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .bottom-nav {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .welcome-screen-wrapper {
+    min-height: 100vh;
+    border-radius: 0;
+  }
+
+  .phone-notch-bar {
+    padding: 8px 16px 2px;
+  }
+}
+
+/* Expanded Desktop Mode Layout Enhancements */
+.app-screen.expanded-mode .category-cards-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.app-screen.expanded-mode .category-card {
+  padding: 24px 16px;
+}
+
+.app-screen.expanded-mode .home-hero-banner {
+  height: 260px;
+}
+
+.app-screen.expanded-mode .home-hero-banner h1 {
+  font-size: 28px;
+}
+
+.app-screen.expanded-mode .flights-hero-header {
+  height: 260px;
+}
+
+.app-screen.expanded-mode .search-box-card {
+  max-width: 800px;
+  margin: -40px auto 24px;
+}
+
+.app-screen.expanded-mode .form-row {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.app-screen.expanded-mode .flight-details-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.app-screen.expanded-mode .flight-hero-card {
+  height: 280px;
+}
+
+.app-screen.expanded-mode .items-listing-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.app-screen.expanded-mode .payment-wrapper {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.app-screen.expanded-mode .confirmation-container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.app-screen.expanded-mode .auth-body-card {
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* High-DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  body {
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .device-toolbar,
+  .app-header,
+  .bottom-nav,
+  .side-drawer,
+  .btn-primary,
+  .drawer-backdrop {
+    display: none !important;
+  }
+
+  body, .app-screen {
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+  }
+}

@@ -372,27 +372,55 @@ CREATE POLICY "Admin can insert audit logs"
   );
 
 -- =========================================================================
--- 9. SECURITY TRIGGER: PREVENT ROLE SELF-MUTATION ON PROFILES
+-- 9. STRICT SECURITY TRIGGER: PREVENT ROLE SELF-ELEVATION ON PROFILES
 -- =========================================================================
 CREATE OR REPLACE FUNCTION public.protect_user_role()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- If role is changing, ensure only an Admin is authorized to change it
-  IF NEW.role <> OLD.role THEN
-    IF NOT EXISTS (
-      SELECT 1 FROM public.profiles 
-      WHERE id = auth.uid() AND role = 'admin'
+  -- 1. On INSERT: Disallow creating a user with role 'admin' unless caller is existing Admin or service_role
+  IF TG_OP = 'INSERT' AND NEW.role = 'admin' THEN
+    IF NOT (
+      (current_setting('request.jwt.claims', true)::jsonb->>'role' = 'service_role')
+      OR EXISTS (
+        SELECT 1 FROM public.profiles 
+        WHERE id = auth.uid() AND role = 'admin' AND is_active = TRUE
+      )
     ) THEN
-      RAISE EXCEPTION 'لا تملك الصلاحية لتغيير نوع الحساب بنفسك.';
+      RAISE EXCEPTION 'انتهاك أمني خطير: لا يمكن إنشاء حساب برتبة مدير بدون تصريح معتمد من المشرف العام.';
     END IF;
   END IF;
+
+  -- 2. On UPDATE: Disallow mutating any profile's role to 'admin' (Self-Role Elevation Prevention)
+  IF TG_OP = 'UPDATE' AND NEW.role <> OLD.role THEN
+    IF NOT (
+      (current_setting('request.jwt.claims', true)::jsonb->>'role' = 'service_role')
+      OR EXISTS (
+        SELECT 1 FROM public.profiles 
+        WHERE id = auth.uid() AND role = 'admin' AND is_active = TRUE
+      )
+    ) THEN
+      RAISE EXCEPTION 'انتهاك أمني خطير: لا تملك الصلاحية لتغيير نوع الحساب أو الترقية لرتبة مدير.';
+    END IF;
+  END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 DROP TRIGGER IF EXISTS trg_protect_user_role ON public.profiles;
 CREATE TRIGGER trg_protect_user_role
-  BEFORE UPDATE ON public.profiles
+  BEFORE INSERT OR UPDATE ON public.profiles
   FOR EACH ROW
   EXECUTE FUNCTION public.protect_user_role();
+
+-- Helper function to strictly verify admin privileges from backend
+CREATE OR REPLACE FUNCTION public.verify_is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin' AND is_active = TRUE
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 

@@ -931,3 +931,97 @@ export async function supabaseFetchAdminLogs() {
     return [];
   }
 }
+
+/**
+ * Strict Admin Authentication & Database Verification
+ */
+export async function supabaseAdminSignIn({ emailOrPhone, password }) {
+  const client = getSupabaseClient();
+  if (!client) {
+    return { success: false, error: 'تعذر الاتصال بقاعدة البيانات السحابية' };
+  }
+
+  const input = (emailOrPhone || '').trim();
+  const email = input.includes('@') ? input : `${input.replace(/\D/g, '')}@ghaym.ye`;
+
+  try {
+    // 1. Authenticate with Supabase Auth credentials
+    const { data: authData, error: authErr } = await client.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authErr || !authData?.user) {
+      // Record failed attempt
+      await supabaseAddAdminLog({
+        adminName: input,
+        actionType: 'UNAUTHORIZED_ADMIN_LOGIN_ATTEMPT',
+        targetType: 'security',
+        details: { reason: 'فشل مطابقة كلمة المرور أو اسم المستخدم', input, attemptedAt: new Date().toISOString() },
+      });
+      return { success: false, error: 'بيانات حساب المشرف أو كلمة المرور غير صحيحة.' };
+    }
+
+    // 2. Query Profiles table strictly on the backend to verify 'admin' role
+    const { data: profile, error: profErr } = await client
+      .from('profiles')
+      .select('*')
+      .eq('id', authData.user.id)
+      .single();
+
+    if (profErr || !profile || profile.role !== 'admin') {
+      // Immediate logout: Role elevation blocked!
+      await client.auth.signOut();
+      await supabaseAddAdminLog({
+        adminId: authData.user.id,
+        adminName: input,
+        actionType: 'UNAUTHORIZED_ADMIN_ROLE_BLOCKED',
+        targetType: 'security',
+        details: { reason: 'المستخدم مسجل بحساب عادي وليس لديه صلاحية الإدارة.', actualRole: profile?.role || 'none', attemptedAt: new Date().toISOString() },
+      });
+      return { success: false, error: 'وصول محظور: هذا الحساب ليس لديه صلاحيات الإدارة.' };
+    }
+
+    if (profile.is_active === false) {
+      await client.auth.signOut();
+      return { success: false, error: 'حساب المشرف موقوف حالياً من قبل الإدارة العليا.' };
+    }
+
+    // 3. Log successful verified admin login
+    await supabaseAddAdminLog({
+      adminId: profile.id,
+      adminName: profile.full_name || profile.email,
+      actionType: 'ADMIN_LOGIN_SUCCESS',
+      targetType: 'security',
+      details: { loginAt: new Date().toISOString() },
+    });
+
+    return {
+      success: true,
+      user: authData.user,
+      profile,
+    };
+  } catch (err) {
+    return { success: false, error: err.message || 'حدث خطأ أثناء التحقق من الصلاحيات' };
+  }
+}
+
+/**
+ * Verify if current active session user has true admin role in DB
+ */
+export async function supabaseVerifyAdminRole(userId) {
+  const client = getSupabaseClient();
+  if (!client || !userId) return false;
+
+  try {
+    const { data: profile } = await client
+      .from('profiles')
+      .select('role, is_active')
+      .eq('id', userId)
+      .single();
+
+    return profile?.role === 'admin' && profile?.is_active !== false;
+  } catch {
+    return false;
+  }
+}

@@ -29,6 +29,8 @@ import {
   supabaseRevokeDeliveryInvite,
   supabaseAddAdminLog,
   supabaseFetchAdminLogs,
+  supabaseAdminSignIn,
+  supabaseVerifyAdminRole,
 } from '../lib/supabaseClient';
 
 const PlatformContext = createContext(null);
@@ -174,14 +176,17 @@ const getInitialDatabase = () => {
         whatsapp: '773456789',
         createdAt: '2026-11-07T10:30:00Z',
       },
-      // SUPER ADMIN
+      // SUPER ADMIN (Strictly pre-configured authorized account)
       {
         id: 'usr-admin-1',
         role: 'admin',
         name: 'المشرف العام لمنصة غيم سبيس',
         phone: '770000000',
         email: 'superadmin@ghaymspace.com',
+        password: 'GhaymAdmin@2026',
         city: 'المكلا',
+        status: 'active',
+        isSuperAdmin: true,
       },
     ],
 
@@ -989,24 +994,68 @@ export function PlatformProvider({ children }) {
     switchPortal('marketplace');
   };
 
-  const loginAdmin = (identifier, password) => {
-    const input = (identifier || '').trim().toLowerCase();
-    const found = db.users.find(
-      (u) => u.role === 'admin' && (u.email?.toLowerCase() === input || u.phone === input || input.includes('admin'))
-    );
-    if (found) {
-      switchAdminAccount(found.id);
-      return { success: true, user: found };
+  const loginAdmin = async (identifier, password) => {
+    const input = (identifier || '').trim();
+    const pass = (password || '').trim();
+
+    if (!input || !pass) {
+      return { success: false, message: 'يرجى إدخال اسم المستخدم أو البريد الإداري وكلمة المرور' };
     }
-    return { success: false, message: 'بيانات حساب المشرف غير صحيحة' };
+
+    // 1. If Supabase is connected, verify strictly via Supabase Auth + profiles table
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        const cloudRes = await supabaseAdminSignIn({ emailOrPhone: input, password: pass });
+        if (cloudRes.success) {
+          switchAdminAccount(cloudRes.profile.id);
+          adminAddLog('ADMIN_LOGIN_SUCCESS', cloudRes.profile.full_name || input, 'تسجيل دخول إداري معتمد عبر سوبابيز');
+          return { success: true, user: cloudRes.profile };
+        } else {
+          adminAddLog('SECURITY_ADMIN_LOGIN_FAIL', input, cloudRes.error);
+          return { success: false, message: cloudRes.error };
+        }
+      } catch (e) {
+        console.warn('Cloud admin sign in error:', e);
+      }
+    }
+
+    // 2. Strict Database Verification (No backdoor, no open matching, NO hardcoded fallback password)
+    const foundAdmin = db.users.find(
+      (u) =>
+        u.role === 'admin' &&
+        (u.email?.toLowerCase() === input.toLowerCase() ||
+          u.phone === input ||
+          u.name?.toLowerCase() === input.toLowerCase())
+    );
+
+    if (foundAdmin) {
+      if (foundAdmin.password && pass === foundAdmin.password) {
+        if (foundAdmin.status === 'suspended') {
+          adminAddLog('SECURITY_SUSPENDED_ADMIN_BLOCKED', input, 'محاولة دخول بحساب مدير موقوف');
+          return { success: false, message: 'هذا الحساب الإداري موقوف حالياً' };
+        }
+
+        switchAdminAccount(foundAdmin.id);
+        adminAddLog('ADMIN_LOGIN_SUCCESS', foundAdmin.name, 'تسجيل دخول إداري معتمد وناجح للمشرف العام');
+        return { success: true, user: foundAdmin };
+      }
+    }
+
+    // Unauthorized attempt: Log security audit record
+    adminAddLog('SECURITY_UNAUTHORIZED_ADMIN_ATTEMPT', input, `محاولة غير مصرح بها للوصول إلى الإدارة بكلمة مرور غير صحيحة للمدخل: ${input}`);
+    return { success: false, message: 'بيانات حساب المشرف أو كلمة المرور غير صحيحة. تم تسجيل محاولة الدخول في سجل الأمان.' };
   };
 
   const logoutAdmin = () => {
+    if (currentAdminUser) {
+      adminAddLog('ADMIN_LOGOUT', currentAdminUser.name || 'المشرف', 'تسجيل خروج آمن من لوحة تحكم الإدارة');
+    }
     switchAdminAccount(null);
+    supabaseSignOut();
     switchPortal('marketplace');
   };
 
-  // Quick Demo Access Helper (For fast verification & testing without friction)
+  // Quick Demo Access Helper (Restricted strictly to Merchant and Courier - NEVER Admin)
   const quickDemoLogin = (role) => {
     if (role === 'merchant') {
       switchMerchantAccount('usr-merch-1');
@@ -1015,8 +1064,9 @@ export function PlatformProvider({ children }) {
       switchCourierAccount('usr-cour-1');
       switchPortal('courier');
     } else if (role === 'admin') {
-      switchAdminAccount('usr-admin-1');
-      switchPortal('admin');
+      // SECURITY REQUIREMENT: No open demo or backdoor for Admin
+      console.warn('Security alert: quickDemoLogin for admin is strictly disabled.');
+      adminAddLog('SECURITY_ADMIN_DEMO_BYPASS_BLOCKED', 'غير مصرح', 'تم حظر محاولة تجاوز الدخول كمدير عبر quickDemoLogin.');
     }
   };
 
@@ -1044,8 +1094,56 @@ export function PlatformProvider({ children }) {
     ? (db.users.find((u) => u.id === activeAdminId && u.role === 'admin') || null)
     : null;
 
-  // Global admin user fallback for administrative utilities
-  const adminUser = currentAdminUser || db.users.find((u) => u.role === 'admin') || db.users[db.users.length - 1];
+  // Authoritative admin user reference (Strictly null if not logged in as admin)
+  const adminUser = currentAdminUser;
+
+  // Dedicated admin audit logger (Audit Logging requirement)
+  const adminAddLog = (action, target, details, actorOverride = null) => {
+    const actorName =
+      actorOverride ||
+      currentAdminUser?.name ||
+      customerUser?.name ||
+      currentMerchantUser?.name ||
+      currentCourierUser?.name ||
+      'النظام الإداري للمنصة';
+    const newLog = {
+      id: `alog-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      action,
+      target,
+      details,
+      actorName,
+      createdAt: new Date().toISOString(),
+    };
+    setDb((prev) => ({
+      ...prev,
+      adminLogs: [newLog, ...(prev.adminLogs || [])],
+    }));
+    if (getSupabaseConfig().isConfigured) {
+      supabaseAddAdminLog({
+        action,
+        target,
+        details,
+        actor_name: actorName,
+      }).catch((e) => console.warn('Supabase admin log notice:', e));
+    }
+  };
+
+  // Assert admin privilege before sensitive administrative mutations (Strict Security Guard)
+  const assertAdminPermission = (actionName) => {
+    if (!currentAdminUser || currentAdminUser.role !== 'admin' || currentAdminUser.status === 'suspended') {
+      const actorName =
+        customerUser?.name ||
+        currentMerchantUser?.name ||
+        currentCourierUser?.name ||
+        'مستخدم غير مصرح';
+      adminAddLog(
+        'SECURITY_VIOLATION_BLOCKED',
+        actionName,
+        `محاولة غير مصرح بها لتنفيذ عملية إدارية (${actionName}) من قبل: ${actorName}. تم منع العملية وحجب الصلاحية.`
+      );
+      throw new Error(`غير مصرح: يتطلب تنفيذ عملية (${actionName}) صلاحيات المشرف العام المعتمد.`);
+    }
+  };
 
   // ================= STRICT MULTI-TENANT ISOLATED DATA VIEWS ================= //
 
@@ -1097,12 +1195,12 @@ export function PlatformProvider({ children }) {
   const checkPermission = (action, role = null) => {
     const effectiveRole =
       role ||
-      (currentPortal === 'merchant'
-        ? 'merchant'
-        : currentPortal === 'courier'
-        ? 'courier'
-        : currentPortal === 'admin'
+      (currentPortal === 'admin' && currentAdminUser?.role === 'admin'
         ? 'admin'
+        : currentPortal === 'merchant' && currentMerchantUser?.role === 'merchant'
+        ? 'merchant'
+        : currentPortal === 'courier' && currentCourierUser?.role === 'courier'
+        ? 'courier'
         : 'customer');
 
     switch (action) {
@@ -1562,6 +1660,7 @@ export function PlatformProvider({ children }) {
 
   // 2. Admin approves payment proof after checking bank deposit
   const adminApprovePayment = (paymentId) => {
+    assertAdminPermission('اعتماد سداد اشتراك');
     setDb((prev) => {
       let targetPayment = null;
       const updatedPayments = (prev.payments || []).map((p) => {
@@ -1640,6 +1739,7 @@ export function PlatformProvider({ children }) {
 
   // 3. Admin rejects payment proof with a reason
   const adminRejectPayment = (paymentId, reason) => {
+    assertAdminPermission('رفض إثبات سداد اشتراك');
     setDb((prev) => {
       let targetPayment = null;
       const updatedPayments = (prev.payments || []).map((p) => {
@@ -1701,6 +1801,7 @@ export function PlatformProvider({ children }) {
 
   // 4. Admin issues new custom invoice
   const adminCreateInvoice = (invoiceData) => {
+    assertAdminPermission('إصدار فاتورة إدارية');
     const invId = `INV-2026-${Math.floor(100 + Math.random() * 900)}`;
     const newInvoice = {
       id: invId,
@@ -1742,6 +1843,7 @@ export function PlatformProvider({ children }) {
 
   // 5. Admin updates subscription plans dynamically without touching code
   const adminUpdateSubscriptionPlan = (planId, updates) => {
+    assertAdminPermission('تعديل خطة اشتراك');
     setDb((prev) => ({
       ...prev,
       subscriptionPlans: (prev.subscriptionPlans || []).map((p) =>
@@ -1760,6 +1862,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminAddSubscriptionPlan = (planData) => {
+    assertAdminPermission('إضافة خطة اشتراك جديدة');
     const newPlan = {
       id: `plan-${Date.now()}`,
       currency: 'ر.ي',
@@ -1784,6 +1887,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminDeleteSubscriptionPlan = (planId) => {
+    assertAdminPermission('حذف خطة اشتراك');
     setDb((prev) => ({
       ...prev,
       subscriptionPlans: (prev.subscriptionPlans || []).filter((p) => p.id !== planId),
@@ -1801,6 +1905,7 @@ export function PlatformProvider({ children }) {
 
   // 6. Admin updates platform bank accounts dynamically without code
   const adminUpdateBankAccount = (bankId, updates) => {
+    assertAdminPermission('تحديث حساب بنكي إداري');
     setDb((prev) => ({
       ...prev,
       platformBankAccounts: (prev.platformBankAccounts || []).map((b) =>
@@ -1819,6 +1924,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminAddBankAccount = (bankData) => {
+    assertAdminPermission('إضافة حساب بنكي إداري');
     const newBank = {
       id: `bank-${Date.now()}`,
       currency: 'ريال يمني (ر.ي)',
@@ -1841,6 +1947,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminToggleBankAccount = (bankId) => {
+    assertAdminPermission('تغيير حالة حساب بنكي إداري');
     setDb((prev) => ({
       ...prev,
       platformBankAccounts: (prev.platformBankAccounts || []).map((b) =>
@@ -1920,9 +2027,12 @@ export function PlatformProvider({ children }) {
 
   const updateCustomerProfile = (updates) => {
     if (!customerUser) return;
+    const safeUpdates = { ...updates };
+    delete safeUpdates.role; // Anti-Self-Role Elevation: Users cannot change their role
+    delete safeUpdates.id;
     setDb((prev) => ({
       ...prev,
-      users: prev.users.map((u) => (u.id === customerUser.id ? { ...u, ...updates } : u)),
+      users: prev.users.map((u) => (u.id === customerUser.id ? { ...u, ...safeUpdates } : u)),
     }));
   };
 
@@ -1966,10 +2076,14 @@ export function PlatformProvider({ children }) {
   };
 
   const updateCourierProfile = (updates) => {
+    if (!currentCourierUser) return;
+    const safeUpdates = { ...updates };
+    delete safeUpdates.role; // Anti-Self-Role Elevation: Couriers cannot elevate their role
+    delete safeUpdates.id;
     setDb((prev) => ({
       ...prev,
       users: prev.users.map((u) =>
-        u.id === currentCourierUser?.id ? { ...u, ...updates } : u
+        u.id === currentCourierUser?.id ? { ...u, ...safeUpdates } : u
       ),
     }));
   };
@@ -2280,6 +2394,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminApproveMerchantRequest = async (requestId) => {
+    assertAdminPermission('اعتماد طلب تاجر');
     let approvedUser = null;
     let approvedStore = null;
 
@@ -2381,6 +2496,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminRejectMerchantRequest = async (requestId, reason = 'لم يستوفِ الشروط المحددة') => {
+    assertAdminPermission('رفض طلب انضمام تاجر');
     setDb((prev) => {
       const req = (prev.merchantRequests || []).find((r) => r.id === requestId);
       const updatedRequests = (prev.merchantRequests || []).map((r) =>
@@ -2423,6 +2539,7 @@ export function PlatformProvider({ children }) {
 
   // --- COURIER SINGLE-USE INVITES & RESTRICTED REGISTRATION ---
   const adminCreateDeliveryInvite = async (inviteData) => {
+    assertAdminPermission('إنشاء كود دعوة مندوب');
     const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
     const code = `GHAYM-MUK-${randomSuffix}`;
     const expiryDate = new Date();
@@ -2476,6 +2593,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminRevokeDeliveryInvite = async (inviteId) => {
+    assertAdminPermission('إلغاء كود دعوة مندوب');
     setDb((prev) => ({
       ...prev,
       deliveryInvites: (prev.deliveryInvites || []).map((inv) =>
@@ -2608,6 +2726,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminToggleUserStatus = (userId) => {
+    assertAdminPermission('تعديل حالة حساب مستخدم');
     setDb((prev) => ({
       ...prev,
       users: prev.users.map((u) =>
@@ -2627,30 +2746,8 @@ export function PlatformProvider({ children }) {
     }));
   };
 
-  const adminAddLog = (action, target, details) => {
-    const newLog = {
-      id: `alog-${Date.now()}`,
-      action,
-      target,
-      details,
-      actorName: adminUser?.name || 'المشرف العام',
-      createdAt: new Date().toISOString(),
-    };
-    setDb((prev) => ({
-      ...prev,
-      adminLogs: [newLog, ...(prev.adminLogs || [])],
-    }));
-    if (getSupabaseConfig().isConfigured) {
-      supabaseAddAdminLog({
-        action,
-        target,
-        details,
-        actor_name: adminUser?.name || 'المشرف العام',
-      }).catch((e) => console.warn('Supabase admin log notice:', e));
-    }
-  };
-
   const adminApproveMerchant = (merchantId) => {
+    assertAdminPermission('اعتماد متجر تاجر');
     setDb((prev) => {
       const user = prev.users.find((u) => u.id === merchantId);
       const storeId = user?.storeId;
@@ -2689,6 +2786,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminRejectMerchant = (merchantId, reason = 'لم يستوفِ الشروط المحددة') => {
+    assertAdminPermission('رفض متجر تاجر');
     setDb((prev) => {
       const user = prev.users.find((u) => u.id === merchantId);
       const storeId = user?.storeId;
@@ -2716,6 +2814,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminAddMerchant = (data) => {
+    assertAdminPermission('إضافة تاجر جديد');
     const newUserId = `usr-merch-${Date.now()}`;
     const newStoreId = `store-${Date.now()}`;
     const cleanPhone = cleanYemeniPhone(data.phone);
@@ -2776,8 +2875,10 @@ export function PlatformProvider({ children }) {
   };
 
   const adminUpdateMerchant = (merchantId, updates) => {
+    assertAdminPermission('تعديل بيانات تاجر');
     setDb((prev) => {
       const cleanUpdates = { ...updates };
+      delete cleanUpdates.role; // Anti-Self-Role Elevation
       if (cleanUpdates.phone) cleanUpdates.phone = cleanYemeniPhone(cleanUpdates.phone);
       if (cleanUpdates.whatsapp) cleanUpdates.whatsapp = cleanYemeniPhone(cleanUpdates.whatsapp);
 
@@ -2813,6 +2914,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminToggleMerchantStatus = (merchantId) => {
+    assertAdminPermission('تغيير حالة تاجر');
     setDb((prev) => ({
       ...prev,
       users: prev.users.map((u) =>
@@ -2833,6 +2935,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminDeleteMerchant = (merchantId) => {
+    assertAdminPermission('حذف تاجر');
     setDb((prev) => {
       const user = prev.users.find((u) => u.id === merchantId);
       const storeId = user?.storeId;
@@ -2856,6 +2959,7 @@ export function PlatformProvider({ children }) {
 
   // 2. Courier Management CRUD
   const adminAddCourier = (data) => {
+    assertAdminPermission('إضافة مندوب توصيل');
     const newId = `usr-cour-${Date.now()}`;
     const cleanPhone = cleanYemeniPhone(data.phone);
     const newCourier = {
@@ -2894,8 +2998,10 @@ export function PlatformProvider({ children }) {
   };
 
   const adminUpdateCourier = (courierId, updates) => {
+    assertAdminPermission('تعديل بيانات مندوب');
     setDb((prev) => {
       const cleanUpdates = { ...updates };
+      delete cleanUpdates.role; // Anti-Self-Role Elevation
       if (cleanUpdates.phone) cleanUpdates.phone = cleanYemeniPhone(cleanUpdates.phone);
       return {
         ...prev,
@@ -2914,6 +3020,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminToggleCourierStatus = (courierId) => {
+    assertAdminPermission('تغيير حالة مندوب');
     setDb((prev) => ({
       ...prev,
       users: prev.users.map((u) =>
@@ -2934,6 +3041,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminDeleteCourier = (courierId) => {
+    assertAdminPermission('حذف مندوب');
     setDb((prev) => ({
       ...prev,
       users: prev.users.filter((u) => u.id !== courierId),
@@ -2951,6 +3059,7 @@ export function PlatformProvider({ children }) {
 
   // 3. Categories Management CRUD
   const adminAddCategory = (catData) => {
+    assertAdminPermission('إضافة تصنيف جديد');
     const newCat = {
       id: `cat-${Date.now()}`,
       name: catData.name,
@@ -2977,6 +3086,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminUpdateCategory = (catId, updates) => {
+    assertAdminPermission('تعديل تصنيف');
     setDb((prev) => ({
       ...prev,
       categories: (prev.categories || []).map((c) =>
@@ -2995,6 +3105,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminDeleteCategory = (catId) => {
+    assertAdminPermission('حذف تصنيف');
     setDb((prev) => ({
       ...prev,
       categories: (prev.categories || []).filter((c) => c.id !== catId),
@@ -3012,6 +3123,7 @@ export function PlatformProvider({ children }) {
 
   // 4. Stores Management in Admin
   const adminAddStore = (storeData) => {
+    assertAdminPermission('إضافة متجر');
     const newStore = {
       id: `store-${Date.now()}`,
       ownerId: storeData.ownerId || 'usr-admin-1',
@@ -3051,6 +3163,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminUpdateStore = (storeId, updates) => {
+    assertAdminPermission('تعديل متجر');
     setDb((prev) => ({
       ...prev,
       stores: prev.stores.map((s) => (s.id === storeId ? { ...s, ...updates } : s)),
@@ -3067,6 +3180,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminDeleteStore = (storeId) => {
+    assertAdminPermission('حذف متجر');
     setDb((prev) => ({
       ...prev,
       stores: prev.stores.filter((s) => s.id !== storeId),
@@ -3084,6 +3198,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminToggleStoreStatus = (storeId) => {
+    assertAdminPermission('تغيير حالة متجر');
     setDb((prev) => ({
       ...prev,
       stores: prev.stores.map((s) =>
@@ -3105,6 +3220,7 @@ export function PlatformProvider({ children }) {
 
   // 5. Products Moderation in Admin
   const adminUpdateProduct = (prodId, updates) => {
+    assertAdminPermission('تعديل منتج');
     setDb((prev) => ({
       ...prev,
       products: prev.products.map((p) => (p.id === prodId ? { ...p, ...updates } : p)),
@@ -3121,6 +3237,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminDeleteProduct = (prodId) => {
+    assertAdminPermission('حذف منتج');
     setDb((prev) => ({
       ...prev,
       products: prev.products.filter((p) => p.id !== prodId),
@@ -3137,6 +3254,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminToggleProductVisibility = (prodId) => {
+    assertAdminPermission('تبديل ظهور منتج');
     setDb((prev) => ({
       ...prev,
       products: prev.products.map((p) =>
@@ -3156,8 +3274,10 @@ export function PlatformProvider({ children }) {
 
   // 6. Customers Moderation in Admin
   const adminUpdateCustomer = (customerId, updates) => {
+    assertAdminPermission('تعديل بيانات عميل');
     setDb((prev) => {
       const clean = { ...updates };
+      delete clean.role; // Anti-Self-Role Elevation
       if (clean.phone) clean.phone = cleanYemeniPhone(clean.phone);
       return {
         ...prev,
@@ -3176,6 +3296,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminToggleCustomerStatus = (customerId) => {
+    assertAdminPermission('تغيير حالة عميل');
     setDb((prev) => ({
       ...prev,
       users: prev.users.map((u) =>
@@ -3196,6 +3317,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminDeleteCustomer = (customerId) => {
+    assertAdminPermission('حذف عميل');
     setDb((prev) => ({
       ...prev,
       users: prev.users.filter((u) => u.id !== customerId),
@@ -3213,13 +3335,14 @@ export function PlatformProvider({ children }) {
 
   // 7. Orders Moderation in Admin
   const adminUpdateOrderStatus = (orderId, newStatus) => {
+    assertAdminPermission('تعديل حالة طلب');
     setDb((prev) => ({
       ...prev,
       orders: prev.orders.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
       auditLogs: [
         addAuditLog(
           'UPDATE_ORDER_STATUS',
-          'المشرف العام',
+          adminUser?.name || 'المشرف العام',
           'admin',
           `تحديث حالة الطلب #${orderId} إلى: ${newStatus}.`
         ),
@@ -3229,6 +3352,7 @@ export function PlatformProvider({ children }) {
   };
 
   const adminAssignOrderCourier = (orderId, courierId) => {
+    assertAdminPermission('تعيين مندوب لطلب');
     setDb((prev) => {
       const courier = prev.users.find((u) => u.id === courierId);
       return {
@@ -3282,6 +3406,7 @@ export function PlatformProvider({ children }) {
   };
 
   const resetToCleanProductionMode = async () => {
+    assertAdminPermission('تفعيل وضع الإنتاج الحقيقي');
     // If Supabase is connected, clean demo records in cloud database as well
     if (isSupabaseConnected) {
       try {
@@ -3325,6 +3450,7 @@ export function PlatformProvider({ children }) {
   };
 
   const restoreDemoData = () => {
+    assertAdminPermission('استعادة البيانات التجريبية');
     const initialDb = getInitialDatabase();
     setDb({
       ...initialDb,

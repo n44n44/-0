@@ -19,7 +19,7 @@ import ContactPage from './views/ContactPage';
 import LoginPage from './views/LoginPage';
 import WishlistPage from './views/WishlistPage';
 
-import { Database, Store, Bike, ShieldCheck, Lock, ArrowRight, User } from 'lucide-react';
+import { Database, Store, Bike, ShieldCheck, Lock, ArrowRight, User, ShieldAlert, AlertTriangle, Key, CheckCircle2 } from 'lucide-react';
 import LocationModal from './components/LocationModal';
 import SellerModal from './components/SellerModal';
 import CustomerAuthModal from './components/CustomerAuthModal';
@@ -57,16 +57,214 @@ function ProtectedRouteGate({ title, subtitle, icon: Icon, badgeText, onLogin, o
             <ArrowRight className="w-4 h-4 rotate-180" />
           </button>
 
-          <button
-            onClick={onDemo}
-            className="w-full py-3 px-5 rounded-2xl bg-white/10 hover:bg-white/15 text-sky-200 border border-white/15 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-2"
-          >
-            <span>⚡ دخول سريع للتجربة (حساب تجريبي)</span>
-          </button>
+          {onDemo && (
+            <button
+              onClick={onDemo}
+              className="w-full py-3 px-5 rounded-2xl bg-white/10 hover:bg-white/15 text-sky-200 border border-white/15 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-2"
+            >
+              <span>⚡ دخول سريع للتجربة (حساب تجريبي)</span>
+            </button>
+          )}
 
           <button
             onClick={onBack}
             className="w-full py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white transition cursor-pointer"
+          >
+            العودة للمنصة الرئيسية (سوق العملاء)
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Dedicated Security View: Access Denied for authenticated non-admin roles (Customers, Merchants, Couriers)
+function AdminAccessDenied({ activeUser, onReturnHome, onReturnPortal }) {
+  const roleName =
+    activeUser?.role === 'merchant'
+      ? 'تاجر (صاحب متجر)'
+      : activeUser?.role === 'courier'
+      ? 'كابتن توصيل'
+      : 'عميل المنصة';
+
+  const portalRoute =
+    activeUser?.role === 'merchant'
+      ? '#/merchant'
+      : activeUser?.role === 'courier'
+      ? '#/courier'
+      : '#/';
+
+  const portalButtonLabel =
+    activeUser?.role === 'merchant'
+      ? 'العودة إلى لوحة تحكم التاجر 🏪'
+      : activeUser?.role === 'courier'
+      ? 'العودة إلى بوابة كابتن التوصيل 🛵'
+      : 'العودة إلى سوق غيم سبيس 🛍️';
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-[#07132B] via-[#0A162B] to-[#07132B] text-white" dir="rtl">
+      <div className="w-full max-w-lg bg-red-950/20 border border-red-500/30 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl text-center space-y-6 animate-fadeIn">
+        <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 mx-auto flex items-center justify-center shadow-lg">
+          <ShieldAlert className="w-8 h-8" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/15 text-red-300 border border-red-500/25 text-xs font-bold">
+            <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+            <span>محاولة وصول غير مصرح بها — وصول محظور ⛔</span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-black text-white">غير مصرح بالدخول للوحة المشرف</h2>
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            حسابك الحالي <strong className="text-amber-300">({activeUser?.name || 'مستخدم مسجل'})</strong> يحمل صفة <span className="text-sky-300 font-bold">[{roleName}]</span>.
+            لوحة الإدارة العامة مقيدة بالكامل وحصرية فقط بالمدير العام المعتمد. لا يمكن ترقية صلاحية الحساب ذاتياً، وتم توثيق هذه المحاولة في سجل التدقيق الأمني.
+          </p>
+        </div>
+
+        <div className="space-y-3 pt-2">
+          <button
+            onClick={() => onReturnPortal(portalRoute)}
+            className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-black text-sm shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>{portalButtonLabel}</span>
+            <ArrowRight className="w-4 h-4 rotate-180" />
+          </button>
+
+          <button
+            onClick={onReturnHome}
+            className="w-full py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white transition cursor-pointer"
+          >
+            العودة إلى الصفحة الرئيسية للمنصة
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Dedicated Security Gate: Secure Admin Credential Gate (No demo bypass, no public registration)
+function AdminSecureLoginGate({ onLoginSuccess, onBackToMarket }) {
+  const { loginAdmin } = usePlatform();
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleAdminAuth = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!identifier.trim() || !password.trim()) {
+      setError('يرجى إدخال اسم المستخدم أو البريد الإداري وكلمة المرور');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await loginAdmin(identifier.trim(), password.trim());
+      if (res?.success) {
+        setSuccess('تم التحقق بنجاح من صلاحيات المشرف العام! جاري فتح اللوحة...');
+        setTimeout(() => {
+          if (onLoginSuccess) onLoginSuccess(res.user);
+        }, 600);
+      } else {
+        setError(res?.message || 'بيانات الدخول الإداري غير صحيحة. تم تسجيل محاولة الدخول في سجل الأمان.');
+      }
+    } catch (err) {
+      setError(err?.message || 'حدث خطأ أثناء الاتصال للتحقق من الصلاحيات');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-[#07132B] via-[#0A162B] to-[#07132B] text-white" dir="rtl">
+      <div className="w-full max-w-md bg-white/[0.04] border border-sky-500/20 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl space-y-6 animate-fadeIn">
+        <div className="text-center space-y-3">
+          <div className="w-16 h-16 rounded-2xl bg-amber-400/10 border border-amber-400/25 text-amber-400 mx-auto flex items-center justify-center shadow-lg">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20 text-xs font-bold">
+            <Lock className="w-3.5 h-3.5 text-amber-400" />
+            <span>بوابة المشرف العام — تسجيل دخول مشفر ومحمي</span>
+          </div>
+
+          <h2 className="text-xl sm:text-2xl font-black text-white">دخول إدارة منصة غيم سبيس</h2>
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            منطقة محظورة ومخصصة لإدارة منصة غيم سبيس، اعتماد المتاجر وتدقيق المعاملات المالية. لا يوجد تسجيل عام من هذه الواجهة.
+          </p>
+        </div>
+
+        {error && (
+          <div className="p-3.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-200 text-xs font-bold flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 text-xs font-bold flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>{success}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleAdminAuth} className="space-y-4">
+          <div className="space-y-1.5 text-right">
+            <label className="block text-xs font-bold text-slate-300">
+              اسم المستخدم أو البريد الإداري للمشرف *
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                required
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="superadmin@ghaymspace.com"
+                className="w-full h-11 pr-4 pl-4 rounded-xl border border-white/10 bg-white/5 text-white text-sm placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 transition-all text-right outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5 text-right">
+            <label className="block text-xs font-bold text-slate-300">
+              كلمة مرور المشرف العام *
+            </label>
+            <div className="relative">
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="w-full h-11 pr-4 pl-4 rounded-xl border border-white/10 bg-white/5 text-white text-sm placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 transition-all text-right outline-none"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 px-5 rounded-2xl bg-[#EAB839] hover:bg-[#D9A726] text-[#07132B] font-black text-sm shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {loading ? (
+              <span className="inline-block w-4 h-4 border-2 border-[#07132B] border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <Key className="w-4 h-4 text-[#07132B]" />
+                <span>التحقق والدخول للوحة المشرف</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="pt-2 border-t border-white/10 text-center">
+          <button
+            type="button"
+            onClick={onBackToMarket}
+            className="text-xs font-semibold text-slate-400 hover:text-white transition cursor-pointer"
           >
             العودة للمنصة الرئيسية (سوق العملاء)
           </button>
@@ -113,7 +311,7 @@ function AppContent() {
       const hash = window.location.hash || '';
       if (hash.includes('demo=merchant')) quickDemoLogin('merchant');
       if (hash.includes('demo=courier')) quickDemoLogin('courier');
-      if (hash.includes('demo=admin')) quickDemoLogin('admin');
+      // Admin demo bypass permanently removed for strict security compliance
 
       if (hash.startsWith('#/merchant')) switchPortal('merchant');
       else if (hash.startsWith('#/courier')) switchPortal('courier');
@@ -449,34 +647,42 @@ function AppContent() {
         </div>
       )}
 
-      {/* PORTAL 4: ADMIN DASHBOARD (Guarded & Isolated) */}
+      {/* PORTAL 4: ADMIN DASHBOARD (Strict Security Gate & Authoritative Protection) */}
       {currentPortal === 'admin' && (
         <div className="flex-1 flex flex-col">
-          {!currentAdminUser ? (
-            <ProtectedRouteGate
-              icon={ShieldCheck}
-              title="لوحة الإدارة العامة محمية 🛡️"
-              badgeText="منطقة مشفرة لمشرفي النظام"
-              subtitle="منطقة محظورة ومخصصة لإدارة منصة غيم سبيس، اعتماد المتاجر وتدقيق المعاملات المالية وتقارير العمليات."
-              onLogin={() => {
-                setLoginDefaultRole('customer');
-                setCurrentMarketView('login');
-                switchPortal('marketplace');
-                window.location.hash = '#/';
-              }}
-              onDemo={() => quickDemoLogin('admin')}
-              onBack={() => {
-                window.location.hash = '#/';
-                switchPortal('marketplace');
-              }}
-            />
-          ) : (
+          {currentAdminUser && currentAdminUser.role === 'admin' && currentAdminUser.status !== 'suspended' ? (
             <AdminDashboard
               onBackToMarket={() => {
                 window.location.hash = '#/';
                 switchPortal('marketplace');
               }}
               onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
+            />
+          ) : (customerUser || currentMerchantUser || currentCourierUser) ? (
+            // Unauthorized persona actively logged in: Strictly denied with security audit logging
+            <AdminAccessDenied
+              activeUser={currentMerchantUser || currentCourierUser || customerUser}
+              onReturnHome={() => {
+                window.location.hash = '#/';
+                switchPortal('marketplace');
+              }}
+              onReturnPortal={(route) => {
+                window.location.hash = route;
+                if (route.includes('merchant')) switchPortal('merchant');
+                else if (route.includes('courier')) switchPortal('courier');
+                else switchPortal('marketplace');
+              }}
+            />
+          ) : (
+            // Unauthenticated visitor attempting direct URL entry: Strict Credential Gate (No demo bypass, no public signup)
+            <AdminSecureLoginGate
+              onLoginSuccess={() => {
+                switchPortal('admin');
+              }}
+              onBackToMarket={() => {
+                window.location.hash = '#/';
+                switchPortal('marketplace');
+              }}
             />
           )}
         </div>

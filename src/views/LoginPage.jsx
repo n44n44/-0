@@ -103,7 +103,7 @@ export default function LoginPage({ onNavigate, onLoginSuccess, defaultRole = 'c
       }
       setLoading(true);
       try {
-        const res = loginAdmin(identifier.trim(), password.trim());
+        const res = await loginAdmin(identifier.trim(), password.trim());
         if (res?.success) {
           setSuccess('تم تسجيل دخول المشرف بنجاح! جاري فتح لوحة تحكم الإدارة...');
           setTimeout(() => {
@@ -114,19 +114,10 @@ export default function LoginPage({ onNavigate, onLoginSuccess, defaultRole = 'c
             }
           }, 800);
         } else {
-          // Demo fallback
-          switchAdminAccount('usr-admin-1');
-          setSuccess('تم الدخول كمسؤول للنظام! جاري نقلك للوحة الإدارة...');
-          setTimeout(() => {
-            if (onLoginSuccess) onLoginSuccess({ name: 'المشرف العام', role: 'admin' }, 'admin');
-            else {
-              window.location.hash = '#/admin';
-              if (onNavigate) onNavigate('admin');
-            }
-          }, 800);
+          setError(res?.message || 'بيانات اعتماد المشرف غير صحيحة. تم تسجيل محاولة الدخول في سجل الأمان.');
         }
       } catch (err) {
-        setError(err.message || 'فشل تسجيل دخول المسؤول');
+        setError(err.message || 'فشل التحقق من صلاحيات المشرف');
       } finally {
         setLoading(false);
       }
@@ -407,26 +398,28 @@ export default function LoginPage({ onNavigate, onLoginSuccess, defaultRole = 'c
             <span>الرئيسية</span>
           </button>
 
-          {/* Admin Mode Toggle Pill */}
-          <button
-            type="button"
-            onClick={() => {
-              if (selectedRole === 'admin') {
-                setSelectedRole('customer');
-              } else {
-                setSelectedRole('admin');
-                setIsRegister(false);
-              }
-            }}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-              selectedRole === 'admin'
-                ? 'bg-amber-100 text-amber-900 border border-amber-300 shadow-sm'
-                : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-            <span>{selectedRole === 'admin' ? 'العودة للمستخدمين' : 'بوابة الإدارة'}</span>
-          </button>
+          {/* Admin Mode Toggle Pill (Exclusively shown when accessed via explicit admin entry, hidden from general public) */}
+          {defaultRole === 'admin' && (
+            <button
+              type="button"
+              onClick={() => {
+                if (selectedRole === 'admin') {
+                  setSelectedRole('customer');
+                } else {
+                  setSelectedRole('admin');
+                  setIsRegister(false);
+                }
+              }}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                selectedRole === 'admin'
+                  ? 'bg-amber-100 text-amber-900 border border-amber-300 shadow-sm'
+                  : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+              <span>{selectedRole === 'admin' ? 'العودة للمستخدمين' : 'بوابة الإدارة'}</span>
+            </button>
+          )}
         </div>
 
         {/* Brand Emblem */}

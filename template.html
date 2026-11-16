@@ -196,6 +196,38 @@
           animation: none !important;
         }
       }
+
+      /* Fix mobile WebKit / Android Chrome GPU rasterization, trailing ghosts and tearing */
+      @media (max-width: 768px) {
+        .anim-cloud-float-1,
+        .anim-cloud-float-2,
+        .cloud-float-slow,
+        .cloud-float-reverse {
+          animation: none !important;
+          transform: none !important;
+        }
+        .blur-3xl {
+          filter: blur(16px) !important;
+        }
+        .blur-2xl {
+          filter: blur(10px) !important;
+        }
+        .blur-xl {
+          filter: blur(6px) !important;
+        }
+      }
+
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .isolate-layer {
+        isolation: isolate;
+        contain: paint;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        transform: translateZ(0);
+      }
     </style>
   </head>
   <body class="bg-[#F8FAFC] text-[#07132B] antialiased selection:bg-[#38BDF8] selection:text-white min-h-screen">

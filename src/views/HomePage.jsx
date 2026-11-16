@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { usePlatform } from '../context/PlatformContext';
 
 const STITCH_LOGO_URL = 'https://lh3.googleusercontent.com/aida-public/AB6AXuC0kTwyrOgVt1UikZzjl_8adoPbACflThuS0OAMs1NBAxfhdj0d6U5zy__p3zH1LwwSEoGCf-TrnUeEI9e7ofTlwvzBEkjkRq7dWVa2VM8YYzl6qDAYySLO14czo6P79cFjMAhBjFyf9NEde5r2LsURP2LZTDBAFNk7WWjYNfTnw_OMambwfjlKjSD-giwosQLJIjXhF6XEZHmA2tjH6DDME6VgOoNX5agZVPKSTOwWd7WRKHY8-450';
@@ -11,6 +11,153 @@ export default function HomePage({
   onSelectProduct,
 }) {
   const { isFavorite, toggleFavorite } = usePlatform();
+
+  // 8 Authentic Categories with Live Product/Store Counts
+  const categoryItems = [
+    {
+      id: 'decor',
+      name: 'ديكور وهدايا',
+      badge: '+120 منتج',
+      storesCount: '34 متجر',
+      iconClass: 'fa-solid fa-gift',
+      gradient: 'from-amber-500 via-amber-400 to-amber-200',
+      bgLight: 'bg-amber-50 text-amber-600 border-amber-200',
+      textColor: 'group-hover:text-amber-600',
+    },
+    {
+      id: 'pottery',
+      name: 'صناعات يدوية',
+      badge: '+85 منتج',
+      storesCount: '28 متجر',
+      iconClass: 'fa-solid fa-basket-shopping',
+      gradient: 'from-[#8a5a36] via-[#b37a4c] to-[#deb887]',
+      bgLight: 'bg-[#fbf7f4] text-[#8a5a36] border-[#ebdace]',
+      textColor: 'group-hover:text-[#8a5a36]',
+    },
+    {
+      id: 'fashion',
+      name: 'ملابس وأزياء',
+      badge: '+140 منتج',
+      storesCount: '42 متجر',
+      iconClass: 'fa-solid fa-shirt',
+      gradient: 'from-[#163168] via-sky-500 to-sky-200',
+      bgLight: 'bg-sky-50 text-sky-600 border-sky-200',
+      textColor: 'group-hover:text-sky-600',
+    },
+    {
+      id: 'kitchen',
+      name: 'أسر منتجة',
+      badge: '+95 منتج',
+      storesCount: '56 متجر',
+      iconClass: 'fa-solid fa-kitchen-set',
+      gradient: 'from-[#581c87] via-[#8b5cf6] to-[#d8b4fe]',
+      bgLight: 'bg-purple-50 text-[#7c3aed] border-purple-200',
+      textColor: 'group-hover:text-purple-600',
+    },
+    {
+      id: 'incense',
+      name: 'بخور وعطور',
+      badge: '+70 منتج',
+      storesCount: '38 متجر',
+      iconClass: 'fa-solid fa-spray-can-sparkles',
+      gradient: 'from-[#92400e] via-[#d97706] to-[#fde68a]',
+      bgLight: 'bg-amber-50 text-amber-700 border-amber-200',
+      textColor: 'group-hover:text-amber-700',
+    },
+    {
+      id: 'sweets',
+      name: 'حلويات ومخبوزات',
+      badge: '+60 منتج',
+      storesCount: '39 متجر',
+      iconClass: 'fa-solid fa-cake-candles',
+      gradient: 'from-[#e11d48] via-[#f97316] to-[#fdba74]',
+      bgLight: 'bg-rose-50 text-[#ea580c] border-orange-200',
+      textColor: 'group-hover:text-orange-600',
+    },
+    {
+      id: 'heritage',
+      name: 'تراث وفخاريات',
+      badge: '+50 منتج',
+      storesCount: '25 متجر',
+      iconClass: 'fa-solid fa-landmark',
+      gradient: 'from-[#0f766e] via-[#14b8a6] to-[#99f6e4]',
+      bgLight: 'bg-teal-50 text-teal-700 border-teal-200',
+      textColor: 'group-hover:text-teal-600',
+    },
+    {
+      id: 'candles',
+      name: 'شموع وروائح منزلية',
+      badge: '+45 منتج',
+      storesCount: '20 متجر',
+      iconClass: 'fa-solid fa-wand-magic-sparkles',
+      gradient: 'from-[#0369a1] via-[#38bdf8] to-[#bae6fd]',
+      bgLight: 'bg-sky-50 text-sky-700 border-sky-200',
+      textColor: 'group-hover:text-sky-600',
+    },
+  ];
+
+  // Animated Categories Scroll Ref & Auto-scroll State
+  const categoriesScrollRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftState, setScrollLeftState] = useState(0);
+  const [dragMoved, setDragMoved] = useState(false);
+
+  // Auto-scroll loop from right to left (RTL direction)
+  useEffect(() => {
+    const el = categoriesScrollRef.current;
+    if (!el) return;
+
+    const interval = setInterval(() => {
+      if (!isPaused && !isDragging && el) {
+        // In modern browsers with dir="rtl", scrollLeft is negative or decreasing
+        const atEnd = Math.abs(el.scrollLeft) >= (el.scrollWidth - el.clientWidth - 4);
+        if (atEnd) {
+          el.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          el.scrollBy({ left: -1.2 });
+        }
+      }
+    }, 35);
+
+    return () => clearInterval(interval);
+  }, [isPaused, isDragging]);
+
+  const scrollPrev = () => {
+    if (categoriesScrollRef.current) {
+      categoriesScrollRef.current.scrollBy({ left: 260, behavior: 'smooth' });
+    }
+  };
+
+  const scrollNext = () => {
+    if (categoriesScrollRef.current) {
+      categoriesScrollRef.current.scrollBy({ left: -260, behavior: 'smooth' });
+    }
+  };
+
+  // Mouse drag support for desktop
+  const handleMouseDown = (e) => {
+    if (!categoriesScrollRef.current) return;
+    setIsDragging(true);
+    setIsPaused(true);
+    setDragMoved(false);
+    setStartX(e.pageX - categoriesScrollRef.current.offsetLeft);
+    setScrollLeftState(categoriesScrollRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging || !categoriesScrollRef.current) return;
+    const x = e.pageX - categoriesScrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    if (Math.abs(walk) > 5) setDragMoved(true);
+    categoriesScrollRef.current.scrollLeft = scrollLeftState - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setTimeout(() => setIsPaused(false), 2000);
+  };
   // 4 Featured Stores
   const featuredStores = [
     {
@@ -108,7 +255,7 @@ export default function HomePage({
   ];
 
   return (
-    <div className="flex-grow w-full max-w-7xl xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10" dir="rtl">
+    <div className="flex-grow w-full max-w-7xl xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6 sm:space-y-8" dir="rtl">
       
       {/* BEGIN: HeroBannerSection (Mobile: Compact Horizontal, Desktop: 16:5 Wide Ratio) */}
       <section
@@ -196,133 +343,92 @@ export default function HomePage({
       </section>
       {/* END: HeroBannerSection */}
 
-      {/* BEGIN: CategoriesSection */}
-      <section className="relative" data-purpose="categories-slider">
+      {/* BEGIN: CategoriesSection (Interactive Animated Horizontal Track) */}
+      <section className="relative overflow-hidden py-1" data-purpose="categories-slider">
         <div className="flex items-center justify-between mb-3 sm:mb-4" id="categories">
           <div>
-            <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">تصنيفات المنتجات</h2>
-            <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">اسحب وتصفح إبداعات الحرفيين والأسر</p>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base sm:text-2xl font-black text-gray-900 tracking-tight">تصنيفات المنتجات</h2>
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[11px] font-bold">
+                <i className="fa-solid fa-arrows-left-right text-[10px]"></i>
+                <span>شريط متحرك تفاعلي</span>
+              </span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">اسحب وتصفح إبداعات الحرفيين والأسر في حضرموت</p>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2">
+
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              aria-label="السابق"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 text-gray-600 hover:text-sky-600 hover:border-sky-300 flex items-center justify-center transition cursor-pointer"
+              onClick={() => onNavigate && onNavigate('categories')}
+              className="text-xs sm:text-sm font-semibold text-sky-700 hover:text-sky-900 transition cursor-pointer hidden sm:block ml-2"
             >
-              <i className="fa-solid fa-chevron-right text-xs"></i>
+              عرض الكل
             </button>
-            <button
-              type="button"
-              aria-label="التالي"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 text-gray-600 hover:text-sky-600 hover:border-sky-300 flex items-center justify-center transition cursor-pointer"
-            >
-              <i className="fa-solid fa-chevron-left text-xs"></i>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={scrollPrev}
+                aria-label="السابق"
+                title="التمرير لليمين"
+                className="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 text-gray-700 hover:text-sky-600 hover:border-sky-300 flex items-center justify-center transition cursor-pointer active:scale-95"
+              >
+                <i className="fa-solid fa-chevron-right text-xs"></i>
+              </button>
+              <button
+                type="button"
+                onClick={scrollNext}
+                aria-label="التالي"
+                title="التمرير لليسار"
+                className="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 text-gray-700 hover:text-sky-600 hover:border-sky-300 flex items-center justify-center transition cursor-pointer active:scale-95"
+              >
+                <i className="fa-solid fa-chevron-left text-xs"></i>
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="w-full flex items-center gap-3 sm:gap-6 overflow-x-auto py-3 px-1 custom-scroll-hidden snap-x-mandatory">
-          {/* Category 1: ديكور وهدايا */}
-          <button
-            type="button"
-            onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
-          >
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-200 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-lg group-hover:shadow-amber-500/35 transition-all">
-              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-200">
-                <i className="fa-solid fa-gift text-xl sm:text-3xl"></i>
+        {/* Categories Track: Auto-scrolling + Touch Drag + Smooth Momentum */}
+        <div
+          ref={categoriesScrollRef}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setTimeout(() => setIsPaused(false), 2500)}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          className="w-full flex items-center gap-3 sm:gap-4 overflow-x-auto py-3 px-1 no-scrollbar select-none cursor-grab active:cursor-grabbing scroll-smooth"
+          style={{ WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory' }}
+        >
+          {/* Duplicate list to allow rich continuous infinite scroll effect */}
+          {[...categoryItems, ...categoryItems].map((cat, idx) => (
+            <button
+              key={`${cat.id}-${idx}`}
+              type="button"
+              onClick={() => {
+                if (!dragMoved && onNavigate) onNavigate('products');
+              }}
+              className="flex flex-col items-center group shrink-0 w-[92px] sm:w-[115px] p-2 rounded-2xl hover:bg-white hover:shadow-md transition-all duration-300 cursor-pointer text-center scroll-snap-align-start border border-transparent hover:border-slate-100"
+            >
+              {/* Vibrant Icon Squircle with Brand Gradient Aura */}
+              <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr ${cat.gradient} p-0.5 shadow-sm group-hover:shadow-lg transition-all duration-300 group-hover:scale-105 flex items-center justify-center`}>
+                <div className={`w-full h-full rounded-2xl ${cat.bgLight} flex items-center justify-center border transition-all duration-300`}>
+                  <i className={`${cat.iconClass} text-xl sm:text-2xl transition-transform duration-300 group-hover:scale-110`}></i>
+                </div>
               </div>
-            </div>
-            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-amber-600 transition text-center">
-              ديكور وهدايا
-            </span>
-            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+120 منتج</span>
-          </button>
 
-          {/* Category 2: صناعات يدوية */}
-          <button
-            type="button"
-            onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
-          >
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#8a5a36] via-[#b37a4c] to-[#deb887] flex items-center justify-center shadow-md shadow-[#8a5a36]/20 group-hover:shadow-lg group-hover:shadow-[#8a5a36]/35 transition-all">
-              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-[#fbf7f4] flex items-center justify-center text-[#8a5a36] border border-[#ebdace]">
-                <i className="fa-solid fa-basket-shopping text-xl sm:text-3xl"></i>
-              </div>
-            </div>
-            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-[#8a5a36] transition text-center">
-              صناعات يدوية
-            </span>
-            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+85 منتج</span>
-          </button>
+              {/* Category Name */}
+              <span className={`mt-2 text-xs sm:text-sm font-bold text-gray-800 ${cat.textColor} transition line-clamp-1`}>
+                {cat.name}
+              </span>
 
-          {/* Category 3: ملابس وأزياء */}
-          <button
-            type="button"
-            onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
-          >
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#163168] via-sky-500 to-sky-200 flex items-center justify-center shadow-md shadow-sky-600/20 group-hover:shadow-lg group-hover:shadow-sky-600/35 transition-all">
-              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-sky-50 flex items-center justify-center text-sky-600 border border-sky-200">
-                <i className="fa-solid fa-shirt text-xl sm:text-3xl"></i>
-              </div>
-            </div>
-            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-sky-600 transition text-center">
-              ملابس وأزياء
-            </span>
-            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+140 منتج</span>
-          </button>
-
-          {/* Category 4: أسر منتجة */}
-          <button
-            type="button"
-            onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
-          >
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#581c87] via-[#8b5cf6] to-[#d8b4fe] flex items-center justify-center shadow-md shadow-purple-600/20 group-hover:shadow-lg group-hover:shadow-purple-600/35 transition-all">
-              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-purple-50 flex items-center justify-center text-[#7c3aed] border border-purple-200">
-                <i className="fa-solid fa-kitchen-set text-xl sm:text-3xl"></i>
-              </div>
-            </div>
-            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-purple-600 transition text-center">
-              أسر منتجة
-            </span>
-            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+95 منتج</span>
-          </button>
-
-          {/* Category 5: بخور وعطور */}
-          <button
-            type="button"
-            onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
-          >
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#92400e] via-[#d97706] to-[#fde68a] flex items-center justify-center shadow-md shadow-amber-700/20 group-hover:shadow-lg group-hover:shadow-amber-700/35 transition-all">
-              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-amber-50 flex items-center justify-center text-amber-700 border border-amber-200">
-                <i className="fa-solid fa-spray-can-sparkles text-xl sm:text-3xl"></i>
-              </div>
-            </div>
-            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-amber-700 transition text-center">
-              بخور وعطور
-            </span>
-            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+70 منتج</span>
-          </button>
-
-          {/* Category 6: حلويات ومخبوزات */}
-          <button
-            type="button"
-            onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
-          >
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#e11d48] via-[#f97316] to-[#fdba74] flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:shadow-lg group-hover:shadow-orange-500/35 transition-all">
-              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-rose-50 flex items-center justify-center text-[#ea580c] border border-orange-200">
-                <i className="fa-solid fa-cake-candles text-xl sm:text-3xl"></i>
-              </div>
-            </div>
-            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-orange-600 transition text-center">
-              حلويات ومخبوزات
-            </span>
-            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+60 منتج</span>
-          </button>
+              {/* Badge */}
+              <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium mt-0.5">
+                {cat.badge}
+              </span>
+            </button>
+          ))}
         </div>
       </section>
       {/* END: CategoriesSection */}

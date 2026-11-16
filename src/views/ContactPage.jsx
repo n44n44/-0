@@ -97,21 +97,21 @@ export default function ContactPage({ onNavigate }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Right Column: Direct Contact Channels & Cloud Card (5 cols) */}
           <div className="lg:col-span-5 flex flex-col gap-6 order-2 lg:order-1">
-            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden space-y-6">
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-8 shadow-sm relative space-y-6" style={{ isolation: 'isolate', contain: 'paint' }}>
               {/* Cloud Envelope Motif */}
               <div className="flex flex-col items-center text-center">
-                <div className="relative w-36 h-32 flex items-center justify-center mb-4">
-                  <div className="w-28 h-20 bg-blue-50 rounded-2xl border-2 border-blue-200/60 flex items-center justify-center shadow-inner relative">
-                    <Mail className="w-10 h-10 text-[#004ac6]" />
+                <div className="relative w-32 h-28 flex items-center justify-center mb-3">
+                  <div className="w-24 h-18 bg-blue-50/90 rounded-2xl border-2 border-blue-200/80 flex items-center justify-center shadow-sm relative">
+                    <Mail className="w-9 h-9 text-[#004ac6]" />
                     <div className="absolute -top-2 -right-2 bg-[#004ac6] text-white p-1 rounded-full shadow-md">
                       <Sparkles className="w-3.5 h-3.5" />
                     </div>
                   </div>
-                  <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-xl pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-radial from-blue-400/20 to-transparent rounded-full pointer-events-none"></div>
                 </div>
 
-                <h2 className="text-lg font-bold text-[#07132B]">قنوات التواصل المباشر</h2>
-                <p className="text-xs text-slate-500 mt-1">
+                <h2 className="text-base sm:text-lg font-black text-[#07132B]">قنوات التواصل المباشر</h2>
+                <p className="text-xs text-slate-500 mt-1 max-w-xs">
                   فريق دعم غيم سبيس جاهز لخدمتك والرد على جميع متطلباتك بسرعة واحترافية.
                 </p>
               </div>
@@ -121,14 +121,14 @@ export default function ContactPage({ onNavigate }) {
                 {/* Email */}
                 <a
                   href="mailto:info@ghaymspace.com"
-                  className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 hover:bg-blue-50/50 border border-transparent hover:border-blue-200 transition group"
+                  className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 hover:bg-blue-50/70 border border-slate-100 hover:border-blue-200 transition-colors group cursor-pointer block"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-white text-[#004ac6] flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-10 h-10 rounded-xl bg-white text-[#004ac6] flex items-center justify-center shadow-xs shrink-0 border border-slate-100">
                     <Mail className="w-5 h-5" />
                   </div>
-                  <div className="flex-1 text-right">
+                  <div className="flex-1 text-right min-w-0">
                     <span className="text-[11px] text-slate-400 block font-medium">البريد الإلكتروني الرسمي</span>
-                    <span className="text-xs font-bold text-[#07132B] font-mono group-hover:text-[#004ac6]">
+                    <span className="text-xs sm:text-sm font-bold text-[#07132B] truncate block group-hover:text-[#004ac6]">
                       info@ghaymspace.com
                     </span>
                   </div>
@@ -139,14 +139,14 @@ export default function ContactPage({ onNavigate }) {
                   href="https://wa.me/967773058707"
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 border border-transparent hover:border-emerald-200 transition group"
+                  className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-100 hover:border-emerald-200 transition-colors group cursor-pointer block"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-white text-emerald-600 flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-10 h-10 rounded-xl bg-white text-emerald-600 flex items-center justify-center shadow-xs shrink-0 border border-slate-100">
                     <MessageCircle className="w-5 h-5" />
                   </div>
-                  <div className="flex-1 text-right">
+                  <div className="flex-1 text-right min-w-0">
                     <span className="text-[11px] text-slate-400 block font-medium">خدمة العملاء والواتساب (حضرموت)</span>
-                    <span className="text-xs font-bold text-[#07132B] font-mono group-hover:text-emerald-700 dir-ltr inline-block">
+                    <span className="text-xs sm:text-sm font-bold text-[#07132B] group-hover:text-emerald-700 dir-ltr inline-block">
                       +967 773 058 707
                     </span>
                   </div>
@@ -155,27 +155,27 @@ export default function ContactPage({ onNavigate }) {
                 {/* Direct Phone Call */}
                 <a
                   href="tel:+967773058707"
-                  className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 hover:bg-sky-50/50 border border-transparent hover:border-sky-200 transition group"
+                  className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 hover:bg-sky-50/70 border border-slate-100 hover:border-sky-200 transition-colors group cursor-pointer block"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-white text-[#004ac6] flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-10 h-10 rounded-xl bg-white text-[#004ac6] flex items-center justify-center shadow-xs shrink-0 border border-slate-100">
                     <Phone className="w-5 h-5" />
                   </div>
-                  <div className="flex-1 text-right">
+                  <div className="flex-1 text-right min-w-0">
                     <span className="text-[11px] text-slate-400 block font-medium">رقم الاتصال المباشر للمنصة</span>
-                    <span className="text-xs font-bold text-[#07132B] font-mono group-hover:text-[#004ac6] dir-ltr inline-block">
+                    <span className="text-xs sm:text-sm font-bold text-[#07132B] group-hover:text-[#004ac6] dir-ltr inline-block">
                       773058707
                     </span>
                   </div>
                 </a>
 
                 {/* Working Hours */}
-                <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 border border-transparent">
-                  <div className="w-10 h-10 rounded-xl bg-white text-[#004ac6] flex items-center justify-center shadow-xs shrink-0">
+                <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                  <div className="w-10 h-10 rounded-xl bg-white text-[#004ac6] flex items-center justify-center shadow-xs shrink-0 border border-slate-100">
                     <Clock className="w-5 h-5" />
                   </div>
                   <div className="flex-1 text-right">
                     <span className="text-[11px] text-slate-400 block font-medium">أوقات العمل</span>
-                    <span className="text-xs font-bold text-[#07132B]">على مدار الساعة (24/7)</span>
+                    <span className="text-xs sm:text-sm font-bold text-[#07132B]">على مدار الساعة (24/7)</span>
                   </div>
                 </div>
               </div>

@@ -61,3 +61,35 @@
   -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 58%, rgba(0,0,0,0.8) 72%, transparent 92%);
   mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 58%, rgba(0,0,0,0.8) 72%, transparent 92%);
 }
+
+/* Fix mobile WebKit / Android Chrome GPU rasterization, trailing ghosts and tearing */
+@media (max-width: 768px) {
+  .anim-cloud-float-1,
+  .anim-cloud-float-2,
+  .cloud-float-slow,
+  .cloud-float-reverse {
+    animation: none !important;
+    transform: none !important;
+  }
+  .blur-3xl {
+    filter: blur(16px) !important;
+  }
+  .blur-2xl {
+    filter: blur(10px) !important;
+  }
+  .blur-xl {
+    filter: blur(6px) !important;
+  }
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.isolate-layer {
+  isolation: isolate;
+  contain: paint;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}

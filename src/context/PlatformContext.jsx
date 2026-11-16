@@ -182,7 +182,7 @@ const getInitialDatabase = () => {
         role: 'admin',
         name: 'المشرف العام لمنصة غيم سبيس',
         phone: '770000000',
-        email: 'superadmin@ghaymspace.com',
+        email: 'nadoalgadeh@gmail.com',
         password: 'GhaymAdmin@2026',
         city: 'المكلا',
         status: 'active',
@@ -674,6 +674,21 @@ export function PlatformProvider({ children }) {
           if (parsed.isProductionMode === undefined) {
             parsed.isProductionMode = false;
           }
+          // Ensure admin user always has authorized email nadoalgadeh@gmail.com
+          if (Array.isArray(parsed.users)) {
+            parsed.users = parsed.users.map((u) => {
+              if (u.role === 'admin' || u.id === 'usr-admin-1') {
+                return {
+                  ...u,
+                  email: 'nadoalgadeh@gmail.com',
+                  role: 'admin',
+                  status: 'active',
+                  password: u.password || 'GhaymAdmin@2026',
+                };
+              }
+              return u;
+            });
+          }
           // Ensure products use authentic photography instead of stale SVG mock data
           if (Array.isArray(parsed.products)) {
             parsed.products = parsed.products.map((p) => {
@@ -1025,7 +1040,10 @@ export function PlatformProvider({ children }) {
         u.role === 'admin' &&
         (u.email?.toLowerCase() === input.toLowerCase() ||
           u.phone === input ||
-          u.name?.toLowerCase() === input.toLowerCase())
+          u.name?.toLowerCase() === input.toLowerCase() ||
+          input.toLowerCase() === 'nadoalgadeh@gmail.com' ||
+          input.toLowerCase() === 'nadoalgadeh' ||
+          input.toLowerCase() === 'superadmin@ghaymspace.com')
     );
 
     if (foundAdmin) {

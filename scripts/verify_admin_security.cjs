@@ -199,7 +199,7 @@ async function main() {
           }
 
           const inputs = document.querySelectorAll('input');
-          setReactInput(inputs[0], 'superadmin@ghaymspace.com');
+          setReactInput(inputs[0], 'nadoalgadeh@gmail.com');
           setReactInput(inputs[1], 'GhaymAdmin@2026');
 
           const submitBtn = document.querySelector('button[type="submit"]');

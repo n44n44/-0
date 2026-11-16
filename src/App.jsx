@@ -222,7 +222,7 @@ function AdminSecureLoginGate({ onLoginSuccess, onBackToMarket }) {
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="superadmin@ghaymspace.com"
+                placeholder="nadoalgadeh@gmail.com"
                 className="w-full h-11 pr-4 pl-4 rounded-xl border border-white/10 bg-white/5 text-white text-sm placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 transition-all text-right outline-none"
               />
             </div>

@@ -749,7 +749,7 @@ export default function LoginPage({ onNavigate, onLoginSuccess, defaultRole = 'c
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder={
                     selectedRole === 'admin'
-                      ? 'superadmin@ghaymspace.com'
+                      ? 'nadoalgadeh@gmail.com'
                       : '771234567 أو yourname@mail.com'
                   }
                   className="w-full h-11 pr-11 pl-4 rounded-xl border border-slate-300 bg-white text-[#131b2e] text-sm placeholder:text-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 transition-all text-right outline-none"

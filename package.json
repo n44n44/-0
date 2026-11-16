@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node -e \"require('fs').copyFileSync('template.html','index.html')\" && vite",
     "build": "node scripts/build.cjs",
     "preview": "vite preview"
   },

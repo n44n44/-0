@@ -27,6 +27,7 @@ import CustomerProfileModal from './components/CustomerProfileModal';
 import PlatformReviewModal from './components/PlatformReviewModal';
 import SupabaseModal from './components/SupabaseModal';
 import Toast from './components/Toast';
+import LandscapeOrientationEnforcer from './components/LandscapeOrientationEnforcer';
 
 import { PlatformProvider, usePlatform } from './context/PlatformContext';
 
@@ -223,23 +224,6 @@ function AppContent() {
     <div className="min-h-screen bg-[#F8FAFC] text-[#07132B] flex flex-col font-sans" dir="rtl">
 
 
-      {/* Floating Platform Rating Controls */}
-      <div className="fixed bottom-5 left-5 z-40 flex items-center gap-2.5">
-        {currentPortal === 'marketplace' && (
-          <button
-            onClick={() => setIsReviewModalOpen(true)}
-            className="px-4 py-2.5 rounded-full bg-gradient-to-r from-[#07132B] to-[#122245] hover:brightness-110 text-white border border-[#EAB839]/40 shadow-2xl backdrop-blur-md text-xs font-bold flex items-center gap-2 transition hover:scale-105 active:scale-95 group"
-            title="تقييمات وآراء العملاء في منصة غيم سبيس"
-          >
-            <span className="text-amber-400 group-hover:rotate-12 transition-transform">⭐</span>
-            <span>تقييم المنصة</span>
-            <span className="px-2 py-0.5 rounded-full bg-[#EAB839] text-[#07132B] text-[10px] font-black">
-              4.9
-            </span>
-          </button>
-        )}
-      </div>
-
       {/* 2. RENDER THE ACTIVE PORTAL */}
 
       {/* PORTAL 1: CUSTOMER MARKETPLACE */}
@@ -259,6 +243,7 @@ function AppContent() {
             customerUser={customerUser}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
             onOpenProfileModal={() => setIsProfileModalOpen(true)}
+            onOpenReview={() => setIsReviewModalOpen(true)}
           />
 
           <main className="flex-1">
@@ -390,7 +375,10 @@ function AppContent() {
             )}
           </main>
 
-          <Footer onNavigate={(nav) => setCurrentMarketView(nav)} />
+          <Footer
+            onNavigate={(nav) => setCurrentMarketView(nav)}
+            onOpenReview={() => setIsReviewModalOpen(true)}
+          />
         </div>
       )}
 
@@ -549,6 +537,9 @@ function AppContent() {
           if (setContextToastMessage) setContextToastMessage(null);
         }}
       />
+
+      {/* Landscape Orientation Enforcer (Forces horizontal display on mobile) */}
+      <LandscapeOrientationEnforcer />
     </div>
   );
 }

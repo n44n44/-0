@@ -137,31 +137,31 @@ export default function OrderTrackingPage({ order = SAMPLE_ORDERS[0], onNavigate
                 ></div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 relative z-10">
+              <div className="flex sm:grid sm:grid-cols-5 gap-3 sm:gap-4 overflow-x-auto custom-scroll-hidden pb-2 sm:pb-0 relative z-10 snap-x-mandatory">
                 {steps.map((st, idx) => {
                   const isDone = idx <= currentStep;
                   const isCurrent = idx === currentStep;
                   return (
-                    <div key={st.title} className="flex sm:flex-col items-center gap-3 sm:text-center">
+                    <div key={st.title} className="shrink-0 snap-start flex flex-col items-center text-center min-w-[90px] sm:min-w-0 gap-2">
                       <div
-                        className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xs shrink-0 transition-all duration-300 shadow-sm ${
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center font-bold text-xs shrink-0 transition-all duration-300 shadow-sm ${
                           isDone
                             ? 'bg-[#172A46] text-[#54B9F2] border-2 border-[#54B9F2]'
                             : 'bg-slate-100 text-slate-400 border border-slate-200'
                         } ${isCurrent ? 'ring-4 ring-sky-300/40 scale-110' : ''}`}
                       >
-                        {isDone ? <CheckCircle2 className="w-5 h-5 text-[#54B9F2]" /> : idx + 1}
+                        {isDone ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#54B9F2]" /> : idx + 1}
                       </div>
 
                       <div>
                         <h4
-                          className={`text-xs font-bold leading-tight ${
+                          className={`text-[11px] sm:text-xs font-bold leading-tight ${
                             isDone ? 'text-[#172A46]' : 'text-slate-400'
                           }`}
                         >
                           {st.title}
                         </h4>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">{st.time}</span>
+                        <span className="text-[9px] sm:text-[10px] text-slate-400 block mt-0.5">{st.time}</span>
                       </div>
                     </div>
                   );

@@ -11,7 +11,7 @@ import {
 
 const STITCH_LOGO_URL = 'https://lh3.googleusercontent.com/aida-public/AB6AXuC0kTwyrOgVt1UikZzjl_8adoPbACflThuS0OAMs1NBAxfhdj0d6U5zy__p3zH1LwwSEoGCf-TrnUeEI9e7ofTlwvzBEkjkRq7dWVa2VM8YYzl6qDAYySLO14czo6P79cFjMAhBjFyf9NEde5r2LsURP2LZTDBAFNk7WWjYNfTnw_OMambwfjlKjSD-giwosQLJIjXhF6XEZHmA2tjH6DDME6VgOoNX5agZVPKSTOwWd7WRKHY8-450';
 
-export default function Footer({ onNavigate }) {
+export default function Footer({ onNavigate, onOpenReview }) {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -86,10 +86,10 @@ export default function Footer({ onNavigate }) {
 
         {/* 3. Main Footer Interactive Content Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-6 items-center justify-between">
+          <div className="grid grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-6 items-start justify-between">
             
             {/* COLUMN 1 (Far Right in RTL): Newsletter Capsule Subscription */}
-            <div className="lg:col-span-4 space-y-4 text-right order-1">
+            <div className="col-span-2 lg:col-span-4 space-y-4 text-right order-1">
               <div className="flex items-center justify-start gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-sky-400 shrink-0 shadow-sm">
                   <Mail className="w-4 h-4 text-sky-300" />
@@ -138,7 +138,7 @@ export default function Footer({ onNavigate }) {
             </div>
 
             {/* COLUMN 2 (Center-Right in RTL): Customer Service */}
-            <div className="lg:col-span-2 space-y-3 text-right order-2">
+            <div className="col-span-1 lg:col-span-2 space-y-3 text-right order-2">
               <h3 className="text-base font-bold text-white tracking-wide mb-3 flex items-center gap-1.5">
                 <span>خدمة العملاء</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
@@ -194,7 +194,7 @@ export default function Footer({ onNavigate }) {
             </div>
 
             {/* COLUMN 3 (Center-Left in RTL): Quick Links */}
-            <div className="lg:col-span-2 space-y-3 text-right order-3">
+            <div className="col-span-1 lg:col-span-2 space-y-3 text-right order-3">
               <h3 className="text-base font-bold text-white tracking-wide mb-3 flex items-center gap-1.5">
                 <span>روابط سريعة</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
@@ -236,7 +236,7 @@ export default function Footer({ onNavigate }) {
             </div>
 
             {/* COLUMN 4 (Far Left in RTL): Logo & Social Links */}
-            <div className="lg:col-span-4 space-y-4 text-right order-4">
+            <div className="col-span-2 lg:col-span-4 space-y-4 text-right order-4">
               {/* Brand Logo & Slogan */}
               <button
                 type="button"
@@ -324,10 +324,29 @@ export default function Footer({ onNavigate }) {
             </div>
           </div>
 
-          {/* 4. Bottom Horizontal Divider & Copyright Bar */}
-          <div className="mt-10 pt-5 border-t border-white/10 flex items-center justify-center text-xs text-sky-200/80 text-center gap-1.5 font-medium">
-            <span>جميع الحقوق محفوظة .2026 Ghaym Space</span>
-            <span className="text-sky-400">☁️</span>
+          {/* 4. Platform Rating & Copyright Bar (Static, Non-overlapping position) */}
+          <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => onOpenReview && onOpenReview()}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white border border-[#EAB839]/40 shadow-lg text-xs font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                title="تقييمات وآراء العملاء في منصة غيم سبيس"
+              >
+                <span className="text-amber-400">⭐</span>
+                <span>تقييم المنصة</span>
+                <span className="px-2 py-0.5 rounded-full bg-[#EAB839] text-[#07132B] text-[10px] font-black">
+                  4.9
+                </span>
+                <span className="text-[10px] text-slate-300 font-normal">(1,480+ تقييم)</span>
+              </button>
+              <span className="text-xs text-sky-200/80 hidden sm:inline">شاركنا تجربتك في منصة غيم سبيس ✨</span>
+            </div>
+            
+            <div className="text-xs text-sky-200/80 text-center font-medium">
+              <span>جميع الحقوق محفوظة .2026 Ghaym Space</span>
+              <span className="text-sky-400 mr-1.5">☁️</span>
+            </div>
           </div>
         </div>
       </div>

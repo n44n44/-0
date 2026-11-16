@@ -410,77 +410,77 @@ export default function AllStoresPage({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
           {sortedStores.map((st) => (
             <div
               key={st.id}
               className="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group hover:-translate-y-1"
             >
               {/* Card Header with Badges */}
-              <div className={`h-20 ${st.headerBg} relative p-3 flex items-start justify-between border-b border-outline-variant/40`}>
+              <div className={`h-16 sm:h-20 ${st.headerBg} relative p-2 sm:p-3 flex items-start justify-between border-b border-outline-variant/40`}>
                 <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
-                  <div className="font-display-hero text-6xl font-bold tracking-widest text-slate-800 opacity-10 select-none scale-150 blur-[0.5px]">
+                  <div className="font-display-hero text-4xl sm:text-6xl font-bold tracking-widest text-slate-800 opacity-10 select-none scale-150 blur-[0.5px]">
                     {st.englishName.toUpperCase()}
                   </div>
                 </div>
 
-                <span className={`${st.badgeClass} text-[11px] font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm border border-outline-variant/40`}>
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  <span>{st.badge}</span>
+                <span className={`${st.badgeClass} text-[9px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm border border-outline-variant/40`}>
+                  <Sparkles className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-amber-500" />
+                  <span className="truncate max-w-[75px] sm:max-w-none">{st.badge}</span>
                 </span>
 
                 <button
                   type="button"
-                  className="w-8 h-8 rounded-full bg-white/80 hover:bg-white text-on-surface-variant hover:text-red-500 flex items-center justify-center transition-colors shadow-sm cursor-pointer"
+                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/80 hover:bg-white text-on-surface-variant hover:text-red-500 flex items-center justify-center transition-colors shadow-sm cursor-pointer"
                   title="إضافة للمفضلة"
                 >
-                  <Heart className="w-4 h-4 text-slate-400 hover:text-red-500" />
+                  <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 hover:text-red-500" />
                 </button>
               </div>
 
               {/* Card Content Body */}
-              <div className="px-5 pt-0 pb-5 flex-1 flex flex-col items-center text-center -mt-10">
+              <div className="px-2.5 sm:px-5 pt-0 pb-3 sm:pb-5 flex-1 flex flex-col items-center text-center -mt-7 sm:-mt-10">
                 {/* Store Avatar */}
-                <div className={`w-20 h-20 rounded-full ${st.avatarBg || 'bg-white'} border-4 border-white shadow-md flex flex-col items-center justify-center p-2 mb-3 ring-2 ring-primary/10 relative z-10 shrink-0 overflow-hidden`}>
+                <div className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full ${st.avatarBg || 'bg-white'} border-2 sm:border-4 border-white shadow-md flex flex-col items-center justify-center p-1 sm:p-2 mb-2 sm:mb-3 ring-2 ring-primary/10 relative z-10 shrink-0 overflow-hidden`}>
                   {st.avatar ? (
                     <img src={st.avatar} alt={st.name} className="w-full h-full object-contain rounded-full" />
                   ) : (
-                    <span className={`text-[11px] font-black ${st.avatarTextColor} tracking-tight text-center leading-tight`}>
+                    <span className={`text-[9px] sm:text-[11px] font-black ${st.avatarTextColor} tracking-tight text-center leading-tight`}>
                       {st.avatarText}
                     </span>
                   )}
                 </div>
 
                 {/* Name & Verified Badge */}
-                <div className="flex items-center gap-1.5 mb-1">
-                  <h2 className="text-headline-md font-headline-md font-bold text-on-surface">
+                <div className="flex items-center justify-center gap-1 mb-1 w-full">
+                  <h2 className="text-xs sm:text-base font-bold text-on-surface line-clamp-1">
                     {st.name}
                   </h2>
                   {st.isVerified && (
-                    <ShieldCheck className="w-4 h-4 text-blue-600" title="متجر موثق" />
+                    <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 shrink-0" title="متجر موثق" />
                   )}
                 </div>
 
-                <p className="text-body-sm font-body-sm text-on-surface-variant line-clamp-1 mb-2">
+                <p className="text-[10px] sm:text-xs text-on-surface-variant line-clamp-1 mb-2">
                   {st.description}
                 </p>
 
                 {/* Stats Bar */}
-                <div className="flex items-center justify-center gap-3 text-body-sm font-body-sm mb-4 bg-surface-container-low/70 w-full py-1.5 rounded-xl border border-outline-variant/40">
-                  <div className="flex items-center gap-1 text-amber-500 font-bold">
-                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <div className="flex items-center justify-center gap-1.5 sm:gap-3 text-[10px] sm:text-xs mb-3 bg-surface-container-low/70 w-full py-1 sm:py-1.5 rounded-xl border border-outline-variant/40">
+                  <div className="flex items-center gap-0.5 sm:gap-1 text-amber-500 font-bold">
+                    <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-amber-400 text-amber-400" />
                     <span>{st.rating}</span>
-                    <span className="text-outline text-label-sm font-label-sm">({st.reviewsCount})</span>
+                    <span className="text-outline text-[9px] sm:text-xs">({st.reviewsCount})</span>
                   </div>
                   <span className="text-outline-variant">|</span>
-                  <div className="text-on-surface-variant flex items-center gap-1 text-label-sm font-label-sm">
-                    <Package className="w-3.5 h-3.5 text-blue-600" />
-                    <span>{st.productsCount} منتج</span>
+                  <div className="text-on-surface-variant flex items-center gap-0.5 sm:gap-1 text-[9px] sm:text-xs">
+                    <Package className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
+                    <span>{st.productsCount}</span>
                   </div>
                 </div>
 
-                {/* Product Tags */}
-                <div className="flex flex-wrap justify-center gap-1.5 mb-5 w-full">
+                {/* Product Tags (Desktop & Tablet) */}
+                <div className="hidden sm:flex flex-wrap justify-center gap-1.5 mb-5 w-full">
                   {st.tags.map((tag, idx) => (
                     <span
                       key={idx}
@@ -496,10 +496,10 @@ export default function AllStoresPage({
                   <button
                     type="button"
                     onClick={() => handleStoreClick(st)}
-                    className="w-full bg-primary-container hover:bg-primary text-white py-2.5 rounded-xl font-semibold text-label-md font-label-md flex items-center justify-center gap-2 shadow-sm transition-all duration-200 active:scale-98 cursor-pointer"
+                    className="w-full bg-[#07132B] hover:bg-[#122245] text-white py-1.5 sm:py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all duration-200 active:scale-98 cursor-pointer"
                   >
                     <span>زيارة المتجر</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>

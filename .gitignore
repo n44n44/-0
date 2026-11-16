@@ -4,6 +4,7 @@
 
 # Temporary files
 .snap_temp_f/
+*_proof.png
 
 logs
 *.log

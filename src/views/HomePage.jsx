@@ -108,10 +108,13 @@ export default function HomePage({
   ];
 
   return (
-    <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-10" dir="rtl">
+    <div className="flex-grow w-full max-w-7xl xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10" dir="rtl">
       
-      {/* BEGIN: HeroBannerSection with Seamless Blended Logo */}
-      <section className="relative rounded-3xl bg-gradient-to-l from-[#07132b] via-[#0d2046] to-[#07132b] text-white p-6 sm:p-10 overflow-hidden shadow-xl border border-[#1b3160]" id="hero-banner">
+      {/* BEGIN: HeroBannerSection (Mobile: Compact Horizontal, Desktop: 16:5 Wide Ratio) */}
+      <section
+        className="relative rounded-2xl sm:rounded-3xl bg-gradient-to-l from-[#07132b] via-[#0d2046] to-[#07132b] text-white p-3.5 sm:p-6 md:p-8 lg:p-10 overflow-hidden shadow-xl border border-[#1b3160] w-full min-h-[140px] sm:min-h-[220px] md:min-h-[340px] lg:aspect-[16/5] flex items-center"
+        id="hero-banner"
+      >
         {/* Volumetric Background Cloud Auras */}
         <div className="parallax-layer absolute -top-16 -left-16 w-80 h-80 bg-gradient-to-br from-sky-400/25 to-blue-600/10 rounded-full blur-3xl pointer-events-none anim-cloud-glow"></div>
         <div className="parallax-layer absolute top-1/2 -right-20 w-96 h-80 bg-gradient-to-tl from-indigo-500/20 via-sky-300/15 to-transparent rounded-full blur-3xl pointer-events-none anim-cloud-float-2"></div>
@@ -125,67 +128,67 @@ export default function HomePage({
         <button
           type="button"
           aria-label="السابق"
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center backdrop-blur-md border border-white/20 shadow-md transition z-20 cursor-pointer"
+          className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/15 hover:bg-white/25 text-white items-center justify-center backdrop-blur-md border border-white/20 shadow-md transition z-20 cursor-pointer"
         >
-          <i className="fa-solid fa-chevron-right text-sm"></i>
+          <i className="fa-solid fa-chevron-right text-xs sm:text-sm"></i>
         </button>
         <button
           type="button"
           aria-label="التالي"
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center backdrop-blur-md border border-white/20 shadow-md transition z-20 cursor-pointer"
+          className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/15 hover:bg-white/25 text-white items-center justify-center backdrop-blur-md border border-white/20 shadow-md transition z-20 cursor-pointer"
         >
-          <i className="fa-solid fa-chevron-left text-sm"></i>
+          <i className="fa-solid fa-chevron-left text-xs sm:text-sm"></i>
         </button>
 
-        {/* Banner Content Grid */}
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10 px-4 sm:px-6">
+        {/* Banner Content: Balanced Horizontal Layout (Text on Right in RTL, Cloud Logo on Left) */}
+        <div className="w-full flex flex-row items-center justify-between gap-3 sm:gap-6 md:gap-8 relative z-10">
           
-          {/* Cloud Logo Seamlessly Blended into Banner */}
-          <div className="md:col-span-5 flex justify-center order-2 md:order-1 relative">
-            <div className="absolute inset-0 bg-sky-400/30 rounded-full blur-3xl scale-125 pointer-events-none anim-cloud-glow"></div>
-            <div className="relative w-64 h-52 sm:w-80 sm:h-64 flex items-center justify-center anim-cloud-float-1">
-              <img
-                alt="شعار غيم سبيس السحابي"
-                className="w-full h-full object-contain blend-hero-logo drop-shadow-[0_15px_30px_rgba(56,189,248,0.4)]"
-                src={STITCH_LOGO_URL}
-              />
-            </div>
-          </div>
-
-          {/* Headline & CTA */}
-          <div className="md:col-span-7 text-center md:text-right space-y-4 order-1 md:order-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs text-sky-200 font-semibold mb-1 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+          {/* Right Side: Headline & CTA (First in RTL reading order) */}
+          <div className="flex-1 text-right space-y-1.5 sm:space-y-3 md:space-y-4">
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[10px] sm:text-xs text-sky-200 font-semibold shadow-sm">
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-sky-400 animate-ping"></span>
               <span>• مهرجان الإبداع الحضرمي •</span>
             </div>
             
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-snug drop-shadow-md">
+            <h1 className="text-sm sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extrabold tracking-tight leading-snug drop-shadow-md">
               عروض غيم سبيس -
-              <span className="block text-2xl sm:text-3xl lg:text-4xl text-sky-300 font-bold mt-1">
+              <span className="block text-xs sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-sky-300 font-bold mt-0.5">
                 لدعم الحرفيين والأسر المنتجة
               </span>
             </h1>
 
-            <p className="text-base sm:text-lg text-gray-200 font-medium max-w-xl leading-relaxed">
+            <p className="text-[10px] sm:text-xs md:text-base text-gray-200 font-medium max-w-xl md:max-w-2xl leading-relaxed hidden sm:block">
               اكتشف إبداع المكلا.. منتجات مصنوعة بكل حب وحرفية بأيادٍ محلية مبدعة وبخصومات تصل إلى 50%
             </p>
 
-            <div className="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
+            <div className="pt-1 sm:pt-2 flex flex-row items-center gap-2 sm:gap-3 justify-start">
               <button
                 type="button"
                 onClick={() => onNavigate && onNavigate('products')}
-                className="inline-flex items-center gap-2 bg-[#eab839] hover:bg-[#d9a72b] text-[#07132b] font-bold px-8 py-3 rounded-full text-base shadow-lg transition-transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                className="inline-flex items-center gap-1 sm:gap-2 bg-[#eab839] hover:bg-[#d9a72b] text-[#07132b] font-bold px-3 sm:px-6 py-1.5 sm:py-2.5 rounded-full text-[11px] sm:text-sm lg:text-base shadow-md transition-transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer whitespace-nowrap"
               >
-                <span>تسوق العروض الآن</span>
-                <span className="text-lg">✨</span>
+                <span>تسوق العروض</span>
+                <span className="text-xs sm:text-sm">✨</span>
               </button>
               <button
                 type="button"
                 onClick={() => onNavigate && onNavigate('categories')}
-                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-full text-base backdrop-blur-sm border border-white/20 transition cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-xs sm:text-sm lg:text-base backdrop-blur-sm border border-white/20 transition cursor-pointer whitespace-nowrap"
               >
                 <span>تصفح الأقسام</span>
               </button>
+            </div>
+          </div>
+
+          {/* Left Side: Cloud Logo Graphic Seamlessly Blended */}
+          <div className="w-24 sm:w-44 md:w-5/12 lg:w-1/3 shrink-0 flex justify-center items-center relative">
+            <div className="absolute inset-0 bg-sky-400/25 rounded-full blur-2xl sm:blur-3xl scale-110 pointer-events-none anim-cloud-glow"></div>
+            <div className="relative w-24 h-20 sm:w-40 sm:h-32 md:w-full md:max-w-[320px] lg:max-w-[380px] md:h-52 lg:h-64 flex items-center justify-center anim-cloud-float-1">
+              <img
+                alt="شعار غيم سبيس السحابي"
+                className="w-full h-full object-contain blend-hero-logo drop-shadow-[0_10px_20px_rgba(56,189,248,0.4)]"
+                src={STITCH_LOGO_URL}
+              />
             </div>
           </div>
 
@@ -195,139 +198,139 @@ export default function HomePage({
 
       {/* BEGIN: CategoriesSection */}
       <section className="relative" data-purpose="categories-slider">
-        <div className="flex items-center justify-between mb-4" id="categories">
+        <div className="flex items-center justify-between mb-3 sm:mb-4" id="categories">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">تصنيفات المنتجات</h2>
-            <p className="text-xs text-gray-500 mt-0.5">اختر القسم وتصفح إبداعات الحرفيين والأسر</p>
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">تصنيفات المنتجات</h2>
+            <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">اسحب وتصفح إبداعات الحرفيين والأسر</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               aria-label="السابق"
-              className="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 text-gray-600 hover:text-sky-600 hover:border-sky-300 flex items-center justify-center transition cursor-pointer"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 text-gray-600 hover:text-sky-600 hover:border-sky-300 flex items-center justify-center transition cursor-pointer"
             >
               <i className="fa-solid fa-chevron-right text-xs"></i>
             </button>
             <button
               type="button"
               aria-label="التالي"
-              className="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 text-gray-600 hover:text-sky-600 hover:border-sky-300 flex items-center justify-center transition cursor-pointer"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 text-gray-600 hover:text-sky-600 hover:border-sky-300 flex items-center justify-center transition cursor-pointer"
             >
               <i className="fa-solid fa-chevron-left text-xs"></i>
             </button>
           </div>
         </div>
 
-        <div className="w-full flex items-center justify-between gap-4 sm:gap-6 overflow-x-auto py-4 px-2 custom-scroll-hidden">
+        <div className="w-full flex items-center gap-3 sm:gap-6 overflow-x-auto py-3 px-1 custom-scroll-hidden snap-x-mandatory">
           {/* Category 1: ديكور وهدايا */}
           <button
             type="button"
             onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
+            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
           >
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-200 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-lg group-hover:shadow-amber-500/35 transition-all">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-200">
-                <i className="fa-solid fa-gift text-2xl sm:text-3xl"></i>
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-200 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-lg group-hover:shadow-amber-500/35 transition-all">
+              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-200">
+                <i className="fa-solid fa-gift text-xl sm:text-3xl"></i>
               </div>
             </div>
-            <span className="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-amber-600 transition text-center">
+            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-amber-600 transition text-center">
               ديكور وهدايا
             </span>
-            <span className="text-[11px] text-gray-400 font-medium">+120 منتج</span>
+            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+120 منتج</span>
           </button>
 
           {/* Category 2: صناعات يدوية */}
           <button
             type="button"
             onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
+            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
           >
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#8a5a36] via-[#b37a4c] to-[#deb887] flex items-center justify-center shadow-md shadow-[#8a5a36]/20 group-hover:shadow-lg group-hover:shadow-[#8a5a36]/35 transition-all">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#fbf7f4] flex items-center justify-center text-[#8a5a36] border border-[#ebdace]">
-                <i className="fa-solid fa-basket-shopping text-2xl sm:text-3xl"></i>
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#8a5a36] via-[#b37a4c] to-[#deb887] flex items-center justify-center shadow-md shadow-[#8a5a36]/20 group-hover:shadow-lg group-hover:shadow-[#8a5a36]/35 transition-all">
+              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-[#fbf7f4] flex items-center justify-center text-[#8a5a36] border border-[#ebdace]">
+                <i className="fa-solid fa-basket-shopping text-xl sm:text-3xl"></i>
               </div>
             </div>
-            <span className="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-[#8a5a36] transition text-center">
+            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-[#8a5a36] transition text-center">
               صناعات يدوية
             </span>
-            <span className="text-[11px] text-gray-400 font-medium">+85 منتج</span>
+            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+85 منتج</span>
           </button>
 
           {/* Category 3: ملابس وأزياء */}
           <button
             type="button"
             onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
+            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
           >
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#163168] via-sky-500 to-sky-200 flex items-center justify-center shadow-md shadow-sky-600/20 group-hover:shadow-lg group-hover:shadow-sky-600/35 transition-all">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-sky-50 flex items-center justify-center text-sky-600 border border-sky-200">
-                <i className="fa-solid fa-shirt text-2xl sm:text-3xl"></i>
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#163168] via-sky-500 to-sky-200 flex items-center justify-center shadow-md shadow-sky-600/20 group-hover:shadow-lg group-hover:shadow-sky-600/35 transition-all">
+              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-sky-50 flex items-center justify-center text-sky-600 border border-sky-200">
+                <i className="fa-solid fa-shirt text-xl sm:text-3xl"></i>
               </div>
             </div>
-            <span className="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-sky-600 transition text-center">
+            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-sky-600 transition text-center">
               ملابس وأزياء
             </span>
-            <span className="text-[11px] text-gray-400 font-medium">+140 منتج</span>
+            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+140 منتج</span>
           </button>
 
           {/* Category 4: أسر منتجة */}
           <button
             type="button"
             onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
+            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
           >
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#581c87] via-[#8b5cf6] to-[#d8b4fe] flex items-center justify-center shadow-md shadow-purple-600/20 group-hover:shadow-lg group-hover:shadow-purple-600/35 transition-all">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-purple-50 flex items-center justify-center text-[#7c3aed] border border-purple-200">
-                <i className="fa-solid fa-kitchen-set text-2xl sm:text-3xl"></i>
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#581c87] via-[#8b5cf6] to-[#d8b4fe] flex items-center justify-center shadow-md shadow-purple-600/20 group-hover:shadow-lg group-hover:shadow-purple-600/35 transition-all">
+              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-purple-50 flex items-center justify-center text-[#7c3aed] border border-purple-200">
+                <i className="fa-solid fa-kitchen-set text-xl sm:text-3xl"></i>
               </div>
             </div>
-            <span className="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-purple-600 transition text-center">
+            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-purple-600 transition text-center">
               أسر منتجة
             </span>
-            <span className="text-[11px] text-gray-400 font-medium">+95 منتج</span>
+            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+95 منتج</span>
           </button>
 
           {/* Category 5: بخور وعطور */}
           <button
             type="button"
             onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
+            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
           >
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#92400e] via-[#d97706] to-[#fde68a] flex items-center justify-center shadow-md shadow-amber-700/20 group-hover:shadow-lg group-hover:shadow-amber-700/35 transition-all">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-amber-50 flex items-center justify-center text-amber-700 border border-amber-200">
-                <i className="fa-solid fa-spray-can-sparkles text-2xl sm:text-3xl"></i>
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#92400e] via-[#d97706] to-[#fde68a] flex items-center justify-center shadow-md shadow-amber-700/20 group-hover:shadow-lg group-hover:shadow-amber-700/35 transition-all">
+              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-amber-50 flex items-center justify-center text-amber-700 border border-amber-200">
+                <i className="fa-solid fa-spray-can-sparkles text-xl sm:text-3xl"></i>
               </div>
             </div>
-            <span className="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-amber-700 transition text-center">
+            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-amber-700 transition text-center">
               بخور وعطور
             </span>
-            <span className="text-[11px] text-gray-400 font-medium">+70 منتج</span>
+            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+70 منتج</span>
           </button>
 
           {/* Category 6: حلويات ومخبوزات */}
           <button
             type="button"
             onClick={() => onNavigate && onNavigate('products')}
-            className="flex flex-col items-center group shrink-0 min-w-[105px] transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
+            className="flex flex-col items-center group shrink-0 min-w-[80px] sm:min-w-[105px] snap-start transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
           >
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#e11d48] via-[#f97316] to-[#fdba74] flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:shadow-lg group-hover:shadow-orange-500/35 transition-all">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-rose-50 flex items-center justify-center text-[#ea580c] border border-orange-200">
-                <i className="fa-solid fa-cake-candles text-2xl sm:text-3xl"></i>
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#e11d48] via-[#f97316] to-[#fdba74] flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:shadow-lg group-hover:shadow-orange-500/35 transition-all">
+              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-rose-50 flex items-center justify-center text-[#ea580c] border border-orange-200">
+                <i className="fa-solid fa-cake-candles text-xl sm:text-3xl"></i>
               </div>
             </div>
-            <span className="mt-3 text-xs sm:text-sm font-bold text-gray-800 group-hover:text-orange-600 transition text-center">
+            <span className="mt-2 sm:mt-3 text-[11px] sm:text-sm font-bold text-gray-800 group-hover:text-orange-600 transition text-center">
               حلويات ومخبوزات
             </span>
-            <span className="text-[11px] text-gray-400 font-medium">+60 منتج</span>
+            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">+60 منتج</span>
           </button>
         </div>
       </section>
       {/* END: CategoriesSection */}
 
       {/* BEGIN: FeaturedStoresSection */}
-      <section className="space-y-4" data-purpose="featured-stores">
+      <section className="space-y-3 sm:space-y-4" data-purpose="featured-stores">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">المتاجر المميزة لهذا الأسبوع</h2>
+          <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">المتاجر المميزة لهذا الأسبوع</h2>
           <button
             type="button"
             onClick={() => onNavigate && onNavigate('stores')}
@@ -337,15 +340,23 @@ export default function HomePage({
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* 
+          Desktop (md / lg): 4 store cards in ONE horizontal row (grid-cols-4)
+          Mobile: Single horizontal row with smooth left/right swipe (w-[165px] allows next store to peek)
+        */}
+        <div
+          id="featured-stores-carousel"
+          data-purpose="featured-stores-carousel"
+          className="flex md:grid md:grid-cols-4 gap-3 sm:gap-5 overflow-x-auto md:overflow-visible pb-3 md:pb-0 snap-x-mandatory no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0"
+        >
           {featuredStores.map((store) => (
             <div
               key={store.id}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-4 hover:shadow-lg transition duration-300 group"
+              className="shrink-0 w-[165px] sm:w-[210px] md:w-auto bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col items-center text-center p-2.5 sm:p-4 hover:shadow-lg transition duration-300 group snap-start"
             >
-              {/* Store Cover with Avatar Overlap - Fixed: Removed overflow-hidden from parent to prevent avatar clipping */}
-              <div className="relative w-full mb-8">
-                <div className="w-full h-36 rounded-xl overflow-hidden shadow-inner relative">
+              {/* Store Cover with Avatar Overlap */}
+              <div className="relative w-full mb-5 sm:mb-8">
+                <div className="w-full h-24 sm:h-36 rounded-xl overflow-hidden shadow-inner relative">
                   <img
                     alt={store.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
@@ -354,42 +365,42 @@ export default function HomePage({
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10"></div>
                 </div>
                 
-                {/* Store Profile Image Overlap - Fully Visible without clipping */}
-                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-2 border-white shadow-lg bg-[#07132b] flex items-center justify-center overflow-hidden p-1 z-20">
+                {/* Store Profile Image Overlap */}
+                <div className="absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-16 sm:h-16 rounded-full border-2 border-white shadow-md bg-[#07132b] flex items-center justify-center overflow-hidden p-0.5 sm:p-1 z-20">
                   {store.avatar ? (
                     <img alt={store.name} className="w-full h-full object-contain rounded-full" src={store.avatar} />
                   ) : store.avatarType === 'logo' ? (
                     <img alt={store.name} className="w-full h-full object-contain filter drop-shadow" src={STITCH_LOGO_URL} />
                   ) : store.avatarType === 'burner' ? (
-                    <div className="w-full h-full bg-[#2b1810] flex items-center justify-center text-amber-300 font-bold text-xs rounded-full">
-                      <i className="fa-solid fa-fire-burner text-lg text-amber-400"></i>
+                    <div className="w-full h-full bg-[#2b1810] flex items-center justify-center text-amber-300 font-bold text-[10px] sm:text-xs rounded-full">
+                      <i className="fa-solid fa-fire-burner text-xs sm:text-lg text-amber-400"></i>
                     </div>
                   ) : store.avatarType === 'jaziza' ? (
-                    <div className="w-full h-full bg-black flex items-center justify-center text-amber-300 font-black text-[10px] tracking-wider rounded-full px-1">
+                    <div className="w-full h-full bg-black flex items-center justify-center text-amber-300 font-black text-[8px] sm:text-[10px] tracking-wider rounded-full px-0.5">
                       JAZIZA
                     </div>
                   ) : store.avatarType === 'samar' ? (
-                    <div className="w-full h-full bg-[#1a1412] flex items-center justify-center text-amber-200 font-black text-[10px] tracking-wider rounded-full px-1">
+                    <div className="w-full h-full bg-[#1a1412] flex items-center justify-center text-amber-200 font-black text-[8px] sm:text-[10px] tracking-wider rounded-full px-0.5">
                       SAMAR
                     </div>
                   ) : (
                     <div className="w-full h-full bg-sky-900 flex items-center justify-center text-white font-bold text-xs rounded-full">
-                      <i className="fa-solid fa-store text-sky-300 text-sm"></i>
+                      <i className="fa-solid fa-store text-sky-300 text-xs sm:text-sm"></i>
                     </div>
                   )}
                 </div>
               </div>
 
-              <h3 className="text-sm font-bold text-gray-900 group-hover:text-sky-700 transition">
+              <h3 className="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-sky-700 transition line-clamp-1 w-full">
                 {store.name}
               </h3>
               
-              <div className="flex items-center gap-2 mt-1.5 mb-4">
-                <span className="flex items-center text-amber-500 text-xs font-bold gap-1">
-                  <i className="fa-solid fa-star text-[11px]"></i> {store.rating}
+              <div className="flex items-center justify-center gap-1 sm:gap-2 mt-1 mb-2 sm:mb-4">
+                <span className="flex items-center text-amber-500 text-[10px] sm:text-xs font-bold gap-0.5">
+                  <i className="fa-solid fa-star text-[9px] sm:text-[11px]"></i> {store.rating}
                 </span>
-                <span className="bg-sky-500 text-white text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-                  <i className="fa-solid fa-check text-[9px]"></i> موثق
+                <span className="bg-sky-500 text-white text-[8px] sm:text-[10px] px-1.5 py-0.5 rounded-full font-medium flex items-center gap-0.5">
+                  <i className="fa-solid fa-check text-[7px] sm:text-[9px]"></i> موثق
                 </span>
               </div>
 
@@ -399,7 +410,7 @@ export default function HomePage({
                   if (onOpenStoreModal) onOpenStoreModal(store);
                   else if (onNavigate) onNavigate('store-details');
                 }}
-                className="w-full mt-auto py-2.5 bg-gray-50 hover:bg-[#07132b] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition border border-gray-200 cursor-pointer"
+                className="w-full mt-auto py-1.5 sm:py-2.5 bg-gray-50 hover:bg-[#07132b] hover:text-white text-gray-700 rounded-xl text-[10px] sm:text-xs font-bold transition border border-gray-200 cursor-pointer active:scale-95"
               >
                 زيارة المتجر
               </button>
@@ -410,19 +421,19 @@ export default function HomePage({
       {/* END: FeaturedStoresSection */}
 
       {/* BEGIN: SellerCallToActionBanner */}
-      <section className="rounded-2xl bg-gradient-to-r from-[#07132b] via-[#0d224d] to-[#07132b] p-6 sm:p-7 text-white shadow-lg border border-[#1b3469] flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden" data-purpose="join-seller-banner">
+      <section className="rounded-2xl bg-gradient-to-r from-[#07132b] via-[#0d224d] to-[#07132b] p-4 sm:p-7 text-white shadow-lg border border-[#1b3469] flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 relative overflow-hidden" data-purpose="join-seller-banner">
         <div className="absolute -right-8 -top-8 w-40 h-40 bg-sky-400/10 rounded-full blur-2xl pointer-events-none anim-cloud-glow"></div>
         <div className="absolute -left-8 -bottom-8 w-40 h-40 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none anim-cloud-float-2"></div>
         
-        <div className="flex items-center gap-4 text-center sm:text-right relative z-10">
-          <div className="w-14 h-14 shrink-0 hidden sm:flex items-center justify-center anim-cloud-float-1">
-            <img alt="غيم سبيس ترحيب" className="w-12 h-12 object-contain filter drop-shadow" src={STITCH_LOGO_URL} />
+        <div className="flex items-center gap-3 sm:gap-4 text-center sm:text-right relative z-10 w-full sm:w-auto">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 hidden sm:flex items-center justify-center anim-cloud-float-1">
+            <img alt="غيم سبيس ترحيب" className="w-10 h-10 sm:w-12 sm:h-12 object-contain filter drop-shadow" src={STITCH_LOGO_URL} />
           </div>
           <div>
-            <h3 className="text-lg sm:text-xl font-bold text-white">
+            <h3 className="text-sm sm:text-xl font-bold text-white">
               هل لديك موهبة أو مشروع منزلي؟ انضم إلى غيم سبيس الآن وابدأ البيع مجاناً! ☁️🛒
             </h3>
-            <p className="text-xs sm:text-sm text-sky-200 mt-1">
+            <p className="text-[11px] sm:text-sm text-sky-200 mt-0.5 sm:mt-1">
               منصتك المتكاملة لعرض منتجاتك، تنظيم مبيعاتك والوصول لآلاف العملاء في حضرموت
             </p>
           </div>
@@ -431,7 +442,7 @@ export default function HomePage({
         <button
           type="button"
           onClick={onOpenSellerModal}
-          className="shrink-0 bg-[#eab839] hover:bg-[#d9a72b] text-[#07132b] font-bold px-7 py-2.5 rounded-xl text-sm transition-all shadow hover:shadow-md relative z-10 cursor-pointer"
+          className="w-full sm:w-auto shrink-0 bg-[#eab839] hover:bg-[#d9a72b] text-[#07132b] font-bold px-6 sm:px-7 py-2.5 rounded-xl text-xs sm:text-sm transition-all shadow hover:shadow-md relative z-10 cursor-pointer text-center"
         >
           سجل كتاجر
         </button>
@@ -439,9 +450,9 @@ export default function HomePage({
       {/* END: SellerCallToActionBanner */}
 
       {/* BEGIN: LatestProductsSection */}
-      <section className="space-y-4" data-purpose="latest-products" id="products">
+      <section className="space-y-3 sm:space-y-4" data-purpose="latest-products" id="products">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">أحدث المنتجات المضافة</h2>
+          <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">أحدث المنتجات المضافة</h2>
           <button
             type="button"
             onClick={() => onNavigate && onNavigate('products')}
@@ -451,7 +462,7 @@ export default function HomePage({
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 md:gap-5">
           {latestProducts.map((prod) => (
             <div
               key={prod.id}
@@ -459,15 +470,15 @@ export default function HomePage({
                 if (onSelectProduct) onSelectProduct(prod);
                 else if (onNavigate) onNavigate('product-details');
               }}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col p-3 hover:shadow-lg transition duration-300 group cursor-pointer"
+              className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col p-2 sm:p-3 hover:shadow-lg transition duration-300 group cursor-pointer"
             >
-              <div className="relative w-full h-52 rounded-xl bg-amber-50 overflow-hidden flex items-center justify-center mb-3">
+              <div className="relative w-full h-32 sm:h-44 md:h-48 rounded-xl bg-slate-50 overflow-hidden flex items-center justify-center mb-2">
                 <img
                   alt={prod.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   src={prod.image}
                 />
-                <span className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2.5 py-0.5 rounded-md font-semibold">
+                <span className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-black/60 backdrop-blur-sm text-white text-[8px] sm:text-[10px] px-1.5 py-0.5 rounded font-semibold">
                   {prod.category}
                 </span>
                 <button
@@ -477,27 +488,27 @@ export default function HomePage({
                     e.stopPropagation();
                     toggleFavorite(prod);
                   }}
-                  className={`absolute top-2 left-2 w-7 h-7 rounded-full shadow-sm flex items-center justify-center backdrop-blur-sm transition-all duration-200 active:scale-90 cursor-pointer ${
+                  className={`absolute top-1 left-1 sm:top-2 sm:left-2 w-6 h-6 sm:w-7 sm:h-7 rounded-full shadow-sm flex items-center justify-center backdrop-blur-sm transition-all duration-200 active:scale-90 cursor-pointer ${
                     isFavorite(prod.id)
                       ? 'bg-rose-50 text-rose-500 scale-105'
                       : 'bg-white/80 hover:bg-white text-gray-500 hover:text-rose-500'
                   }`}
                   title={isFavorite(prod.id) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
                 >
-                  <i className={`text-xs ${isFavorite(prod.id) ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart'}`}></i>
+                  <i className={`text-[10px] sm:text-xs ${isFavorite(prod.id) ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart'}`}></i>
                 </button>
               </div>
 
               <h3 className="text-xs sm:text-sm font-bold text-gray-800 line-clamp-1 group-hover:text-sky-700 transition">
                 {prod.name}
               </h3>
-              <p className="text-[11px] text-gray-400 mt-0.5">{prod.tagline}</p>
+              <p className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5 line-clamp-1">{prod.tagline}</p>
 
-              <div className="mt-3 flex items-center justify-between">
-                <span className="text-sm font-extrabold text-[#07132b]">
-                  {prod.price.toLocaleString()} <span className="text-xs font-normal text-gray-500">ر.ي</span>
+              <div className="mt-1.5 sm:mt-2.5 flex items-center justify-between">
+                <span className="text-xs sm:text-sm font-extrabold text-[#07132b]">
+                  {prod.price.toLocaleString()} <span className="text-[9px] sm:text-xs font-normal text-gray-500">ر.ي</span>
                 </span>
-                <span className="text-[11px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded">
+                <span className="text-[9px] sm:text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1 sm:px-1.5 py-0.5 rounded">
                   متوفر
                 </span>
               </div>
@@ -508,9 +519,9 @@ export default function HomePage({
                   e.stopPropagation();
                   if (onAddToCart) onAddToCart(prod);
                 }}
-                className="mt-3 w-full py-2 bg-[#07132b] hover:bg-[#0e2248] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer"
+                className="mt-2 w-full py-1.5 sm:py-2 bg-[#07132b] hover:bg-[#0e2248] text-white rounded-xl text-[10px] sm:text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
               >
-                <i className="fa-solid fa-cart-shopping text-[11px]"></i>
+                <i className="fa-solid fa-cart-shopping text-[9px] sm:text-[11px]"></i>
                 <span>أضف للسلة</span>
               </button>
             </div>

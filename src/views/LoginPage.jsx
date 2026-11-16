@@ -26,6 +26,7 @@ export default function LoginPage({ onNavigate, onLoginSuccess, defaultRole = 'c
     registerMerchant,
     loginMerchant,
     loginCourier,
+    registerCourier,
     switchMerchantAccount,
     switchCourierAccount,
     switchCustomerAccount,
@@ -161,19 +162,37 @@ export default function LoginPage({ onNavigate, onLoginSuccess, defaultRole = 'c
 
       // 2. COURIER AUTHENTICATION
       if (selectedRole === 'courier') {
-        const localRes = loginCourier(identifier, password);
-        if (!localRes.success) {
-          switchCourierAccount('usr-cour-1');
-        }
-        setSuccess('مرحباً بك! جاري نقلك إلى بوابة مندوب التوصيل...');
-        setTimeout(() => {
-          if (onLoginSuccess) onLoginSuccess({ name: identifier.split('@')[0] || 'كابتن التوصيل', role: 'courier' }, 'courier');
-          else {
-            window.location.hash = '#/courier';
-            if (onNavigate) onNavigate('home');
+        if (isRegister) {
+          const res = registerCourier({
+            name: name.trim(),
+            phone: identifier.trim(),
+            email: identifier.includes('@') ? identifier.trim() : `${identifier.trim()}@ghaym.ye`,
+            password: password.trim(),
+          });
+          setSuccess(`تم تسجيل حساب المندوب "${name}" بنجاح! جاري فتح لوحة التحكم... 🛵✨`);
+          setTimeout(() => {
+            if (onLoginSuccess) onLoginSuccess(res?.user || { name, role: 'courier' }, 'courier');
+            else {
+              window.location.hash = '#/courier';
+              if (onNavigate) onNavigate('home');
+            }
+          }, 800);
+          return;
+        } else {
+          const localRes = loginCourier(identifier, password);
+          if (!localRes.success) {
+            switchCourierAccount('usr-cour-1');
           }
-        }, 800);
-        return;
+          setSuccess('مرحباً بك! جاري نقلك إلى بوابة مندوب التوصيل...');
+          setTimeout(() => {
+            if (onLoginSuccess) onLoginSuccess({ name: identifier.split('@')[0] || 'كابتن التوصيل', role: 'courier' }, 'courier');
+            else {
+              window.location.hash = '#/courier';
+              if (onNavigate) onNavigate('home');
+            }
+          }, 800);
+          return;
+        }
       }
 
       // 3. CUSTOMER AUTHENTICATION

@@ -222,17 +222,17 @@ export default function ProductsPage({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {sortedProducts.map((prod) => {
             const fav = isFavorite(prod.id);
             return (
               <div
                 key={prod.id}
                 onClick={() => handleProductClick(prod)}
-                className="bg-white rounded-3xl border border-slate-100/90 shadow-sm hover:shadow-xl transition-all duration-300 p-3.5 flex flex-col group cursor-pointer relative hover:-translate-y-1"
+                className="bg-white rounded-2xl sm:rounded-3xl border border-slate-100/90 shadow-sm hover:shadow-xl transition-all duration-300 p-2.5 sm:p-3.5 flex flex-col group cursor-pointer relative hover:-translate-y-1"
               >
                 {/* 1. Image Container with clean soft light background */}
-                <div className="w-full aspect-square bg-[#F8FAFC] rounded-2xl overflow-hidden relative mb-3 flex items-center justify-center border border-slate-100/80">
+                <div className="w-full aspect-square bg-[#F8FAFC] rounded-xl sm:rounded-2xl overflow-hidden relative mb-2 sm:mb-3 flex items-center justify-center border border-slate-100/80">
                   <img
                     src={prod.image || 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80'}
                     alt={prod.name}
@@ -252,7 +252,7 @@ export default function ProductsPage({
                       e.stopPropagation();
                       toggleFavorite(prod);
                     }}
-                    className={`absolute top-2.5 left-2.5 w-8 h-8 rounded-full shadow-sm flex items-center justify-center transition-all duration-200 active:scale-80 z-10 cursor-pointer ${
+                    className={`absolute top-1.5 left-1.5 sm:top-2.5 sm:left-2.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full shadow-sm flex items-center justify-center transition-all duration-200 active:scale-80 z-10 cursor-pointer ${
                       fav
                         ? 'bg-rose-50 text-rose-500 shadow-rose-100 scale-105'
                         : 'bg-white/90 hover:bg-white text-slate-400 hover:text-rose-500'
@@ -260,7 +260,7 @@ export default function ProductsPage({
                     title={fav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
                   >
                     <Heart
-                      className={`w-4 h-4 transition-colors ${
+                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-colors ${
                         fav ? 'fill-rose-500 text-rose-500' : 'text-slate-400 hover:text-rose-500'
                       }`}
                     />
@@ -268,7 +268,7 @@ export default function ProductsPage({
 
                   {/* Badge / Category (Top-Right) */}
                   {(prod.badge || prod.category) && (
-                    <span className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-sm text-[11px] font-bold text-slate-700 shadow-xs border border-slate-100/90">
+                    <span className="absolute top-1.5 right-1.5 sm:top-2.5 sm:right-2.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-white/90 backdrop-blur-sm text-[9px] sm:text-[11px] font-bold text-slate-700 shadow-xs border border-slate-100/90 truncate max-w-[90px] sm:max-w-none">
                       {prod.badge || prod.category}
                     </span>
                   )}
@@ -277,46 +277,46 @@ export default function ProductsPage({
                 {/* 2. Product Information */}
                 <div className="flex-1 flex flex-col justify-between text-right">
                   <div>
-                    <h3 className="font-bold text-slate-900 text-sm leading-snug line-clamp-1 group-hover:text-[#0066FF] transition-colors">
+                    <h3 className="font-bold text-slate-900 text-xs sm:text-sm leading-snug line-clamp-1 group-hover:text-[#0066FF] transition-colors">
                       {prod.name}
                     </h3>
 
                     {/* Store Name with Store Icon */}
                     {prod.storeName && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-1">
-                        <Store className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+                      <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 mt-0.5 sm:mt-1">
+                        <Store className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-500 shrink-0" />
                         <span className="truncate">{prod.storeName}</span>
                       </div>
                     )}
                   </div>
 
                   {/* 3. Price & Rating Row */}
-                  <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-base sm:text-lg font-black text-[#0066FF]">
+                  <div className="mt-2 sm:mt-3 pt-2 sm:pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                    <div className="flex items-baseline gap-0.5 sm:gap-1">
+                      <span className="text-xs sm:text-base font-black text-[#0066FF]">
                         {Number(prod.price).toLocaleString()}
                       </span>
-                      <span className="text-xs font-semibold text-slate-500">
-                        {prod.currency || 'ر.س'}
+                      <span className="text-[10px] sm:text-xs font-semibold text-slate-500">
+                        {prod.currency || 'ر.ي'}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1 text-xs font-bold text-amber-500 bg-amber-50 px-2 py-0.5 rounded-full">
-                      <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                    <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs font-bold text-amber-500 bg-amber-50 px-1.5 py-0.5 sm:px-2 rounded-full">
+                      <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-amber-400 text-amber-400" />
                       <span>{prod.rating || 4.9}</span>
                     </div>
                   </div>
 
-                  {/* 4. Full-width Blue Add-to-Cart Button (Direct Match to Reference) */}
+                  {/* 4. Add-to-Cart Button */}
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (onAddToCart) onAddToCart(prod);
                     }}
-                    className="w-full mt-3 py-2.5 px-4 rounded-xl bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-500/20 hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full mt-2 sm:mt-3 py-1.5 sm:py-2.5 px-3 rounded-xl bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold text-[11px] sm:text-sm shadow-md shadow-blue-500/20 hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <ShoppingCart className="w-4 h-4" />
+                    <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     <span>أضف للسلة</span>
                   </button>
                 </div>

@@ -36,36 +36,36 @@ export default function CategoriesPage({ onNavigate, onSelectCategory }) {
       </div>
 
       {/* Categories Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
         {CATEGORIES.map((cat) => (
           <div
             key={cat.id}
             onClick={() => onNavigate('products')}
-            className="bg-white rounded-3xl p-6 border border-slate-200 hover:border-[#54B9F2] shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between group"
+            className="bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-6 border border-slate-200 hover:border-[#54B9F2] shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between group"
           >
-            <div className="space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#172A46] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+            <div className="space-y-2 sm:space-y-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-[#172A46] flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                 {getCatIcon(cat.id)}
               </div>
 
               <div>
-                <div className="flex items-center justify-between">
-                  <h3 className="font-extrabold text-base text-[#172A46] group-hover:text-[#54B9F2] transition">
+                <div className="flex items-center justify-between gap-1">
+                  <h3 className="font-extrabold text-xs sm:text-base text-[#172A46] group-hover:text-[#54B9F2] transition line-clamp-1">
                     {cat.name}
                   </h3>
-                  <span className="text-[11px] font-bold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-100">
+                  <span className="text-[9px] sm:text-[11px] font-bold text-slate-400 bg-slate-50 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-slate-100 shrink-0">
                     {cat.count}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                <p className="text-[10px] sm:text-xs text-slate-500 mt-1 sm:mt-2 leading-relaxed line-clamp-2">
                   {cat.description}
                 </p>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#54B9F2]">
-              <span>تصفح المنتجات في هذا القسم</span>
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <div className="pt-2 sm:pt-4 mt-2 sm:mt-0 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-xs font-bold text-[#54B9F2]">
+              <span>تصفح القسم</span>
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:-translate-x-1 transition-transform" />
             </div>
           </div>
         ))}

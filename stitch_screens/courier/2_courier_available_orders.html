@@ -1,0 +1,402 @@
+<!DOCTYPE html><html dir="rtl" lang="ar"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>غيم سبيس - الطلبات المتاحة</title>
+<!-- Google Fonts: IBM Plex Sans Arabic -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-variant": "#d3e4fe",
+            "tertiary": "#304764",
+            "surface": "#f8f9ff",
+            "inverse-primary": "#b0c6ff",
+            "surface-container-high": "#dce9ff",
+            "on-error": "#ffffff",
+            "on-surface-variant": "#424653",
+            "on-tertiary-fixed-variant": "#314865",
+            "primary": "#00409a",
+            "on-secondary-fixed-variant": "#004c69",
+            "outline": "#737785",
+            "on-primary-fixed-variant": "#00419c",
+            "primary-container": "#0d57c6",
+            "secondary-fixed": "#c4e7ff",
+            "inverse-on-surface": "#eaf1ff",
+            "surface-container-lowest": "#ffffff",
+            "secondary-fixed-dim": "#7bd0ff",
+            "primary-fixed-dim": "#b0c6ff",
+            "on-error-container": "#93000a",
+            "on-background": "#0b1c30",
+            "on-tertiary-fixed": "#001c37",
+            "surface-tint": "#1058c7",
+            "on-primary": "#ffffff",
+            "surface-dim": "#cbdbf5",
+            "error-container": "#ffdad6",
+            "tertiary-container": "#485f7d",
+            "tertiary-fixed": "#d2e4ff",
+            "tertiary-fixed-dim": "#b0c8eb",
+            "surface-container": "#e5eeff",
+            "outline-variant": "#c3c6d5",
+            "surface-bright": "#f8f9ff",
+            "on-primary-container": "#c8d6ff",
+            "on-secondary-container": "#004d6a",
+            "on-tertiary": "#ffffff",
+            "on-tertiary-container": "#c1d9fc",
+            "inverse-surface": "#213145",
+            "on-primary-fixed": "#001945",
+            "surface-container-highest": "#d3e4fe",
+            "secondary": "#00668a",
+            "on-surface": "#0b1c30",
+            "on-secondary": "#ffffff",
+            "secondary-container": "#40c2fd",
+            "error": "#ba1a1a",
+            "surface-container-low": "#eff4ff",
+            "background": "#f8f9ff",
+            "on-secondary-fixed": "#001e2c",
+            "primary-fixed": "#d9e2ff",
+            "ghaim-navy": "#0B132B",
+            "ghaim-deep": "#101935"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "3xl": "1.25rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "space-xs": "0.25rem",
+            "space-2xl": "3rem",
+            "space-xl": "2rem",
+            "margin-lg": "2rem",
+            "space-md": "1rem",
+            "gutter": "1rem",
+            "margin-md": "1.5rem",
+            "gutter-lg": "1.5rem",
+            "space-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "margin": "1rem"
+          },
+          fontFamily: {
+            "headline-xl": ["IBM Plex Sans Arabic", "sans-serif"],
+            "label-lg": ["IBM Plex Sans Arabic", "sans-serif"],
+            "body-sm": ["IBM Plex Sans Arabic", "sans-serif"],
+            "label-sm": ["IBM Plex Sans Arabic", "sans-serif"],
+            "headline-md": ["IBM Plex Sans Arabic", "sans-serif"],
+            "body-lg": ["IBM Plex Sans Arabic", "sans-serif"],
+            "headline-lg": ["IBM Plex Sans Arabic", "sans-serif"],
+            "headline-xl-mobile": ["IBM Plex Sans Arabic", "sans-serif"],
+            "headline-sm": ["IBM Plex Sans Arabic", "sans-serif"],
+            "body-md": ["IBM Plex Sans Arabic", "sans-serif"],
+            "display-lg": ["IBM Plex Sans Arabic", "sans-serif"],
+            "label-md": ["IBM Plex Sans Arabic", "sans-serif"]
+          },
+          fontSize: {
+            "headline-xl": ["2rem", { lineHeight: "2.5rem", fontWeight: "700" }],
+            "label-lg": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],
+            "body-sm": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "400" }],
+            "label-sm": ["0.6875rem", { lineHeight: "0.875rem", fontWeight: "500" }],
+            "headline-md": ["1.25rem", { lineHeight: "1.75rem", fontWeight: "600" }],
+            "body-lg": ["1.125rem", { lineHeight: "1.75rem", fontWeight: "400" }],
+            "headline-lg": ["1.5rem", { lineHeight: "2rem", fontWeight: "600" }],
+            "headline-xl-mobile": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],
+            "headline-sm": ["1.125rem", { lineHeight: "1.5rem", fontWeight: "600" }],
+            "body-md": ["1rem", { lineHeight: "1.5rem", fontWeight: "400" }],
+            "display-lg": ["3rem", { lineHeight: "3.5rem", fontWeight: "700" }],
+            "label-md": ["0.75rem", { lineHeight: "1rem", fontWeight: "600" }]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    body {
+      font-family: 'IBM Plex Sans Arabic', sans-serif;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex overflow-x-hidden selection:bg-surface-variant selection:text-primary">
+<!-- ================= SIDEBAR (Dark Navy as shown in Reference App) ================= -->
+<aside class="w-64 min-h-screen bg-[#0B132B] text-surface-container-lowest flex flex-col justify-between shrink-0 fixed top-0 bottom-0 right-0 z-40 border-l border-white/5 transition-all">
+<!-- Brand / Header -->
+<div class="p-space-md flex flex-col items-center border-b border-white/10">
+<div class="flex items-center gap-space-sm mb-1">
+<img alt="غيم سبيس" class="h-12 w-auto object-contain drop-shadow-md rounded-xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfi9KryNdQ77ZJcUBWg16Tv-xgUa7UEz0t-JKEUe_Ezg1Gxy-ZuFxt2ZB1YLSZIUx5voAh74-jbCRT6YDn4wuMmOQ52F9PnSZJQVFYQvKODCV88Q74BvLPcNDMBgfcvjfa8thEE4ZOKZX2BKstyWDpzUgZB7Vu9iTYEs5R54jiQeKiWdE3XSs8ufTWoQiiokNok7ZDInz29OcakXWlNysM4mEX-QWY3c2F79hR-XdhyK97Z0o_jw2K">
+</div>
+<h1 class="font-headline-md text-headline-md text-white font-bold tracking-tight">غيم سبيس</h1>
+<span class="font-label-sm text-label-sm text-white/60 tracking-wider">Ghaim Space • Grow Together</span>
+<!-- Delivery Hub Badge -->
+<div class="mt-space-md w-full py-1.5 px-space-sm bg-white/5 border border-white/10 rounded-xl flex items-center justify-between"><span class="font-label-sm text-label-sm text-white/80">لوحة المندوب</span><span class="flex items-center gap-1.5 font-label-sm text-label-sm text-cyan-400"><span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>المكلا</span></div>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex-1 px-space-sm py-space-md space-y-1.5 overflow-y-auto">
+<!-- 1. الرئيسية / لوحة التحكم -->
+<a class="flex items-center gap-space-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg px-space-md py-space-sm transition-all font-label-lg text-label-lg group" href="#">
+<span class="material-symbols-outlined text-white/60 group-hover:text-white">dashboard</span>
+<span>لوحة التحكم</span>
+</a>
+<!-- 2. الطلبات المتاحة (Active Destination) -->
+<a class="flex items-center justify-between bg-primary-container text-white rounded-lg px-space-md py-space-sm font-label-lg text-label-lg shadow-sm border border-cyan-400/30" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined fill text-white">inventory_2</span>
+<span class="font-semibold">الطلبات المتاحة</span>
+</div>
+<span class="bg-white/20 text-white font-label-sm text-label-sm px-2 py-0.5 rounded-full">0 جديد</span>
+</a>
+<!-- 3. التوصيلات الحالية -->
+<a class="flex items-center gap-space-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg px-space-md py-space-sm transition-all font-label-lg text-label-lg group" href="#">
+<span class="material-symbols-outlined text-white/60 group-hover:text-white">local_shipping</span>
+<span>التوصيلات الحالية</span>
+</a>
+<!-- 4. سجل التوصيلات -->
+<a class="flex items-center gap-space-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg px-space-md py-space-sm transition-all font-label-lg text-label-lg group" href="#">
+<span class="material-symbols-outlined text-white/60 group-hover:text-white">history</span>
+<span>سجل التوصيلات</span>
+</a>
+<!-- 5. الخريطة ونظام GPS -->
+<a class="flex items-center gap-space-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg px-space-md py-space-sm transition-all font-label-lg text-label-lg group" href="#">
+<span class="material-symbols-outlined text-white/60 group-hover:text-white">map</span>
+<span>الخريطة ونظام GPS</span>
+</a>
+<!-- 6. المحفظة والأرباح -->
+<a class="flex items-center gap-space-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg px-space-md py-space-sm transition-all font-label-lg text-label-lg group" href="#">
+<span class="material-symbols-outlined text-white/60 group-hover:text-white">account_balance_wallet</span>
+<span>المحفظة والأرباح</span>
+</a>
+<!-- 7. ملفي الشخصي -->
+<a class="flex items-center gap-space-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg px-space-md py-space-sm transition-all font-label-lg text-label-lg group" href="#">
+<span class="material-symbols-outlined text-white/60 group-hover:text-white">person</span>
+<span>ملفي الشخصي</span>
+</a>
+<!-- 8. الإعدادات -->
+<a class="flex items-center gap-space-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg px-space-md py-space-sm transition-all font-label-lg text-label-lg group" href="#">
+<span class="material-symbols-outlined text-white/60 group-hover:text-white">settings</span>
+<span>الإعدادات</span>
+</a>
+</nav>
+<!-- Sidebar Bottom Action / Shift CTA -->
+<div class="p-space-md border-t border-white/10 space-y-2">
+<button class="w-full bg-gradient-to-l from-primary-container to-blue-600 hover:brightness-110 text-white font-label-lg text-label-lg py-2.5 px-space-md rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all active:scale-95"><span class="material-symbols-outlined text-white fill text-sm">schedule</span><span>بدء وردية العمل</span></button>
+<div class="flex items-center justify-between text-white/60 pt-2 font-label-sm text-label-sm">
+<a class="hover:text-white flex items-center gap-1 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">headset_mic</span>
+<span>الدعم والمساعدة</span>
+</a>
+<a class="hover:text-rose-400 flex items-center gap-1 transition-colors text-white/50" href="#">
+<span class="material-symbols-outlined text-sm">logout</span>
+<span>تسجيل الخروج</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- ================= MAIN WRAPPER (Shifted for 256px Sidebar) ================= -->
+<div class="flex-1 mr-64 flex flex-col min-h-screen w-full">
+<!-- Top App Bar -->
+<header class="bg-surface-container-lowest border-b border-outline-variant/30 sticky top-0 z-30 h-16 px-space-lg flex items-center justify-between shadow-sm">
+<!-- Search & Quick Filter -->
+<div class="flex items-center gap-space-md flex-1 max-w-lg">
+<div class="relative w-full">
+<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl py-2 pr-10 pl-4 font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all placeholder:text-outline" placeholder="ابحث برقم الطلب #1048، أو اسم المتجر، أو الحي..." type="text">
+<span class="material-symbols-outlined text-outline absolute right-3 top-2.5">search</span>
+</div>
+</div>
+<!-- Live Connection State, Alerts & Courier Profile -->
+<div class="flex items-center gap-space-md">
+<!-- Live Status Pill -->
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-label-sm text-label-sm shadow-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+<span>جاهز لتلقي الطلبات</span>
+</div>
+<!-- System Alerts Action -->
+<button class="relative p-2 rounded-lg text-tertiary hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-error border-2 border-surface-container-lowest"></span>
+</button>
+<!-- Direct Support -->
+<button class="p-2 rounded-lg text-tertiary hover:bg-surface-container transition-colors" title="الدعم المباشر">
+<span class="material-symbols-outlined">headset_mic</span>
+</button>
+<!-- Divider -->
+<div class="w-px h-6 bg-outline-variant/40"></div>
+<!-- Profile Chip -->
+<div class="flex items-center gap-3 pr-1"><div class="text-left rtl:text-right"><p class="font-label-lg text-label-lg text-on-surface font-semibold">مندوب جديد</p><p class="font-label-sm text-label-sm text-outline">في انتظار بدء الوردية • 0.0 ★</p></div><div class="relative"><div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-outline border-2 border-outline-variant/40 shadow-xs"><span class="material-symbols-outlined text-xl">person</span></div><span class="absolute bottom-0 left-0 w-3 h-3 bg-outline border-2 border-white rounded-full"></span></div></div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 p-space-lg space-y-space-lg bg-surface">
+<!-- Breadcrumbs & Status Banner -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-2 text-outline font-label-sm text-label-sm mb-1">
+<span>الرئيسية</span>
+<span class="material-symbols-outlined text-xs">chevron_left</span>
+<span class="text-primary font-semibold">الطلبات المتاحة للالتقاط</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">الطلبات المتاحة للتوصيل</h2>
+<p class="font-body-sm text-body-sm text-tertiary mt-0.5">لا توجد طلبات جديدة متاحة حالياً ضمن نطاق المكلا</p>
+</div>
+<!-- Radar Pulse & Geo-Zone Info -->
+<div class="flex items-center gap-3 bg-surface-container-lowest p-2 pr-4 pl-3 rounded-xl border border-outline-variant/30 shadow-xs">
+<div class="flex items-center gap-2">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary-container"></span>
+</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">تحديث حي ومباشر للطلبات</span>
+</div>
+<span class="text-outline-variant">|</span>
+<span class="font-label-sm text-label-sm text-tertiary">نطاق التغطية: أحياء المكلا (حي الشرج، المكلا القديمة، فوه، الديس، حي السلام)</span>
+<button class="mr-2 p-1.5 rounded-xl bg-surface-container-low hover:bg-surface-container text-primary transition-all"><span class="material-symbols-outlined text-sm">refresh</span></button>
+</div>
+</div>
+<!-- Quick Metrics Ribbon (Courier Performance Context) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md"><div class="bg-surface-container-lowest p-space-md rounded-2xl border border-outline-variant/30 shadow-xs flex items-center justify-between"><div><span class="font-label-sm text-label-sm text-outline font-medium block">طلبات بالانتظار</span><span class="font-headline-lg text-headline-lg font-bold text-on-surface">0</span><span class="font-label-sm text-label-sm text-outline block mt-0.5">لا توجد طلبات جديدة حالياً</span></div><div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-outline"><span class="material-symbols-outlined text-2xl">local_mall</span></div></div><div class="bg-surface-container-lowest p-space-md rounded-2xl border border-outline-variant/30 shadow-xs flex items-center justify-between"><div><span class="font-label-sm text-label-sm text-outline font-medium block">متوسط عمولة التوصيل</span><span class="font-headline-lg text-headline-lg font-bold text-on-surface">0 <span class="text-sm font-normal text-outline">ر.ي</span></span><span class="font-label-sm text-label-sm text-outline block mt-0.5">--</span></div><div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-outline"><span class="material-symbols-outlined text-2xl">payments</span></div></div><div class="bg-surface-container-lowest p-space-md rounded-2xl border border-outline-variant/30 shadow-xs flex items-center justify-between"><div><span class="font-label-sm text-label-sm text-outline font-medium block">أقرب متجر إليك</span><span class="font-headline-lg text-headline-lg font-bold text-on-surface">-- <span class="text-sm font-normal text-outline">كم</span></span><span class="font-label-sm text-label-sm text-outline block mt-0.5">في انتظار توفر طلبات</span></div><div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-outline"><span class="material-symbols-outlined text-2xl">near_me</span></div></div><div class="bg-surface-container-lowest p-space-md rounded-2xl border border-outline-variant/30 shadow-xs flex items-center justify-between"><div><span class="font-label-sm text-label-sm text-outline font-medium block">معدل سرعة القبول</span><span class="font-headline-lg text-headline-lg font-bold text-on-surface">--</span><span class="font-label-sm text-label-sm text-outline block mt-0.5">لا توجد عمليات قبول بعد</span></div><div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-outline"><span class="material-symbols-outlined text-2xl">speed</span></div></div></div>
+<!-- Filters & Sorting Bar -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl border border-outline-variant/30 shadow-xs flex flex-wrap items-center justify-between gap-space-md">
+<!-- Filter Tabs / Pills -->
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-label-sm text-label-sm text-outline ml-2">تصفية حسب:</span>
+<button class="px-3.5 py-1.5 rounded-full bg-primary-container text-white font-label-md text-label-md shadow-xs flex items-center gap-1.5"><span>الكل (0)</span></button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container text-tertiary font-label-md text-label-md transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>الأسرع تجهيزاً</span>
+</button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container text-tertiary font-label-md text-label-md transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span>الأعلى عائداً</span>
+</button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container text-tertiary font-label-md text-label-md transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">near_me</span>
+<span>الأقرب لموقعي (&lt; 2 كم)</span>
+</button>
+</div>
+<!-- Dropdown selectors -->
+<div class="flex items-center gap-3"><div class="relative"><select class="appearance-none bg-surface-container-low border border-outline-variant/40 rounded-xl py-1.5 pr-8 pl-8 font-label-sm text-label-sm text-on-surface focus:outline-none focus:border-primary-container"><option>جميع أحياء المكلا</option><option>حي الشرج</option><option>المكلا القديمة - حي الشهيد</option><option>حي فوه - المساكن</option><option>حي الديس</option><option>حي بلقيس</option><option>حي السلام</option></select><span class="material-symbols-outlined text-outline absolute right-2 top-2 text-base pointer-events-none">location_on</span><span class="material-symbols-outlined text-outline absolute left-2 top-2 text-base pointer-events-none">expand_more</span></div><button class="p-1.5 px-3 rounded-xl border border-outline-variant/40 hover:bg-surface-container text-tertiary flex items-center gap-1 font-label-sm text-label-sm"><span class="material-symbols-outlined text-sm">tune</span><span>فرز متقدم</span></button></div>
+</div>
+<!-- Bento Layout: Active Orders Manifest (65%) + Real-Time Dispatch Map (35%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- ================= ORDERS STREAM (8 COLS) ================= -->
+<div class="lg:col-span-8 space-y-space-md"><div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 p-space-lg text-center shadow-xs flex flex-col items-center justify-center py-10"><div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center text-primary mb-3"><span class="material-symbols-outlined text-3xl">inventory_2</span></div><h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-1">لا توجد طلبات جديدة متاحة حالياً ضمن نطاق المكلا</h3><p class="font-body-sm text-body-sm text-outline max-w-md">النظام يبحث باستمرار عن طلبات قريبة منك في أحياء المكلا (الشرج، فوه، المكلا القديمة، الديس، والسلام). سيتم إشعارك فور توفر طلب جديد.</p><div class="flex items-center gap-2 mt-4 px-3 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/30 text-tertiary font-label-sm text-label-sm"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>الرادار يعمل بنشاط في أحياء المكلا</span></div></div><div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 shadow-xs hover:shadow-md transition-all p-space-lg space-y-space-md opacity-90"><div class="flex flex-wrap items-center justify-between gap-space-sm pb-space-sm border-b border-outline-variant/20"><div class="flex items-center gap-3"><div class="px-3 py-2 rounded-xl bg-surface-container flex items-center justify-center text-primary font-bold text-base shadow-xs">#771234567</div><div><div class="flex items-center gap-2"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">متجر وردة الأناقة للعطور</h3><span class="px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800 font-label-sm text-label-sm">طلب سابق متاح</span></div><p class="font-body-sm text-body-sm text-outline flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-sm">storefront</span><span>حي الشرج - المكلا • بجانب جسر الشهداء</span></p></div></div><div class="text-left rtl:text-right"><span class="font-label-sm text-label-sm text-outline block">صافي أرباح التوصيل</span><span class="font-headline-lg text-headline-lg font-bold text-primary">35 <span class="text-sm font-medium text-tertiary">ر.ي</span></span></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-space-md bg-surface-container-low/40 p-space-md rounded-xl border border-outline-variant/20"><div class="flex items-start gap-3"><div class="w-7 h-7 rounded-full bg-blue-100 text-primary flex items-center justify-center shrink-0 mt-0.5"><span class="material-symbols-outlined text-base">storefront</span></div><div><span class="font-label-sm text-label-sm text-outline block">نقطة الاستلام</span><p class="font-label-lg text-label-lg text-on-surface font-semibold">حي الشرج - المكلا</p><span class="font-label-sm text-label-sm text-emerald-600 flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-xs">check_circle</span>جاهز للتسليم</span></div></div><div class="flex items-start gap-3 md:border-r md:border-outline-variant/30 md:pr-4"><div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5"><span class="material-symbols-outlined text-base">pin_drop</span></div><div><span class="font-label-sm text-label-sm text-outline block">نقطة التسليم</span><p class="font-label-lg text-label-lg text-on-surface font-semibold">حي فوه - المساكن</p><span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-xs">person</span>العميل: فاطمة السقاف</span></div></div></div><div class="flex items-center gap-space-md pt-1"><button class="flex-1 bg-primary-container hover:bg-blue-700 text-white font-label-lg text-label-lg py-2.5 px-space-lg rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all active:scale-98"><span class="material-symbols-outlined text-white">check</span><span>قبول الطلب</span></button><button class="px-space-md py-2.5 bg-surface-container-low hover:bg-surface-container text-primary font-label-lg text-label-lg rounded-xl border border-outline-variant/40 transition-all flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">visibility</span><span>تفاصيل</span></button></div></div><div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 shadow-xs hover:shadow-md transition-all p-space-lg space-y-space-md opacity-90"><div class="flex flex-wrap items-center justify-between gap-space-sm pb-space-sm border-b border-outline-variant/20"><div class="flex items-center gap-3"><div class="px-3 py-2 rounded-xl bg-surface-container flex items-center justify-center text-primary font-bold text-base shadow-xs">#900123456</div><div><div class="flex items-center gap-2"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">صيدلية النور الحديثة</h3><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-label-sm text-label-sm">طلب أدوية ومستلزمات</span></div><p class="font-body-sm text-body-sm text-outline flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-sm">storefront</span><span>المكلا القديمة - حي الشهيد</span></p></div></div><div class="text-left rtl:text-right"><span class="font-label-sm text-label-sm text-outline block">صافي أرباح التوصيل</span><span class="font-headline-lg text-headline-lg font-bold text-on-surface">28 <span class="text-sm font-medium text-tertiary">ر.ي</span></span></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-space-md bg-surface-container-low/40 p-space-md rounded-xl border border-outline-variant/20"><div class="flex items-start gap-3"><div class="w-7 h-7 rounded-full bg-blue-100 text-primary flex items-center justify-center shrink-0 mt-0.5"><span class="material-symbols-outlined text-base">storefront</span></div><div><span class="font-label-sm text-label-sm text-outline block">نقطة الاستلام</span><p class="font-label-lg text-label-lg text-on-surface font-semibold">المكلا القديمة - حي الشهيد</p><span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-xs">hourglass_top</span>قيد التجهيز</span></div></div><div class="flex items-start gap-3 md:border-r md:border-outline-variant/30 md:pr-4"><div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5"><span class="material-symbols-outlined text-base">pin_drop</span></div><div><span class="font-label-sm text-label-sm text-outline block">نقطة التسليم</span><p class="font-label-lg text-label-lg text-on-surface font-semibold">حي الديس - شارع بلقيس</p><span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-xs">payments</span>الدفع عند الاستلام</span></div></div></div><div class="flex items-center gap-space-md pt-1"><button class="flex-1 bg-primary-container hover:bg-blue-700 text-white font-label-lg text-label-lg py-2.5 px-space-lg rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all active:scale-98"><span class="material-symbols-outlined text-white">check</span><span>قبول الطلب</span></button><button class="px-space-md py-2.5 bg-surface-container-low hover:bg-surface-container text-primary font-label-lg text-label-lg rounded-xl border border-outline-variant/40 transition-all flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">visibility</span><span>تفاصيل</span></button></div></div></div>
+<!-- ================= RIGHT COLUMN: INTERACTIVE DISPATCH MAP & SUMMARY (4 COLS) ================= -->
+<div class="lg:col-span-4 space-y-space-md">
+<!-- Mini Map Card -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 shadow-xs overflow-hidden">
+<div class="p-space-md border-b border-outline-variant/20 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">map</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">خريطة الطلبات الحية</span>
+</div>
+<span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">موقعك نشط</span>
+</div>
+<!-- Map Viewport Container -->
+<div class="relative h-64 w-full bg-slate-100 overflow-hidden" data-location="المكلا">
+<!-- Illustrated Stylized Map Canvas -->
+<div class="absolute inset-0 opacity-90">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+<!-- Land and background -->
+<rect fill="#E8EEF8" height="300" width="400"></rect>
+<!-- Coastal Water Line for Mukalla -->
+<path d="M0,230 Q120,220 220,250 T400,220 L400,300 L0,300 Z" fill="#C4E7FF" opacity="0.6"></path>
+<!-- Main Roads Grid -->
+<line stroke="#CBD5E1" stroke-linecap="round" stroke-width="8" x1="30" x2="370" y1="40" y2="40"></line>
+<line stroke="#CBD5E1" stroke-linecap="round" stroke-width="7" x1="60" x2="60" y1="20" y2="240"></line>
+<line stroke="#CBD5E1" stroke-linecap="round" stroke-width="9" x1="180" x2="180" y1="20" y2="250"></line>
+<line stroke="#CBD5E1" stroke-linecap="round" stroke-width="7" x1="320" x2="320" y1="30" y2="230"></line>
+<path d="M40,140 Q180,90 360,160" fill="none" stroke="#CBD5E1" stroke-linecap="round" stroke-width="10"></path>
+<!-- Delivery Route Highlight Line (Blue Cyan Dash) -->
+<path d="M180,110 C200,80 250,90 280,70" fill="none" stroke="#0D57C6" stroke-dasharray="6,6" stroke-width="4"></path>
+</svg>
+</div>
+<!-- Courier Current Location Pin -->
+<div class="absolute top-[35%] right-[45%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer">
+<div class="w-10 h-10 rounded-full bg-primary-container text-white shadow-lg border-2 border-white flex items-center justify-center animate-bounce">
+<span class="material-symbols-outlined text-lg fill">two_wheeler</span>
+</div>
+<span class="bg-ghaim-navy text-white text-[10px] px-2 py-0.5 rounded-md shadow-md mt-1 font-bold whitespace-nowrap">أنت هنا (حي الستين)</span>
+</div>
+<!-- Order #1048 Pickup Pin -->
+<div class="absolute top-[22%] right-[28%] flex flex-col items-center"><div class="w-8 h-8 rounded-full bg-blue-600 text-white shadow-md border-2 border-white flex items-center justify-center"><span class="material-symbols-outlined text-sm">storefront</span></div><span class="bg-white text-primary text-[10px] px-1.5 py-0.5 rounded border border-blue-200 shadow-sm mt-0.5 font-bold">#771234567 حي الشرج</span></div>
+<!-- Order #1049 Pharmacy Pin -->
+<div class="absolute bottom-[40%] right-[70%] flex flex-col items-center"><div class="w-7 h-7 rounded-full bg-emerald-600 text-white shadow-md border border-white flex items-center justify-center"><span class="material-symbols-outlined text-xs">local_pharmacy</span></div><span class="bg-white text-emerald-800 text-[9px] px-1 py-0.5 rounded shadow-xs mt-0.5 font-bold">#900123456 المكلا القديمة</span></div>
+<!-- Map Controls Overlays -->
+<div class="absolute bottom-2 left-2 flex flex-col gap-1"><button class="w-8 h-8 rounded-xl bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-on-surface hover:bg-white text-sm font-bold">+</button><button class="w-8 h-8 rounded-xl bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-on-surface hover:bg-white text-sm font-bold">-</button></div>
+<div class="absolute top-2 left-2"><button class="px-2.5 py-1 rounded-xl bg-white/90 backdrop-blur text-primary text-xs font-semibold shadow-xs flex items-center gap-1"><span class="material-symbols-outlined text-xs">open_in_full</span><span>توسيع الخريطة</span></button></div>
+</div>
+<!-- Route Details Snippet -->
+<div class="p-space-md bg-surface-container-low/50 space-y-2">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">أقرب نقطة استلام:</span>
+<span class="font-bold text-on-surface">المكلا مول (0.8 كم)</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">حالة المرور في المدينة:</span>
+<span class="text-emerald-700 font-semibold flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  انسيابية ممتازة
+                </span>
+</div>
+</div>
+</div>
+<!-- Courier Daily Target & Incentives -->
+<div class="bg-gradient-to-br from-[#101935] to-[#0B132B] rounded-2xl p-space-lg text-white shadow-md space-y-space-md border border-white/10"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-cyan-400">military_tech</span><h4 class="font-headline-sm text-headline-sm font-bold">مكافأة اليوم (Bonus)</h4></div><span class="text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 px-2 py-0.5 rounded-full">باقي 15 توصيلة</span></div><p class="font-body-sm text-body-sm text-white/80 leading-relaxed">أكمل 15 طلب توصيل اليوم قبل الساعة 10 مساءً واحصل على مكافأة نقدية بقيمة <strong>100 ر.ي</strong> تضاف فوراً لمحفظتك.</p><div class="space-y-1.5"><div class="flex justify-between text-xs font-label-sm text-white/70"><span>تم إنجاز 0 من 15 طلب</span><span class="font-bold text-cyan-300">0%</span></div><div class="w-full h-2.5 bg-white/10 rounded-full overflow-hidden p-0.5"><div class="h-full bg-gradient-to-l from-cyan-400 to-blue-500 rounded-full" style="width: 0%"></div></div></div><div class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-white/60"><span>إجمالي أرباح اليوم المحققة:</span><span class="font-headline-sm text-headline-sm font-bold text-white">0 <span class="text-xs font-normal">ر.ي</span></span></div></div>
+<!-- Quick Tips for Couriers -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 p-space-md shadow-xs space-y-space-sm">
+<div class="flex items-center gap-2 text-primary font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-base">info</span>
+<span class="font-bold">إرشادات التسليم السريع</span>
+</div>
+<ul class="text-tertiary font-body-sm text-body-sm space-y-2 pr-1">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-emerald-600 text-sm mt-0.5">check_circle</span>
+<span>تأكد من مطابقة رقم الفاتورة والعميل قبل التحرك من المتجر.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-emerald-600 text-sm mt-0.5">check_circle</span>
+<span>استخدم حقيبة الحفظ الحراري للأطعمة والمشروبات الساخنة.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-emerald-600 text-sm mt-0.5">check_circle</span>
+<span>تواصل مع العميل عبر المحادثة المباشرة قبل الوصول بـ 5 دقائق.</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Bar -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant/30 px-space-lg py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-outline font-label-sm text-label-sm mt-auto">
+<div>
+<span>منصة غيم سبيس اللوجستية © 2025 • جميع الحقوق محفوظة</span>
+</div>
+<div class="flex items-center gap-space-md">
+<a class="hover:text-primary transition-colors" href="#">شروط الخدمة للمناديب</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">سياسة الخصوصية</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">رقم الطوارئ: 800-4424</a>
+</div>
+</footer>
+</div>
+
+
+</body></html>

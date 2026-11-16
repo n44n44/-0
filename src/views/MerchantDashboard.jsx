@@ -641,73 +641,73 @@ export default function MerchantDashboard({ onBackToMarket }) {
                 <div className="absolute right-1/2 -top-12 w-64 h-64 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none"></div>
               </div>
 
-              {/* 4 Stats Cards (Screen 5 Layout) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {/* 4 Stats Cards (Screen 5 Layout - 2 Columns on Mobile) */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
                 
                 {/* Total Sales */}
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                      <DollarSign className="w-6 h-6" />
+                <div className="bg-white rounded-2xl p-3.5 sm:p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-2.5 sm:mb-4">
+                    <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                      <DollarSign className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
-                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 flex items-center gap-1">
-                      <ArrowUpRight className="w-3 h-3" />
+                    <span className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-emerald-50 text-emerald-600 flex items-center gap-0.5 sm:gap-1">
+                      <ArrowUpRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       <span>+{stats.growthRate}%</span>
                     </span>
                   </div>
-                  <div className="text-2xl font-black text-slate-900 mb-1">
-                    {stats.totalSales.toLocaleString()} <span className="text-xs font-normal text-slate-500">ريال</span>
+                  <div className="text-lg sm:text-2xl font-black text-slate-900 mb-0.5 sm:mb-1">
+                    {stats.totalSales.toLocaleString()} <span className="text-[10px] sm:text-xs font-normal text-slate-500">ريال</span>
                   </div>
-                  <p className="text-xs text-slate-500 font-medium">إجمالي المبيعات المحققة</p>
+                  <p className="text-[10px] sm:text-xs text-slate-500 font-medium">إجمالي المبيعات</p>
                 </div>
 
                 {/* Total Orders */}
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                      <ShoppingBag className="w-6 h-6" />
+                <div className="bg-white rounded-2xl p-3.5 sm:p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-2.5 sm:mb-4">
+                    <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                      <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
-                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 flex items-center gap-1">
-                      <ArrowUpRight className="w-3 h-3" />
+                    <span className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-emerald-50 text-emerald-600 flex items-center gap-0.5 sm:gap-1">
+                      <ArrowUpRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       <span>+{stats.ordersGrowth}%</span>
                     </span>
                   </div>
-                  <div className="text-2xl font-black text-slate-900 mb-1">
-                    {stats.totalOrdersCount} <span className="text-xs font-normal text-slate-500">طلب</span>
+                  <div className="text-lg sm:text-2xl font-black text-slate-900 mb-0.5 sm:mb-1">
+                    {stats.totalOrdersCount} <span className="text-[10px] sm:text-xs font-normal text-slate-500">طلب</span>
                   </div>
-                  <p className="text-xs text-slate-500 font-medium">الطلبات الكلية المنجزة</p>
+                  <p className="text-[10px] sm:text-xs text-slate-500 font-medium">الطلبات الكلية</p>
                 </div>
 
                 {/* Active Products */}
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                      <Package className="w-6 h-6" />
+                <div className="bg-white rounded-2xl p-3.5 sm:p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-2.5 sm:mb-4">
+                    <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                      <Package className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
-                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-blue-50 text-blue-600">
-                      نشط في المتجر
+                    <span className="text-[9px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-blue-50 text-blue-600">
+                      نشط بالمتجر
                     </span>
                   </div>
-                  <div className="text-2xl font-black text-slate-900 mb-1">
-                    {merchantProducts.length} <span className="text-xs font-normal text-slate-500">منتج</span>
+                  <div className="text-lg sm:text-2xl font-black text-slate-900 mb-0.5 sm:mb-1">
+                    {merchantProducts.length} <span className="text-[10px] sm:text-xs font-normal text-slate-500">منتج</span>
                   </div>
-                  <p className="text-xs text-slate-500 font-medium">المنتجات المعروضة للزبائن</p>
+                  <p className="text-[10px] sm:text-xs text-slate-500 font-medium">المنتجات المعروضة</p>
                 </div>
 
                 {/* Platform Commission 2% */}
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                      <Percent className="w-6 h-6" />
+                <div className="bg-white rounded-2xl p-3.5 sm:p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-2.5 sm:mb-4">
+                    <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <Percent className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
-                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700">
+                    <span className="text-[9px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-emerald-50 text-emerald-700">
                       ثابتة ومخفضة
                     </span>
                   </div>
-                  <div className="text-2xl font-black text-emerald-600 mb-1">
-                    2% <span className="text-xs font-normal text-slate-500">فقط</span>
+                  <div className="text-lg sm:text-2xl font-black text-emerald-600 mb-0.5 sm:mb-1">
+                    2% <span className="text-[10px] sm:text-xs font-normal text-slate-500">فقط</span>
                   </div>
-                  <p className="text-xs text-slate-500 font-medium">عمولة منصة غيم سبيس</p>
+                  <p className="text-[10px] sm:text-xs text-slate-500 font-medium">عمولة غيم سبيس</p>
                 </div>
 
               </div>
@@ -2090,26 +2090,26 @@ export default function MerchantDashboard({ onBackToMarket }) {
                 </div>
               </div>
 
-              {/* 4 Stat Cards for Sales (Screen 6 Layout) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                  <div className="text-xs text-slate-500 font-semibold mb-1">عدد الطلبات</div>
-                  <div className="text-2xl font-black text-slate-900">{stats.totalOrdersCount} طلب</div>
+              {/* 4 Stat Cards for Sales (Screen 6 Layout - 2 Columns on Mobile) */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+                <div className="bg-white rounded-2xl p-3.5 sm:p-6 border border-slate-100 shadow-sm">
+                  <div className="text-[10px] sm:text-xs text-slate-500 font-semibold mb-1">عدد الطلبات</div>
+                  <div className="text-lg sm:text-2xl font-black text-slate-900">{stats.totalOrdersCount} طلب</div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                  <div className="text-xs text-slate-500 font-semibold mb-1">إجمالي المبيعات</div>
-                  <div className="text-2xl font-black text-blue-600">{stats.totalSales.toLocaleString()} ريال</div>
+                <div className="bg-white rounded-2xl p-3.5 sm:p-6 border border-slate-100 shadow-sm">
+                  <div className="text-[10px] sm:text-xs text-slate-500 font-semibold mb-1">إجمالي المبيعات</div>
+                  <div className="text-lg sm:text-2xl font-black text-blue-600">{stats.totalSales.toLocaleString()} <span className="text-[10px] sm:text-xs font-normal">ريال</span></div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                  <div className="text-xs text-slate-500 font-semibold mb-1">أرباح التاجر الصافية</div>
-                  <div className="text-2xl font-black text-emerald-600">{stats.merchantNetEarnings.toLocaleString()} ريال</div>
+                <div className="bg-white rounded-2xl p-3.5 sm:p-6 border border-slate-100 shadow-sm">
+                  <div className="text-[10px] sm:text-xs text-slate-500 font-semibold mb-1">أرباح التاجر الصافية</div>
+                  <div className="text-lg sm:text-2xl font-black text-emerald-600">{stats.merchantNetEarnings.toLocaleString()} <span className="text-[10px] sm:text-xs font-normal">ريال</span></div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                  <div className="text-xs text-slate-500 font-semibold mb-1">عمولات المنصة المسددة (2%)</div>
-                  <div className="text-2xl font-black text-slate-700">{stats.platformCommission.toLocaleString()} ريال</div>
+                <div className="bg-white rounded-2xl p-3.5 sm:p-6 border border-slate-100 shadow-sm">
+                  <div className="text-[10px] sm:text-xs text-slate-500 font-semibold mb-1">عمولات المنصة (2%)</div>
+                  <div className="text-lg sm:text-2xl font-black text-slate-700">{stats.platformCommission.toLocaleString()} <span className="text-[10px] sm:text-xs font-normal">ريال</span></div>
                 </div>
               </div>
 

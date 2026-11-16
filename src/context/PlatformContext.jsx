@@ -507,6 +507,24 @@ const getInitialDatabase = () => {
       currency: 'ر.ي',
       region: 'حضرموت / المكلا',
     },
+
+    // 13. MUKALLA SHIPPING RATES TABLE (Configurable for All Neighborhoods)
+    shippingRates: [
+      { id: 'mk-1', name: 'حي الورد - المكلا', distanceKm: 2.4, fee: 1200, active: true, duration: '15-20 دقيقة' },
+      { id: 'mk-2', name: 'الشرج', distanceKm: 2.8, fee: 1300, active: true, duration: '15-25 دقيقة' },
+      { id: 'mk-3', name: 'الديس', distanceKm: 3.2, fee: 1400, active: true, duration: '20-30 دقيقة' },
+      { id: 'mk-4', name: 'باجعمان', distanceKm: 3.9, fee: 1500, active: true, duration: '20-30 دقيقة' },
+      { id: 'mk-5', name: 'الغويزي', distanceKm: 5.0, fee: 1700, active: true, duration: '25-35 دقيقة' },
+      { id: 'mk-6', name: 'فوة القديمة', distanceKm: 6.1, fee: 1800, active: true, duration: '30-40 دقيقة' },
+      { id: 'mk-7', name: 'فوة المتضررين', distanceKm: 7.5, fee: 2000, active: true, duration: '30-45 دقيقة' },
+      { id: 'mk-8', name: 'بويش', distanceKm: 8.0, fee: 2200, active: true, duration: '35-50 دقيقة' },
+      { id: 'mk-9', name: 'فلك', distanceKm: 9.3, fee: 2500, active: true, duration: '40-55 دقيقة' },
+      { id: 'mk-10', name: 'روكب', distanceKm: 11.5, fee: 3000, active: true, duration: '45-60 دقيقة' },
+      { id: 'mk-11', name: 'خلف / ميناء المكلا', distanceKm: 4.5, fee: 1600, active: true, duration: '25-35 دقيقة' },
+      { id: 'mk-12', name: 'جول مسحة', distanceKm: 6.8, fee: 1900, active: true, duration: '30-45 دقيقة' },
+      { id: 'mk-13', name: 'حي السلام', distanceKm: 3.0, fee: 1350, active: true, duration: '20-25 دقيقة' },
+      { id: 'mk-14', name: 'المكلا القديمة', distanceKm: 2.2, fee: 1200, active: true, duration: '15-20 دقيقة' },
+    ],
   };
 };
 
@@ -547,6 +565,9 @@ export function PlatformProvider({ children }) {
               }
               return p;
             });
+          }
+          if (!parsed.shippingRates || parsed.shippingRates.length === 0) {
+            parsed.shippingRates = getInitialDatabase().shippingRates;
           }
           return parsed;
         }
@@ -1831,6 +1852,75 @@ export function PlatformProvider({ children }) {
     }));
   };
 
+  const updateShippingRates = (newRates) => {
+    setDb((prev) => ({
+      ...prev,
+      shippingRates: newRates,
+    }));
+  };
+
+  const addShippingNeighborhood = (newNeighborhood) => {
+    const item = {
+      id: `mk-${Date.now()}`,
+      active: true,
+      duration: '20-30 دقيقة',
+      ...newNeighborhood,
+    };
+    setDb((prev) => ({
+      ...prev,
+      shippingRates: [...(prev.shippingRates || []), item],
+    }));
+  };
+
+  const createDemoOrderForCourier = (neighborhoodName, customFee) => {
+    const orderId = `GS-${Math.floor(1000 + Math.random() * 9000)}`;
+    const fee = customFee || 1500;
+    const newOrder = {
+      id: orderId,
+      date: new Date().toLocaleDateString('ar-YE', { day: '2-digit', month: 'long', year: 'numeric' }),
+      time: new Date().toLocaleTimeString('ar-YE', { hour: '2-digit', minute: '2-digit' }),
+      customerName: 'سعيد مبارك بن طاهر',
+      phone: '773123456',
+      address: `المكلا - ${neighborhoodName || 'حي الورد'}`,
+      paymentMethod: 'الدفع عند الاستلام',
+      subtotal: 35000,
+      shippingFee: fee,
+      total: 35000 + fee,
+      status: 'ready_for_pickup',
+      statusLabel: 'جاهز للاستلام من المتجر 📦',
+      storeName: 'تراثيات حضرمية',
+      storeId: 'store-1',
+      otpCode: `${Math.floor(1000 + Math.random() * 9000)}`,
+      items: [
+        {
+          id: 'prod-1',
+          name: 'حقيبة خوص يمنية مطرزة يدوياً',
+          storeName: 'تراثيات حضرمية',
+          price: 35000,
+          quantity: 1,
+          image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=400&auto=format&fit=crop&q=80',
+        }
+      ],
+      createdAt: new Date().toISOString(),
+    };
+
+    setDb((prev) => ({
+      ...prev,
+      orders: [newOrder, ...prev.orders],
+      auditLogs: [
+        addAuditLog(
+          'CREATE_ORDER',
+          'النظام الموحد',
+          'system',
+          `إضافة طلب جديد #${orderId} في منطقة ${neighborhoodName || 'المكلا'} برسم شحن ${fee} ر.ي.`
+        ),
+        ...prev.auditLogs,
+      ],
+    }));
+
+    return newOrder;
+  };
+
 
   // ================= ADMIN & MERCHANT ONBOARDING & CRUD FUNCTIONS ================= //
 
@@ -1952,6 +2042,54 @@ export function PlatformProvider({ children }) {
     window.location.hash = '#/merchant/dashboard';
 
     return { success: true, user: newMerchantUser, store: newStore };
+  };
+
+  // 1.1 Courier Onboarding & Self-Registration
+  const registerCourier = (formData) => {
+    const newUserId = `usr-cour-${Date.now()}`;
+    const cleanPhone = cleanYemeniPhone(formData.phone || '');
+
+    const newCourierUser = {
+      id: newUserId,
+      role: 'courier',
+      status: 'active',
+      name: formData.name || 'مندوب غيم سبيس جديد',
+      phone: cleanPhone || formData.phone,
+      email: formData.email || `${cleanPhone || Date.now()}@ghaym.ye`,
+      password: formData.password || '******',
+      city: formData.city || 'المكلا',
+      neighborhood: formData.neighborhood || 'المكلا',
+      vehicle: formData.vehicle || 'دراجة نارية (سكوتر)',
+      plateNumber: formData.plateNumber || 'حضرموت 14-8902',
+      isOnline: true,
+      rating: 5.0,
+      totalOrders: 0,
+      totalDeliveries: 0,
+      todayEarnings: 0,
+      totalEarnings: 0,
+      commitmentRate: 100,
+      createdAt: new Date().toISOString(),
+    };
+
+    setDb((prev) => ({
+      ...prev,
+      users: [newCourierUser, ...prev.users],
+      auditLogs: [
+        addAuditLog(
+          'REGISTER_COURIER',
+          newCourierUser.name,
+          'courier',
+          `تسجيل مندوب توصيل جديد "${newCourierUser.name}" بنجاح.`
+        ),
+        ...prev.auditLogs,
+      ],
+    }));
+
+    switchCourierAccount(newUserId);
+    setCurrentPortal('courier');
+    window.location.hash = '#/courier';
+
+    return { success: true, user: newCourierUser };
   };
 
   const adminApproveMerchant = (merchantId) => {
@@ -2713,6 +2851,7 @@ export function PlatformProvider({ children }) {
     currentCourierUser,
     switchCourierAccount,
     loginCourier,
+    registerCourier,
     logoutCourier,
 
     adminUser,
@@ -2789,6 +2928,10 @@ export function PlatformProvider({ children }) {
     setIsCourierOnline: toggleCourierOnline,
     courierProfile: currentCourierUser,
     setCourierProfile: updateCourierProfile,
+    shippingRates: db.shippingRates || [],
+    updateShippingRates,
+    addShippingNeighborhood,
+    createDemoOrderForCourier,
 
     // Notifications & Audit Logs
     notifications: db.notifications || [],

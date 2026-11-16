@@ -28,6 +28,7 @@ export default function Header({
   customerUser,
   onOpenAuthModal,
   onOpenProfileModal,
+  onOpenReview,
 }) {
   const [showLocationMenu, setShowLocationMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -72,17 +73,17 @@ export default function Header({
       </svg>
 
       {/* Top Action Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="flex items-center justify-between h-20 border-b border-[#142346] gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
+        <div className="flex items-center justify-between h-16 sm:h-20 border-b border-[#142346] gap-2 sm:gap-4">
           
           {/* Right: Logo & Slogan */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <button
               type="button"
               onClick={() => onNavigate && onNavigate('home')}
-              className="flex items-center gap-2 group text-right cursor-pointer"
+              className="flex items-center gap-1.5 sm:gap-2 group text-right cursor-pointer"
             >
-              <div className="relative w-12 h-12 flex items-center justify-center overflow-hidden">
+              <div className="relative w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center overflow-hidden">
                 <img
                   alt="غيم سبيس | Ghaym Space"
                   className="w-full h-full object-contain filter drop-shadow"
@@ -90,14 +91,14 @@ export default function Header({
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold tracking-tight text-white leading-tight">غيم سبيس</span>
-                <span className="text-[11px] font-semibold text-sky-400 tracking-wider">Ghaym Space</span>
+                <span className="text-sm sm:text-xl font-bold tracking-tight text-white leading-tight">غيم سبيس</span>
+                <span className="text-[8px] sm:text-[11px] font-semibold text-sky-400 tracking-wider">Ghaym Space</span>
               </div>
             </button>
           </div>
 
-          {/* Center: Search Input Bar surrounded by soft ambient glow */}
-          <div className="flex-1 max-w-2xl mx-2 md:mx-6 relative">
+          {/* Center: Search Input Bar (Visible on desktop md and up) */}
+          <div className="hidden md:block flex-1 max-w-2xl mx-2 md:mx-6 relative">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-sky-400/20 rounded-full blur-xl pointer-events-none"></div>
             <div className="relative">
               <input
@@ -144,29 +145,29 @@ export default function Header({
           </div>
 
           {/* Left: User Actions & Delivery Location */}
-          <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
-            {/* Notification Bell */}
+          <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
+            {/* Notification Bell (Hidden on small mobile to save space) */}
             <button
               aria-label="الإشعارات"
-              className="text-gray-300 hover:text-white relative p-2 transition-colors cursor-pointer"
+              className="hidden sm:flex text-gray-300 hover:text-white relative p-1.5 sm:p-2 transition-colors cursor-pointer"
               type="button"
               onClick={() => {}}
             >
-              <i className="fa-regular fa-bell text-lg"></i>
+              <i className="fa-regular fa-bell text-base sm:text-lg"></i>
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
 
             {/* Wishlist Heart with Live Badge */}
             <button
               aria-label="المفضلة"
-              className="text-gray-300 hover:text-white p-2 transition-colors cursor-pointer relative"
+              className="text-gray-300 hover:text-white p-1.5 sm:p-2 transition-colors cursor-pointer relative"
               type="button"
               onClick={() => onNavigate && onNavigate('wishlist')}
               title="قائمة المفضلة"
             >
-              <i className={`text-lg transition-colors ${wishlistCount > 0 ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart'}`}></i>
+              <i className={`text-base sm:text-lg transition-colors ${wishlistCount > 0 ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart'}`}></i>
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md animate-in zoom-in">
+                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md animate-in zoom-in">
                   {wishlistCount}
                 </span>
               )}
@@ -175,12 +176,12 @@ export default function Header({
             {/* Shopping Cart Icon with Badge */}
             <button
               aria-label="سلة التسوق"
-              className="text-gray-300 hover:text-white relative p-2 transition-colors cursor-pointer"
+              className="text-gray-300 hover:text-white relative p-1.5 sm:p-2 transition-colors cursor-pointer"
               type="button"
               onClick={onOpenCart}
             >
-              <i className="fa-solid fa-cart-shopping text-lg"></i>
-              <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+              <i className="fa-solid fa-cart-shopping text-base sm:text-lg"></i>
+              <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                 {cartCount}
               </span>
             </button>
@@ -190,14 +191,15 @@ export default function Header({
               <button
                 type="button"
                 onClick={() => setShowLocationMenu(!showLocationMenu)}
-                className="flex items-center gap-2 bg-[#122245] hover:bg-[#1a2f5e] py-1.5 px-3 rounded-full text-xs transition border border-[#233b70] cursor-pointer"
+                className="flex items-center gap-1.5 bg-[#122245] hover:bg-[#1a2f5e] py-1.5 px-2 sm:px-3 rounded-full text-xs transition border border-[#233b70] cursor-pointer"
+                title={`موقع التوصيل: ${selectedLocation}`}
               >
                 <i className="fa-solid fa-location-dot text-sky-400 text-xs"></i>
-                <div className="text-right leading-none hidden sm:block">
+                <div className="text-right leading-none hidden md:block">
                   <span className="block text-[10px] text-gray-300">موقع التوصيل</span>
                   <span className="font-bold text-white">{selectedLocation}</span>
                 </div>
-                <i className="fa-solid fa-chevron-down text-[10px] text-gray-400 mr-1"></i>
+                <i className="fa-solid fa-chevron-down text-[9px] text-gray-400 hidden sm:inline mr-0.5"></i>
               </button>
 
               {/* Location Dropdown Menu */}
@@ -247,7 +249,7 @@ export default function Header({
               <span>انضم كتاجر</span>
             </button>
 
-            {/* Login / User Account Button */}
+            {/* Login / User Account Button (Responsive: Icon on mobile, Full on sm+) */}
             <button
               type="button"
               onClick={() => {
@@ -258,13 +260,13 @@ export default function Header({
                   else if (onOpenAuthModal) onOpenAuthModal();
                 }
               }}
-              className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 hover:border-sky-400 transition-all cursor-pointer shadow-sm active:scale-95 group"
+              className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 hover:border-sky-400 transition-all cursor-pointer shadow-sm active:scale-95 group"
               title={customerUser ? `حسابي (${customerUser.name})` : 'تسجيل الدخول'}
             >
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400 group-hover:bg-sky-500/30 transition-colors shrink-0">
-                <i className="fa-regular fa-user text-xs"></i>
+              <div className="w-5 h-5 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400 group-hover:bg-sky-500/30 transition-colors shrink-0">
+                <i className="fa-regular fa-user text-[11px]"></i>
               </div>
-              <span className="whitespace-nowrap font-bold text-xs sm:text-sm">
+              <span className="hidden sm:inline whitespace-nowrap font-bold text-xs">
                 {customerUser ? customerUser.name.split(' ')[0] : 'تسجيل الدخول'}
               </span>
             </button>
@@ -273,17 +275,40 @@ export default function Header({
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl bg-white/5 text-slate-300 hover:text-white border border-white/10"
+              className="md:hidden p-1.5 rounded-xl bg-white/5 text-slate-300 hover:text-white border border-white/10"
               aria-label="القائمة"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
 
         </div>
 
+        {/* Mobile Search Bar Row (Mobile Only) */}
+        <div className="md:hidden pt-2 pb-2">
+          <div className="relative">
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setTimeout(() => setIsSearchFocused(false), 250)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && searchQuery.trim()) {
+                  if (onNavigate) onNavigate('products');
+                }
+              }}
+              className="w-full py-2 pr-9 pl-3 rounded-full bg-white text-gray-800 text-xs focus:outline-none focus:ring-2 focus:ring-sky-400 border-none shadow-sm placeholder-gray-400 text-right"
+              placeholder="ابحث عن منتج، متجر، أو صنف..."
+              type="text"
+            />
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 text-xs">
+              <i className="fa-solid fa-magnifying-glass"></i>
+            </div>
+          </div>
+        </div>
+
         {/* Navigation Links Row */}
-        <nav className="flex items-center justify-start space-x-reverse space-x-8 py-3 text-sm font-semibold overflow-x-auto custom-scroll-hidden">
+        <nav className="flex items-center justify-start space-x-reverse space-x-5 sm:space-x-8 py-2 sm:py-3 text-xs sm:text-sm font-semibold overflow-x-auto no-scrollbar">
           {navLinks.map((link) => {
             const isActive = activeNav === link.id;
             return (
@@ -364,6 +389,24 @@ export default function Header({
                 {link.label}
               </button>
             ))}
+
+            {/* Platform Rating Button in Drawer */}
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenReview) onOpenReview();
+                setMobileMenuOpen(false);
+              }}
+              className="text-right px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-between bg-white/5 hover:bg-white/10 text-amber-300 border border-amber-400/20 cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <span>⭐</span>
+                <span>تقييم منصة غيم سبيس</span>
+              </div>
+              <span className="text-[10px] bg-[#EAB839] text-[#07132B] font-black px-2 py-0.5 rounded-full">
+                4.9
+              </span>
+            </button>
           </div>
 
           <button

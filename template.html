@@ -3,8 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/jpeg" href="./logo.jpg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="screen-orientation" content="landscape" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" id="viewport-meta" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#07132B" />
     <title>غيم سبيس | Ghaym Space - منصة الحرفيين والأسر المنتجة</title>
 
@@ -59,22 +61,6 @@
         overflow-x: hidden;
       }
 
-      /* 🌟 Landscape Optimization: Platform operates horizontally across wide screens & mobile landscape */
-      @media (orientation: landscape) {
-        .landscape-wide-container {
-          max-width: 1440px !important;
-          margin-left: auto !important;
-          margin-right: auto !important;
-          width: 100% !important;
-        }
-        .landscape-grid-4 {
-          grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-        }
-        .landscape-grid-3 {
-          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        }
-      }
-
       .material-symbols-outlined {
         font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         display: inline-block;
@@ -98,12 +84,23 @@
         background: #38BDF8;
         border-radius: 4px;
       }
-      .custom-scroll-hidden::-webkit-scrollbar {
+      .custom-scroll-hidden::-webkit-scrollbar,
+      .no-scrollbar::-webkit-scrollbar {
         display: none;
       }
-      .custom-scroll-hidden {
+      .custom-scroll-hidden,
+      .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
+      }
+
+      /* Native Touch Momentum Carousel with Snap */
+      .snap-x-mandatory {
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+      }
+      .snap-start {
+        scroll-snap-align: start;
       }
 
       /* Seamless Logo Blending without harsh borders */

@@ -211,10 +211,10 @@ export default function CheckoutPage({
                   </div>
                 </div>
 
-                {/* City and District */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* City and District (Horizontal Grid on Mobile) */}
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-label-lg font-label-lg text-on-surface mb-1.5 font-semibold">
+                    <label className="block text-xs sm:text-sm font-semibold text-on-surface mb-1">
                       المدينة <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -222,12 +222,12 @@ export default function CheckoutPage({
                       required
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-3 px-4 text-body-md text-on-surface"
-                      placeholder="المكلا، الشحر، سيئون..."
+                      className="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-2 sm:py-3 px-3 text-xs sm:text-sm text-on-surface"
+                      placeholder="المكلا..."
                     />
                   </div>
                   <div>
-                    <label className="block text-label-lg font-label-lg text-on-surface mb-1.5 font-semibold">
+                    <label className="block text-xs sm:text-sm font-semibold text-on-surface mb-1">
                       الحي / المنطقة <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -235,15 +235,15 @@ export default function CheckoutPage({
                       required
                       value={district}
                       onChange={(e) => setDistrict(e.target.value)}
-                      className="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-3 px-4 text-body-md text-on-surface"
-                      placeholder="حي السلام، الديس، فوة..."
+                      className="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-2 sm:py-3 px-3 text-xs sm:text-sm text-on-surface"
+                      placeholder="حي السلام..."
                     />
                   </div>
                 </div>
 
                 {/* Detailed Address */}
                 <div>
-                  <label className="block text-label-lg font-label-lg text-on-surface mb-1.5 font-semibold">
+                  <label className="block text-xs sm:text-sm font-semibold text-on-surface mb-1">
                     العنوان بالتفصيل <span className="text-red-500">*</span>
                   </label>
                   <textarea
@@ -251,61 +251,61 @@ export default function CheckoutPage({
                     required
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-2.5 px-4 text-body-md text-on-surface text-right"
+                    className="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl py-2 px-3 text-xs sm:text-sm text-on-surface text-right"
                     placeholder="الشارع، اسم العمارة، رقم الشقة أو أقرب معلم مشهور"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Payment Method Card */}
-            <div className="bg-white rounded-2xl p-6 md:p-8 space-y-4 border border-slate-100 shadow-sm">
-              <h2 className="text-headline-md font-headline-md text-on-surface flex items-center gap-2 font-bold border-b border-surface-container pb-3">
-                <DollarSign className="w-5 h-5 text-blue-600" />
+            {/* Payment Method Card (Horizontal Row of 3 on Mobile) */}
+            <div className="bg-white rounded-2xl p-4 sm:p-8 space-y-3 sm:space-y-4 border border-slate-100 shadow-sm">
+              <h2 className="text-sm sm:text-base text-on-surface flex items-center gap-2 font-bold border-b border-surface-container pb-2.5 sm:pb-3">
+                <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                 <span>وسيلة الدفع</span>
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {/* Cash on Delivery */}
                 <div
                   onClick={() => setPaymentMethod('cash')}
-                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-2 ${
+                  className={`p-2.5 sm:p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-1 sm:gap-2 ${
                     paymentMethod === 'cash'
                       ? 'border-primary-container bg-primary/5 ring-2 ring-primary/20'
                       : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
-                  <span className="text-2xl">💵</span>
-                  <span className="text-xs font-bold text-[#07132B]">الدفع عند الاستلام</span>
-                  <span className="text-[10px] text-gray-500">نقدًا لمندوب التوصيل</span>
+                  <span className="text-xl sm:text-2xl">💵</span>
+                  <span className="text-[11px] sm:text-xs font-bold text-[#07132B] line-clamp-1">عند الاستلام</span>
+                  <span className="text-[9px] sm:text-[10px] text-gray-500 hidden sm:block">نقدًا لمندوب التوصيل</span>
                 </div>
 
                 {/* Jawali / Digital Wallet */}
                 <div
                   onClick={() => setPaymentMethod('jawali')}
-                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-2 ${
+                  className={`p-2.5 sm:p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-1 sm:gap-2 ${
                     paymentMethod === 'jawali'
                       ? 'border-primary-container bg-primary/5 ring-2 ring-primary/20'
                       : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
-                  <span className="text-2xl">📱</span>
-                  <span className="text-xs font-bold text-[#07132B]">محفظة جوالي / كاش</span>
-                  <span className="text-[10px] text-gray-500">تحويل إلكتروني فوري</span>
+                  <span className="text-xl sm:text-2xl">📱</span>
+                  <span className="text-[11px] sm:text-xs font-bold text-[#07132B] line-clamp-1">محفظة كاش</span>
+                  <span className="text-[9px] sm:text-[10px] text-gray-500 hidden sm:block">تحويل إلكتروني فوري</span>
                 </div>
 
                 {/* Card / Bank Transfer */}
                 <div
                   onClick={() => setPaymentMethod('card')}
-                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-2 ${
+                  className={`p-2.5 sm:p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-1 sm:gap-2 ${
                     paymentMethod === 'card'
                       ? 'border-primary-container bg-primary/5 ring-2 ring-primary/20'
                       : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
-                  <span className="text-2xl">💳</span>
-                  <span className="text-xs font-bold text-[#07132B]">حساب بنكي / بطاقة</span>
-                  <span className="text-[10px] text-gray-500">العمقي / بنك الكريمي</span>
+                  <span className="text-xl sm:text-2xl">💳</span>
+                  <span className="text-[11px] sm:text-xs font-bold text-[#07132B] line-clamp-1">حساب بنكي</span>
+                  <span className="text-[9px] sm:text-[10px] text-gray-500 hidden sm:block">العمقي / بنك الكريمي</span>
                 </div>
               </div>
             </div>

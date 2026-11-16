@@ -216,35 +216,35 @@ export default function StoreDetailsPage({
       </div>
 
       {/* 3. Value Pillars (Matching 10_store_jaziza.html) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white p-4 rounded-2xl border border-sky-100 flex items-center gap-3 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#38BDF8] flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
+        <div className="flex overflow-x-auto gap-2.5 sm:grid sm:grid-cols-3 sm:gap-4 custom-scroll-hidden pb-1">
+          <div className="bg-white p-3 sm:p-4 rounded-2xl border border-sky-100 flex items-center gap-2.5 sm:gap-3 shadow-xs shrink-0 min-w-[200px] sm:min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-sky-50 text-[#38BDF8] flex items-center justify-center shrink-0">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-[#07132B]">جودة ومكونات طازجة 100%</h4>
-              <p className="text-[11px] text-gray-500">مخبوزات يومية بمكونات مختارة بعناية</p>
+              <p className="text-[10px] sm:text-[11px] text-gray-500">مخبوزات يومية بمكونات مختارة</p>
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-2xl border border-sky-100 flex items-center gap-3 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#EAB839] flex items-center justify-center shrink-0">
-              <Truck className="w-5 h-5" />
+          <div className="bg-white p-3 sm:p-4 rounded-2xl border border-sky-100 flex items-center gap-2.5 sm:gap-3 shadow-xs shrink-0 min-w-[200px] sm:min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 text-[#EAB839] flex items-center justify-center shrink-0">
+              <Truck className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-[#07132B]">توصيل مبرد وسريع</h4>
-              <p className="text-[11px] text-gray-500">حفاظ تام على شكل ونكهة المنتجات</p>
+              <p className="text-[10px] sm:text-[11px] text-gray-500">حفاظ تام على شكل ونكهة المنتجات</p>
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-2xl border border-sky-100 flex items-center gap-3 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" />
+          <div className="bg-white p-3 sm:p-4 rounded-2xl border border-sky-100 flex items-center gap-2.5 sm:gap-3 shadow-xs shrink-0 min-w-[200px] sm:min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-[#07132B]">دعم وتخصيص المناسبات</h4>
-              <p className="text-[11px] text-gray-500">كتابة عبارات وتصاميم مخصصة للأفراح</p>
+              <p className="text-[10px] sm:text-[11px] text-gray-500">كتابة وتصاميم مخصصة للأفراح</p>
             </div>
           </div>
         </div>
@@ -280,15 +280,15 @@ export default function StoreDetailsPage({
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {filteredProducts.map((prod) => (
             <div
               key={prod.id}
-              className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100 hover:border-sky-300 transition-all duration-300 flex flex-col group"
+              className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100 hover:border-sky-300 transition-all duration-300 flex flex-col group"
             >
               {/* Product Image */}
               <div
-                className="relative h-56 bg-slate-100 overflow-hidden cursor-pointer"
+                className="relative h-36 sm:h-56 bg-slate-100 overflow-hidden cursor-pointer"
                 onClick={() => {
                   if (onSelectProduct) onSelectProduct(prod);
                   else if (onNavigate) onNavigate('product-details');
@@ -308,59 +308,59 @@ export default function StoreDetailsPage({
                     e.stopPropagation();
                     toggleFavorite(prod);
                   }}
-                  className={`absolute top-3 left-3 w-8 h-8 rounded-full shadow-sm flex items-center justify-center backdrop-blur-md transition-all active:scale-90 z-10 cursor-pointer ${
+                  className={`absolute top-2 left-2 sm:top-3 sm:left-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full shadow-sm flex items-center justify-center backdrop-blur-md transition-all active:scale-90 z-10 cursor-pointer ${
                     isFavorite(prod.id)
                       ? 'bg-rose-50 text-rose-500 scale-105'
                       : 'bg-white/80 hover:bg-white text-slate-500 hover:text-rose-500'
                   }`}
                   title={isFavorite(prod.id) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
                 >
-                  <Heart className={`w-4 h-4 ${isFavorite(prod.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-500'}`} />
+                  <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isFavorite(prod.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-500'}`} />
                 </button>
                 {prod.tag && (
-                  <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#07132B]/80 text-[#EAB839] backdrop-blur-md text-[10px] font-bold">
+                  <span className="absolute top-2 right-2 sm:top-3 sm:right-3 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#07132B]/80 text-[#EAB839] backdrop-blur-md text-[9px] sm:text-[10px] font-bold">
                     {prod.tag}
                   </span>
                 )}
-                <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-bold text-gray-800">
-                  <Star className="w-3 h-3 text-[#EAB839] fill-current" />
+                <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 flex items-center gap-0.5 sm:gap-1 bg-white/90 backdrop-blur-md px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold text-gray-800">
+                  <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#EAB839] fill-current" />
                   <span>{prod.rating}</span>
                 </div>
               </div>
 
               {/* Product Info */}
-              <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div className="p-2.5 sm:p-5 flex-1 flex flex-col justify-between space-y-2 sm:space-y-4">
                 <div>
                   <h3
                     onClick={() => {
                       if (onSelectProduct) onSelectProduct(prod);
                       else if (onNavigate) onNavigate('product-details');
                     }}
-                    className="font-bold text-[#07132B] text-sm group-hover:text-[#0284C7] transition cursor-pointer"
+                    className="font-bold text-[#07132B] text-xs sm:text-sm group-hover:text-[#0284C7] transition cursor-pointer line-clamp-1"
                   >
                     {prod.name}
                   </h3>
-                  <div className="mt-2 text-base font-black text-[#07132B]">
-                    {prod.price.toLocaleString()} <span className="text-xs text-gray-500 font-medium">ر.ي</span>
+                  <div className="mt-1 sm:mt-2 text-xs sm:text-base font-black text-[#07132B]">
+                    {prod.price.toLocaleString()} <span className="text-[10px] sm:text-xs text-gray-500 font-medium">ر.ي</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
+                <div className="grid grid-cols-2 gap-1.5 sm:gap-2 pt-2 border-t border-gray-100">
                   <button
                     onClick={() => {
                       if (onSelectProduct) onSelectProduct(prod);
                       else if (onNavigate) onNavigate('product-details');
                     }}
-                    className="w-full py-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold transition"
+                    className="w-full py-1.5 sm:py-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-[11px] sm:text-xs font-bold transition"
                   >
                     تفاصيل
                   </button>
                   <button
                     onClick={() => onAddToCart(prod)}
-                    className="w-full py-2 rounded-xl bg-[#07132B] hover:bg-[#122245] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+                    className="w-full py-1.5 sm:py-2 rounded-xl bg-[#07132B] hover:bg-[#122245] text-white text-[11px] sm:text-xs font-bold transition flex items-center justify-center gap-1 shadow-sm active:scale-95"
                   >
-                    <ShoppingCart className="w-3.5 h-3.5 text-[#38BDF8]" />
-                    <span>أضف للسلة</span>
+                    <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#38BDF8]" />
+                    <span>أضف</span>
                   </button>
                 </div>
               </div>

@@ -144,6 +144,7 @@ export async function supabaseSignUp({ email, password, fullName, phone, role = 
   }
 
   // 3. Create Profile linked to Auth User UID
+  const isMerchant = role === 'merchant';
   const profilePayload = {
     id: userId,
     role: role,
@@ -152,6 +153,7 @@ export async function supabaseSignUp({ email, password, fullName, phone, role = 
     email: cleanEmail,
     city: city || 'المكلا',
     store_id: storeId,
+    is_active: !isMerchant, // Merchants MUST remain inactive until approved by Admin
   };
 
   const { data: profileData, error: profErr } = await client
@@ -164,11 +166,29 @@ export async function supabaseSignUp({ email, password, fullName, phone, role = 
 
   const finalProfile = profileData || profilePayload;
 
-  // Save session locally
+  // 4. If merchant, create pending join request in Supabase
+  if (isMerchant) {
+    try {
+      await client.from('merchant_requests').insert([{
+        user_id: userId,
+        full_name: cleanName,
+        phone: cleanPhone,
+        email: cleanEmail,
+        store_name: (storeName || cleanName).trim(),
+        activity_type: category || 'أسر منتجة وحرف يدوية',
+        city: city || 'المكلا',
+        status: 'pending',
+      }]);
+    } catch (e) {
+      console.warn('Supabase merchant_requests insert notice:', e);
+    }
+  }
+
+  // Save session locally - NEVER set active merchant ID before approval!
   if (typeof window !== 'undefined') {
     localStorage.setItem(STORAGE_AUTH_USER, JSON.stringify(authUser || { id: userId, email: cleanEmail }));
     localStorage.setItem(STORAGE_AUTH_PROFILE, JSON.stringify(finalProfile));
-    if (storeId) {
+    if (!isMerchant && storeId) {
       localStorage.setItem('ghaym_active_merchant_id', userId);
       localStorage.setItem('ghaym_active_store_id', storeId);
     }
@@ -176,9 +196,13 @@ export async function supabaseSignUp({ email, password, fullName, phone, role = 
 
   return {
     success: true,
+    pendingApproval: isMerchant,
     user: authUser || { id: userId, email: cleanEmail },
     profile: finalProfile,
     storeId: storeId,
+    message: isMerchant
+      ? 'تم إنشاء الحساب بنجاح وطلب انضمام متجرك قيد المراجعة والاعتماد من قبل الإدارة ⏳'
+      : 'تم إنشاء الحساب بنجاح',
   };
 }
 
@@ -206,7 +230,49 @@ export async function supabaseSignIn({ emailOrPhone, password }) {
         .eq('id', authData.user.id)
         .single();
 
-      // If merchant, fetch their specific store
+      // Check merchant approval status in Supabase
+      if (profile?.role === 'merchant') {
+        const { data: req } = await client
+          .from('merchant_requests')
+          .select('*')
+          .eq('user_id', authData.user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (req && req.status === 'pending') {
+          return {
+            success: false,
+            status: 'pending',
+            message: `طلب انضمام متجرك "${req.store_name || ''}" قيد المراجعة والاعتماد من قبل الإدارة ⏳. لا يمكن الدخول حتى تتم الموافقة الرسمية.`,
+          };
+        }
+        if (req && req.status === 'rejected') {
+          return {
+            success: false,
+            status: 'rejected',
+            message: `تم رفض طلب انضمام متجرك من قبل الإدارة. سبب الرفض: "${req.admin_notes || 'لم يستوفِ الشروط المحددة'}" ❌.`,
+          };
+        }
+        if (profile.is_active === false) {
+          return {
+            success: false,
+            status: 'pending',
+            message: 'حساب التاجر قيد المراجعة والاعتماد من قبل الإدارة ⏳.',
+          };
+        }
+      }
+
+      // Check courier active status
+      if (profile?.role === 'courier' && profile.is_active === false) {
+        return {
+          success: false,
+          status: 'suspended',
+          message: 'تم إيقاف حساب المندوب مؤقتاً من قبل الإدارة.',
+        };
+      }
+
+      // If merchant and approved, fetch their specific store
       let store = null;
       if (profile?.store_id) {
         const { data: s } = await client.from('stores').select('*').eq('id', profile.store_id).single();
@@ -216,7 +282,7 @@ export async function supabaseSignIn({ emailOrPhone, password }) {
       if (typeof window !== 'undefined') {
         localStorage.setItem(STORAGE_AUTH_USER, JSON.stringify(authData.user));
         if (profile) localStorage.setItem(STORAGE_AUTH_PROFILE, JSON.stringify(profile));
-        if (profile?.store_id) {
+        if (profile?.store_id && profile?.role === 'merchant' && profile?.is_active !== false) {
           localStorage.setItem('ghaym_active_merchant_id', profile.id);
           localStorage.setItem('ghaym_active_store_id', profile.store_id);
         }

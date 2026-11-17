@@ -424,3 +424,55 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Helper function to verify merchant approval status
+CREATE OR REPLACE FUNCTION public.is_merchant_approved(uid UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.merchant_requests
+    WHERE user_id = uid AND status = 'approved'
+  ) OR EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = uid AND role = 'merchant' AND is_active = TRUE
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Helper function to securely verify and validate a delivery invite code
+CREATE OR REPLACE FUNCTION public.verify_invite_code(code_input TEXT)
+RETURNS TABLE (
+  valid BOOLEAN,
+  message TEXT,
+  invite_id UUID,
+  recipient_name TEXT
+) AS $$
+DECLARE
+  v_invite RECORD;
+BEGIN
+  SELECT * INTO v_invite FROM public.delivery_invites 
+  WHERE UPPER(code) = UPPER(TRIM(code_input));
+  
+  IF NOT FOUND THEN
+    RETURN QUERY SELECT false, 'كود التحقق غير صحيح أو غير مسجل في النظام'::TEXT, NULL::UUID, NULL::TEXT;
+    RETURN;
+  END IF;
+
+  IF v_invite.is_used OR v_invite.status = 'used' THEN
+    RETURN QUERY SELECT false, 'تم استخدام كود التحقق هذا مسبقاً، كل كود صالح لمرة واحدة فقط'::TEXT, v_invite.id, v_invite.courier_name;
+    RETURN;
+  END IF;
+
+  IF v_invite.status = 'revoked' THEN
+    RETURN QUERY SELECT false, 'تم إلغاء صلاحية هذا الكود من قبل الإدارة'::TEXT, v_invite.id, v_invite.courier_name;
+    RETURN;
+  END IF;
+
+  IF v_invite.expires_at < NOW() THEN
+    RETURN QUERY SELECT false, 'انتهت صلاحية كود التحقق هذا، يرجى طلب كود جديد'::TEXT, v_invite.id, v_invite.courier_name;
+    RETURN;
+  END IF;
+
+  RETURN QUERY SELECT true, 'كود تحقق صالح ومفعل'::TEXT, v_invite.id, v_invite.courier_name;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+

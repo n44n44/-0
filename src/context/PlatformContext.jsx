@@ -974,15 +974,64 @@ export function PlatformProvider({ children }) {
   // Dedicated Login & Logout Actions
   const loginMerchant = (identifier, password) => {
     const input = (identifier || '').trim().toLowerCase();
+
+    // 1. Strict check on merchant requests for pending or rejected status
+    const matchingReq = (db.merchantRequests || []).find(
+      (r) => (r.phone === input || r.email?.toLowerCase() === input)
+    );
+    if (matchingReq) {
+      if (matchingReq.status === 'pending') {
+        return {
+          success: false,
+          status: 'pending',
+          message: `طلب انضمام متجرك "${matchingReq.storeName}" قيد المراجعة والاعتماد من قبل الإدارة ⏳. لا يمكن الدخول إلى لوحة التحكم حتى تتم الموافقة الرسمية.`,
+        };
+      }
+      if (matchingReq.status === 'rejected') {
+        return {
+          success: false,
+          status: 'rejected',
+          message: `تم رفض طلب انضمام متجرك من قبل الإدارة ❌. سبب الرفض: "${matchingReq.rejectionReason || 'البيانات غير مكتملة أو النشاط غير متوافق مع الشروط'}". يمكنك التواصل مع الإدارة لإعادة التقديم.`,
+        };
+      }
+    }
+
+    // 2. Strict check on registered merchant accounts
     const found = db.users.find(
       (u) => u.role === 'merchant' && (u.email?.toLowerCase() === input || u.phone === input)
     );
     if (found) {
+      if (found.status === 'pending' || found.status === 'pending_approval') {
+        return {
+          success: false,
+          status: 'pending',
+          message: `طلب انضمام متجرك "${found.storeName || ''}" قيد المراجعة والاعتماد من قبل الإدارة ⏳.`,
+        };
+      }
+      if (found.status === 'rejected') {
+        return {
+          success: false,
+          status: 'rejected',
+          message: `تم رفض حساب التاجر من قبل الإدارة ❌. سبب الرفض: "${found.rejectionReason || 'البيانات غير متطابقة مع المعايير'}".`,
+        };
+      }
+      if (found.status === 'suspended') {
+        return {
+          success: false,
+          status: 'suspended',
+          message: 'تم إيقاف حساب هذا المتجر مؤقتاً من قبل الإدارة.',
+        };
+      }
+
+      // Approved/Active merchant successfully authenticated
       switchMerchantAccount(found.id);
       return { success: true, user: found };
     }
-    // Also accept any matching user registered in memory or create session
-    return { success: false, message: 'بيانات حساب التاجر غير صحيحة' };
+
+    return {
+      success: false,
+      message: 'بيانات اعتماد التاجر غير صحيحة، أو لم يتم اعتماد حسابك بعد.',
+    };
   };
 
   const logoutMerchant = () => {
@@ -991,16 +1040,24 @@ export function PlatformProvider({ children }) {
     switchPortal('marketplace');
   };
 
-  const loginCourier = (phone, password) => {
-    const input = (phone || '').trim();
+  const loginCourier = (phoneOrEmail, password) => {
+    const input = (phoneOrEmail || '').trim();
     const found = db.users.find(
-      (u) => u.role === 'courier' && (u.phone === input || u.name?.includes(input))
+      (u) => u.role === 'courier' && (u.phone === input || u.email?.toLowerCase() === input.toLowerCase())
     );
     if (found) {
-      switchCourierAccount(found.id);
-      return { success: true, user: found };
+      if (found.status === 'suspended') {
+        return { success: false, status: 'suspended', message: 'تم إيقاف حساب المندوب مؤقتاً من قبل الإدارة.' };
+      }
+      if (found.status === 'active') {
+        switchCourierAccount(found.id);
+        return { success: true, user: found };
+      }
     }
-    return { success: false, message: 'بيانات حساب المندوب غير صحيحة' };
+    return {
+      success: false,
+      message: 'بيانات اعتماد المندوب غير صحيحة. تسجيل ودخول مناديب التوصيل يتطلب كود دعوة معتمد من إدارة غيم سبيس.',
+    };
   };
 
   const logoutCourier = () => {
@@ -2263,10 +2320,26 @@ export function PlatformProvider({ children }) {
       notes: 'شهر تجريبي مجاني ترحيبي للأسر المنتجة والحرفيين عند التسجيل الأول',
     };
 
+    const newMerchantReq = {
+      id: `req-${Date.now()}`,
+      userId: newUserId,
+      fullName: newMerchantUser.name,
+      phone: cleanPhone,
+      email: formData.email || `${cleanPhone}@ghaym.ye`,
+      storeName: formData.storeName,
+      activityType: formData.category || 'صناعات يدوية',
+      city: formData.city || 'المكلا',
+      neighborhood: formData.neighborhood || 'حضرموت',
+      notes: formData.description || '',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+
     setDb((prev) => ({
       ...prev,
       users: [newMerchantUser, ...prev.users],
       stores: [newStore, ...prev.stores],
+      merchantRequests: [newMerchantReq, ...(prev.merchantRequests || [])],
       subscriptions: [trialSub, ...(prev.subscriptions || [])],
       auditLogs: [
         addAuditLog(
@@ -2281,78 +2354,62 @@ export function PlatformProvider({ children }) {
         {
           id: `notif-${Date.now()}`,
           title: `طلب انضمام متجر جديد 🏪`,
-          message: `قدّم "${newMerchantUser.name}" طلباً لافتتاح متجر "${newStore.name}" (${newStore.category}) في ${newStore.city}.`,
+          message: `قدّم "${newMerchantUser.name}" طلباً لافتتاح متجر "${newStore.name}" (${newStore.category}) في ${newStore.city}. بانتظار مراجعة واعتماد الإدارة.`,
           time: 'الآن',
           unread: true,
-          type: 'merchant_approval',
+          type: 'merchant_request',
           role: 'admin',
         },
         ...prev.notifications,
       ],
     }));
 
-    setActiveMerchantId(newUserId);
-    localStorage.setItem('ghaym_active_merchant_id', newUserId);
-    setCurrentPortal('merchant');
-    window.location.hash = '#/merchant/dashboard';
+    // Async push to Supabase if configured
+    if (getSupabaseConfig().isConfigured) {
+      supabaseSubmitMerchantRequest({
+        fullName: newMerchantReq.fullName,
+        phone: newMerchantReq.phone,
+        email: newMerchantReq.email,
+        storeName: newMerchantReq.storeName,
+        activityType: newMerchantReq.activityType,
+        city: newMerchantReq.city,
+        neighborhood: newMerchantReq.neighborhood,
+        description: newMerchantReq.notes,
+      }).catch((e) => console.warn('Supabase merchant request notice:', e));
+    }
 
-    return { success: true, user: newMerchantUser, store: newStore };
+    // STRICT SECURITY: Do NOT auto-activate or navigate into Merchant Dashboard before approval!
+    return {
+      success: true,
+      pendingApproval: true,
+      user: newMerchantUser,
+      store: newStore,
+      request: newMerchantReq,
+      message: 'تم استلام طلب انضمام متجرك بنجاح! طلبك قيد المراجعة والاعتماد من قبل الإدارة.',
+    };
   };
 
-  // 1.1 Courier Onboarding & Self-Registration
-  const registerCourier = (formData) => {
-    const newUserId = `usr-cour-${Date.now()}`;
-    const cleanPhone = cleanYemeniPhone(formData.phone || '');
-
-    const newCourierUser = {
-      id: newUserId,
-      role: 'courier',
-      status: 'active',
-      name: formData.name || 'مندوب غيم سبيس جديد',
-      phone: cleanPhone || formData.phone,
-      email: formData.email || `${cleanPhone || Date.now()}@ghaym.ye`,
-      password: formData.password || '******',
-      city: formData.city || 'المكلا',
-      neighborhood: formData.neighborhood || 'المكلا',
-      vehicle: formData.vehicle || 'دراجة نارية (سكوتر)',
-      plateNumber: formData.plateNumber || 'حضرموت 14-8902',
-      isOnline: true,
-      rating: 5.0,
-      totalOrders: 0,
-      totalDeliveries: 0,
-      todayEarnings: 0,
-      totalEarnings: 0,
-      commitmentRate: 100,
-      createdAt: new Date().toISOString(),
-    };
-
-    setDb((prev) => ({
-      ...prev,
-      users: [newCourierUser, ...prev.users],
-      auditLogs: [
-        addAuditLog(
-          'REGISTER_COURIER',
-          newCourierUser.name,
-          'courier',
-          `تسجيل مندوب توصيل جديد "${newCourierUser.name}" بنجاح.`
-        ),
-        ...prev.auditLogs,
-      ],
-    }));
-
-    switchCourierAccount(newUserId);
-    setCurrentPortal('courier');
-    window.location.hash = '#/courier';
-
-    return { success: true, user: newCourierUser };
+  // 1.1 Courier Registration - Strictly requires valid invite code
+  const registerCourier = async (formData) => {
+    if (!formData?.inviteCode?.trim()) {
+      return {
+        success: false,
+        error: 'تسجيل حساب المندوب يتطلب كود دعوة معتمد من إدارة غيم سبيس. لا يُسمح بالتسجيل العادي.',
+      };
+    }
+    return registerCourierWithInvite(formData, formData.inviteCode.trim());
   };
 
   // --- MERCHANT JOIN REQUESTS & APPROVAL WORKFLOW ---
   const submitMerchantRequest = async (formData) => {
     const cleanPhone = cleanYemeniPhone(formData.phone || '');
     const cleanWhatsapp = cleanYemeniPhone(formData.whatsapp || formData.phone || '');
+    const newUserId = `usr-merch-${Date.now()}`;
+    const newStoreId = `store-${Date.now()}`;
+
     const newReq = {
       id: `req-${Date.now()}`,
+      userId: newUserId,
       fullName: formData.name || formData.fullName,
       phone: cleanPhone,
       email: formData.email || `${cleanPhone}@ghaym.ye`,
@@ -2366,9 +2423,43 @@ export function PlatformProvider({ children }) {
       createdAt: new Date().toISOString(),
     };
 
+    const pendingMerchantUser = {
+      id: newUserId,
+      role: 'merchant',
+      status: 'pending',
+      name: newReq.fullName,
+      phone: newReq.phone,
+      email: newReq.email,
+      password: newReq.password,
+      storeId: newStoreId,
+      storeName: newReq.storeName,
+      city: newReq.city,
+      neighborhood: newReq.neighborhood,
+      whatsapp: cleanWhatsapp,
+      createdAt: new Date().toISOString(),
+    };
+
+    const pendingStore = {
+      id: newStoreId,
+      ownerId: newUserId,
+      name: newReq.storeName,
+      category: newReq.activityType,
+      city: newReq.city,
+      neighborhood: newReq.neighborhood,
+      phone: newReq.phone,
+      whatsapp: cleanWhatsapp,
+      status: 'pending',
+      isApproved: false,
+      isVerified: false,
+      rating: 5.0,
+      createdAt: new Date().toISOString(),
+    };
+
     setDb((prev) => ({
       ...prev,
       merchantRequests: [newReq, ...(prev.merchantRequests || [])],
+      users: [pendingMerchantUser, ...prev.users],
+      stores: [pendingStore, ...prev.stores],
       auditLogs: [
         addAuditLog(
           'SUBMIT_MERCHANT_REQUEST',
@@ -2421,34 +2512,41 @@ export function PlatformProvider({ children }) {
       const req = (prev.merchantRequests || []).find((r) => r.id === requestId);
       if (!req) return prev;
 
-      const newUserId = `usr-merch-${Date.now()}`;
-      const newStoreId = `store-${Date.now()}`;
+      const existingUser = (prev.users || []).find(
+        (u) => u.id === req.userId || u.phone === req.phone || (req.email && u.email === req.email)
+      );
+      const targetUserId = existingUser ? existingUser.id : (req.userId || `usr-merch-${Date.now()}`);
+      const targetStoreId = existingUser?.storeId || `store-${Date.now()}`;
 
       approvedUser = {
-        id: newUserId,
+        ...(existingUser || {}),
+        id: targetUserId,
         role: 'merchant',
         status: 'active',
+        isApproved: true,
         name: req.fullName,
         phone: req.phone,
         email: req.email,
         city: req.city,
         neighborhood: req.neighborhood,
         whatsapp: req.phone,
-        storeId: newStoreId,
+        storeId: targetStoreId,
         storeName: req.storeName,
-        createdAt: new Date().toISOString(),
+        createdAt: existingUser?.createdAt || new Date().toISOString(),
       };
 
+      const existingStore = (prev.stores || []).find((s) => s.id === targetStoreId || s.ownerId === targetUserId);
       approvedStore = {
-        id: newStoreId,
-        ownerId: newUserId,
+        ...(existingStore || {}),
+        id: targetStoreId,
+        ownerId: targetUserId,
         name: req.storeName,
         category: req.activityType,
         description: req.notes || `متجر معتمد رسمياً في منصة غيم سبيس لـ ${req.storeName}.`,
-        logo: '/logo.jpg',
-        image: '/logo.jpg',
-        cover: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1200&auto=format&fit=crop&q=80',
-        coverImage: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1200&auto=format&fit=crop&q=80',
+        logo: existingStore?.logo || '/logo.jpg',
+        image: existingStore?.image || '/logo.jpg',
+        cover: existingStore?.cover || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1200&auto=format&fit=crop&q=80',
+        coverImage: existingStore?.coverImage || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1200&auto=format&fit=crop&q=80',
         city: req.city,
         neighborhood: req.neighborhood,
         phone: req.phone,
@@ -2457,9 +2555,9 @@ export function PlatformProvider({ children }) {
         isVerified: true,
         isApproved: true,
         status: 'active',
-        productsCount: 0,
-        salesCount: 0,
-        createdAt: new Date().toISOString(),
+        productsCount: existingStore?.productsCount || 0,
+        salesCount: existingStore?.salesCount || 0,
+        createdAt: existingStore?.createdAt || new Date().toISOString(),
       };
 
       const updatedRequests = (prev.merchantRequests || []).map((r) =>
@@ -2473,11 +2571,14 @@ export function PlatformProvider({ children }) {
           : r
       );
 
+      const otherUsers = (prev.users || []).filter((u) => u.id !== targetUserId);
+      const otherStores = (prev.stores || []).filter((s) => s.id !== targetStoreId);
+
       return {
         ...prev,
         merchantRequests: updatedRequests,
-        users: [approvedUser, ...prev.users],
-        stores: [approvedStore, ...prev.stores],
+        users: [approvedUser, ...otherUsers],
+        stores: [approvedStore, ...otherStores],
         auditLogs: [
           addAuditLog(
             'APPROVE_MERCHANT_REQUEST',
@@ -2491,12 +2592,12 @@ export function PlatformProvider({ children }) {
           {
             id: `notif-${Date.now()}`,
             title: 'تم اعتماد متجرك بنجاح 🎉',
-            message: `تهانينا ${req.fullName}، تمت الموافقة على طلب انضمامك لغيم سبيس وتفعيل متجرك "${req.storeName}"!`,
+            message: `تهانينا ${req.fullName}، تمت الموافقة على طلب انضمامك لغيم سبيس وتفعيل متجرك "${req.storeName}"! يمكنك الآن تسجيل الدخول وإدارة متجرك.`,
             time: 'الآن',
             unread: true,
             type: 'merchant_approved',
             role: 'merchant',
-            targetUserId: newUserId,
+            targetUserId: targetUserId,
           },
           ...prev.notifications,
         ],
@@ -2530,9 +2631,16 @@ export function PlatformProvider({ children }) {
           : r
       );
 
+      const updatedUsers = (prev.users || []).map((u) =>
+        u.id === req?.userId || (req?.phone && u.phone === req.phone)
+          ? { ...u, status: 'rejected', rejectionReason: reason }
+          : u
+      );
+
       return {
         ...prev,
         merchantRequests: updatedRequests,
+        users: updatedUsers,
         auditLogs: [
           addAuditLog(
             'REJECT_MERCHANT_REQUEST',
@@ -2541,6 +2649,19 @@ export function PlatformProvider({ children }) {
             `رفض طلب انضمام التاجر "${req?.fullName || requestId}" بسبب: ${reason}.`
           ),
           ...prev.auditLogs,
+        ],
+        notifications: [
+          {
+            id: `notif-${Date.now()}`,
+            title: 'حالة طلب انضمام المتجر ❌',
+            message: `عذراً ${req?.fullName || ''}، تم رفض طلب انضمام متجرك "${req?.storeName || ''}". سبب الرفض: ${reason}. يمكنك التواصل مع الدعم لمزيد من التفاصيل.`,
+            time: 'الآن',
+            unread: true,
+            type: 'merchant_rejected',
+            role: 'merchant',
+            targetUserId: req?.userId,
+          },
+          ...prev.notifications,
         ],
       };
     });

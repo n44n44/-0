@@ -19,7 +19,7 @@ import ContactPage from './views/ContactPage';
 import LoginPage from './views/LoginPage';
 import WishlistPage from './views/WishlistPage';
 
-import { Database, Store, Bike, ShieldCheck, Lock, ArrowRight, User, ShieldAlert, AlertTriangle, Key, CheckCircle2 } from 'lucide-react';
+import { Database, Store, Bike, ShieldCheck, Lock, ArrowRight, User, ShieldAlert, AlertTriangle, Key, CheckCircle2, Clock } from 'lucide-react';
 import LocationModal from './components/LocationModal';
 import SellerModal from './components/SellerModal';
 import CustomerAuthModal from './components/CustomerAuthModal';
@@ -31,7 +31,7 @@ import LandscapeOrientationEnforcer from './components/LandscapeOrientationEnfor
 
 import { PlatformProvider, usePlatform } from './context/PlatformContext';
 
-function ProtectedRouteGate({ title, subtitle, icon: Icon, badgeText, onLogin, onDemo, onBack }) {
+function ProtectedRouteGate({ title, subtitle, icon: Icon, badgeText, onLogin, onBack }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-[#07132B] via-[#0A162B] to-[#07132B] text-white" dir="rtl">
       <div className="w-full max-w-md bg-white/[0.04] border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl text-center space-y-6 animate-fadeIn">
@@ -53,24 +53,125 @@ function ProtectedRouteGate({ title, subtitle, icon: Icon, badgeText, onLogin, o
             onClick={onLogin}
             className="w-full py-3.5 px-5 rounded-2xl bg-[#EAB839] hover:bg-[#D9A726] text-[#07132B] font-black text-sm shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex items-center justify-center gap-2"
           >
-            <span>تسجيل الدخول / فتح حساب جديد</span>
+            <span>تسجيل الدخول / تقديم طلب انضمام</span>
             <ArrowRight className="w-4 h-4 rotate-180" />
           </button>
-
-          {onDemo && (
-            <button
-              onClick={onDemo}
-              className="w-full py-3 px-5 rounded-2xl bg-white/10 hover:bg-white/15 text-sky-200 border border-white/15 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-2"
-            >
-              <span>⚡ دخول سريع للتجربة (حساب تجريبي)</span>
-            </button>
-          )}
 
           <button
             onClick={onBack}
             className="w-full py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white transition cursor-pointer"
           >
             العودة للمنصة الرئيسية (سوق العملاء)
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Dedicated Security View: Merchant Under Review (Pending Approval)
+function MerchantPendingGate({ user, onBack, onLogout }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-[#07132B] via-[#0A162B] to-[#07132B] text-white" dir="rtl">
+      <div className="w-full max-w-lg bg-white/[0.05] border border-amber-500/30 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl text-center space-y-6 animate-fadeIn">
+        <div className="w-20 h-20 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center shadow-lg animate-pulse">
+          <Clock className="w-10 h-10" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/25 text-xs font-bold">
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+            <span>طلب انضمام التاجر بانتظار الاعتماد ⏳</span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-black text-white">طلبك قيد المراجعة والاعتماد</h2>
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-md mx-auto">
+            أهلاً بك يا <strong className="text-white font-bold">{user?.name || 'التاجر الشريك'}</strong>. تم استلام طلب انضمام متجرك <strong className="text-amber-300 font-bold">"{user?.storeName || 'متجرك'}"</strong> بنجاح، وهو يخضع حالياً لتدقيق ومراجعة إدارة غيم سبيس.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-black/20 border border-white/10 text-right space-y-2 text-xs">
+          <div className="flex justify-between items-center py-1 border-b border-white/10">
+            <span className="text-slate-400">اسم المتجر:</span>
+            <span className="font-bold text-white">{user?.storeName || 'متجر غير محدد'}</span>
+          </div>
+          <div className="flex justify-between items-center py-1 border-b border-white/10">
+            <span className="text-slate-400">المالك:</span>
+            <span className="font-bold text-white">{user?.name || '-'}</span>
+          </div>
+          <div className="flex justify-between items-center py-1 border-b border-white/10">
+            <span className="text-slate-400">رقم الهاتف:</span>
+            <span className="font-mono text-sky-300">{user?.phone || '-'}</span>
+          </div>
+          <div className="flex justify-between items-center py-1">
+            <span className="text-slate-400">حالة الحساب:</span>
+            <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-black text-[11px] border border-amber-500/30">
+              قيد المراجعة والتدقيق ⏳
+            </span>
+          </div>
+        </div>
+
+        <div className="p-3.5 rounded-xl bg-sky-950/40 border border-sky-500/20 text-[11px] text-sky-200 leading-relaxed text-right">
+          💡 لا تفتح لوحة تحكم التاجر قبل موافقة الإدارة الرسمية، وذلك لضمان جودة وأصالة معروضات منصة غيم سبيس. سنقوم بإشعارك عبر الهاتف والمنصة فور تفعيل حسابك.
+        </div>
+
+        <div className="space-y-2 pt-2">
+          <button
+            onClick={onBack}
+            className="w-full py-3 px-5 rounded-2xl bg-[#EAB839] hover:bg-[#D9A726] text-[#07132B] font-black text-sm shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>العودة للمنصة الرئيسية (سوق العملاء)</span>
+            <ArrowRight className="w-4 h-4 rotate-180" />
+          </button>
+          <button
+            onClick={onLogout}
+            className="w-full py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-rose-400 transition cursor-pointer"
+          >
+            تسجيل الخروج من هذا الحساب
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Dedicated Security View: Merchant Request Rejected
+function MerchantRejectedGate({ user, onBack, onLogout }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-[#07132B] via-[#0A162B] to-[#07132B] text-white" dir="rtl">
+      <div className="w-full max-w-lg bg-rose-950/20 border border-rose-500/30 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl text-center space-y-6 animate-fadeIn">
+        <div className="w-20 h-20 rounded-3xl bg-rose-500/10 border border-rose-500/30 text-rose-400 mx-auto flex items-center justify-center shadow-lg">
+          <ShieldAlert className="w-10 h-10" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-400/10 text-rose-300 border border-rose-400/25 text-xs font-bold">
+            <span>حالة الطلب: غير معتمد ❌</span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-black text-white">لم يتم قبول طلب الانضمام</h2>
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-md mx-auto">
+            عذراً، لم تتم الموافقة على طلب انضمام متجرك <strong className="text-white font-bold">"{user?.storeName || 'متجرك'}"</strong> من قبل إدارة المنصة.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-black/30 border border-rose-500/20 text-right space-y-2 text-xs">
+          <div className="text-slate-400 font-bold mb-1">سبب الرفض المسجل من الإدارة:</div>
+          <div className="p-3 rounded-xl bg-rose-900/30 border border-rose-500/20 text-rose-200 text-xs font-medium leading-relaxed">
+            {user?.rejectionReason || 'البيانات المدخلة غير مكتملة أو نوع النشاط لا يتوافق مع المعايير الحالية لمنصة غيم سبيس.'}
+          </div>
+        </div>
+
+        <div className="space-y-2 pt-2">
+          <button
+            onClick={onBack}
+            className="w-full py-3 px-5 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs transition cursor-pointer"
+          >
+            العودة للمنصة الرئيسية (سوق العملاء)
+          </button>
+          <button
+            onClick={onLogout}
+            className="w-full py-2.5 px-4 text-xs font-semibold text-rose-400 hover:text-rose-300 transition cursor-pointer"
+          >
+            تسجيل الخروج والتقديم بحساب آخر
           </button>
         </div>
       </div>
@@ -283,6 +384,8 @@ function AppContent() {
     currentCourierUser,
     currentAdminUser,
     quickDemoLogin,
+    logoutMerchant,
+    logoutCourier,
     switchCustomerAccount,
     orders,
     placeOrder,
@@ -595,18 +698,35 @@ function AppContent() {
               icon={Store}
               title="لوحة تحكم التاجر محمية 🏪"
               badgeText="بوابة أصحاب المتاجر والأسر المنتجة"
-              subtitle="لوحة تحكم التاجر مخصصة فقط لأصحاب المتاجر والأسر المنتجة لإدارة المنتجات، متابعة المبيعات والطلبات، وحساب الأرباح."
+              subtitle="لوحة تحكم التاجر مخصصة فقط لأصحاب المتاجر والأسر المنتجة المعتمدين. لا تفتح لوحة التحكم قبل موافقة الإدارة الرسمية."
               onLogin={() => {
                 setLoginDefaultRole('merchant');
                 setCurrentMarketView('login');
                 switchPortal('marketplace');
                 window.location.hash = '#/';
               }}
-              onDemo={() => quickDemoLogin('merchant')}
               onBack={() => {
                 window.location.hash = '#/';
                 switchPortal('marketplace');
               }}
+            />
+          ) : currentMerchantUser.status === 'pending' || currentMerchantUser.status === 'pending_approval' ? (
+            <MerchantPendingGate
+              user={currentMerchantUser}
+              onBack={() => {
+                window.location.hash = '#/';
+                switchPortal('marketplace');
+              }}
+              onLogout={logoutMerchant}
+            />
+          ) : currentMerchantUser.status === 'rejected' ? (
+            <MerchantRejectedGate
+              user={currentMerchantUser}
+              onBack={() => {
+                window.location.hash = '#/';
+                switchPortal('marketplace');
+              }}
+              onLogout={logoutMerchant}
             />
           ) : (
             <MerchantDashboard onBackToMarket={() => {
@@ -620,19 +740,18 @@ function AppContent() {
       {/* PORTAL 3: COURIER DASHBOARD (Guarded & Isolated) */}
       {currentPortal === 'courier' && (
         <div className="flex-1 flex flex-col">
-          {!currentCourierUser ? (
+          {!currentCourierUser || currentCourierUser.role !== 'courier' || currentCourierUser.status !== 'active' ? (
             <ProtectedRouteGate
               icon={Bike}
               title="بوابة كابتن التوصيل محمية 🛵"
-              badgeText="أسطول مناديب غيم سبيس المكلا"
-              subtitle="هذه اللوحة مخصصة لكباتن أسطول التوصيل المعتمدين في المكلا وحضرموت لاستلام وتوصيل الشحنات والطلبات للعملاء."
+              badgeText="أسطول مناديب غيم سبيس المكلا (بنظام كود الدعوة)"
+              subtitle="هذه اللوحة مخصصة حصراً لكباتن أسطول التوصيل المعتمدين بكود دعوة رسمي من إدارة غيم سبيس. لا يُسمح بالدخول عبر التسجيل العادي أو بدون كود معتمد."
               onLogin={() => {
                 setLoginDefaultRole('courier');
                 setCurrentMarketView('login');
                 switchPortal('marketplace');
                 window.location.hash = '#/';
               }}
-              onDemo={() => quickDemoLogin('courier')}
               onBack={() => {
                 window.location.hash = '#/';
                 switchPortal('marketplace');

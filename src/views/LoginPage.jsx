@@ -226,41 +226,18 @@ export default function LoginPage({ onNavigate, onLoginSuccess, defaultRole = 'c
     setLoading(true);
 
     try {
-      // 1. MERCHANT LOGIN
+      // 1. MERCHANT LOGIN (Strict Approval & RBAC Enforcement)
       if (selectedRole === 'merchant') {
-        // Check if there is a pending request with this phone/email
-        const pendingReq = (db.merchantRequests || []).find(
-          (r) => (r.phone === identifier.trim() || r.email === identifier.trim()) && r.status === 'pending'
-        );
-        if (pendingReq) {
-          setError(`طلب انضمام متجرك "${pendingReq.storeName}" قيد المراجعة والاعتماد من قبل الإدارة ⏳ سنقوم بإشعارك عبر الهاتف فور تفعيل الحساب.`);
-          setLoading(false);
-          return;
-        }
-
         const localRes = loginMerchant(identifier, password);
-        if (localRes?.success && localRes.user?.status === 'suspended') {
-          setError('هذا الحساب موقوف حالياً من قبل الإدارة. يرجى التواصل مع الدعم الفني.');
+        if (!localRes.success) {
+          setError(localRes.message || 'بيانات اعتماد التاجر غير صحيحة، أو لم يتم اعتماد حسابك بعد.');
           setLoading(false);
           return;
         }
 
-        if (!localRes.success) {
-          // Check if matches active merchant in users
-          const existingMerchant = (db.users || []).find(
-            (u) => (u.phone === identifier.trim() || u.email === identifier.trim()) && u.role === 'merchant'
-          );
-          if (existingMerchant) {
-            switchMerchantAccount(existingMerchant.id);
-          } else {
-            // Demo fallback
-            switchMerchantAccount('usr-merch-1');
-          }
-        }
-
-        setSuccess('مرحباً بك! جاري نقلك إلى لوحة تحكم التاجر...');
+        setSuccess('مرحباً بك! جاري نقلك إلى لوحة تحكم متجرك المعتمد...');
         setTimeout(() => {
-          if (onLoginSuccess) onLoginSuccess({ name: identifier.split('@')[0] || 'التاجر الشريك', role: 'merchant' }, 'merchant');
+          if (onLoginSuccess) onLoginSuccess(localRes.user, 'merchant');
           else {
             window.location.hash = '#/merchant';
             if (onNavigate) onNavigate('home');
@@ -269,29 +246,18 @@ export default function LoginPage({ onNavigate, onLoginSuccess, defaultRole = 'c
         return;
       }
 
-      // 2. COURIER LOGIN
+      // 2. COURIER LOGIN (Strict Invite Verification & Access Enforcement)
       if (selectedRole === 'courier') {
         const localRes = loginCourier(identifier, password);
-        if (localRes?.success && localRes.user?.status === 'suspended') {
-          setError('تم إيقاف حساب المندوب مؤقتاً من قبل الإدارة.');
+        if (!localRes.success) {
+          setError(localRes.message || 'بيانات اعتماد المندوب غير صحيحة. تسجيل ودخول مناديب التوصيل يتطلب كود دعوة معتمد من إدارة غيم سبيس.');
           setLoading(false);
           return;
         }
 
-        if (!localRes.success) {
-          const existingCourier = (db.users || []).find(
-            (u) => (u.phone === identifier.trim() || u.email === identifier.trim()) && u.role === 'courier'
-          );
-          if (existingCourier) {
-            switchCourierAccount(existingCourier.id);
-          } else {
-            switchCourierAccount('usr-cour-1');
-          }
-        }
-
         setSuccess('مرحباً بك كابتن! جاري نقلك إلى بوابة مندوب التوصيل...');
         setTimeout(() => {
-          if (onLoginSuccess) onLoginSuccess({ name: identifier.split('@')[0] || 'كابتن التوصيل', role: 'courier' }, 'courier');
+          if (onLoginSuccess) onLoginSuccess(localRes.user, 'courier');
           else {
             window.location.hash = '#/courier';
             if (onNavigate) onNavigate('home');

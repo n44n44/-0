@@ -16,7 +16,10 @@ import {
   MessageSquare,
   Upload,
   ArrowLeft,
+  ArrowRight,
   Check,
+  Clock,
+  ShieldCheck,
 } from 'lucide-react';
 import { usePlatform } from '../context/PlatformContext';
 import YemeniPhoneInput from './YemeniPhoneInput';
@@ -84,7 +87,7 @@ export default function SellerModal({ isOpen, onClose, onRegisterSuccess }) {
     }
   };
 
-  const handleFinishAndGoToDashboard = () => {
+  const handleFinishAndReturn = () => {
     setSuccessData(null);
     onClose();
     if (onRegisterSuccess) {
@@ -143,44 +146,47 @@ export default function SellerModal({ isOpen, onClose, onRegisterSuccess }) {
             </button>
           </div>
 
-          {/* Success Screen */}
+          {/* Success Screen (Pending Review & Admin Approval Required) */}
           {successData ? (
             <div className="p-8 text-center space-y-5 bg-[#F3F6FB]">
-              <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner ring-8 ring-emerald-50">
-                <CheckCircle className="w-12 h-12" />
+              <div className="w-20 h-20 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto shadow-inner ring-8 ring-amber-50">
+                <Clock className="w-11 h-11 animate-pulse" />
               </div>
 
               <div className="space-y-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-amber-800 text-xs font-black">
+                  <span>طلب انضمام التاجر قيد المراجعة والاعتماد ⏳</span>
+                </div>
                 <h4 className="text-xl font-black text-[#172A46]">
-                  مرحباً بك في أسرة تجار غيم سبيس! 🎉
+                  تم استلام طلب انضمام متجرك بنجاح!
                 </h4>
                 <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-                  تم استلام طلب تسجيل متجرك{' '}
+                  شكراً لتسجيل متجرك{' '}
                   <strong className="text-slate-900 font-bold">
                     "{formData.storeName}"
                   </strong>{' '}
-                  بنجاح، وتفعيل باقة الشهر التجريبي المجاني (30 يوماً).
+                  على منصة غيم سبيس. تم إرسال إشعار فوري إلى لوحة الإدارة لمراجعة بيانات المتجر والتأكد من مطابقتها للمعايير.
                 </p>
               </div>
 
               {/* Status Notice Card */}
               <div className="bg-white rounded-2xl p-4 border border-amber-200 text-right space-y-2 shadow-sm max-w-lg mx-auto">
-                <div className="flex items-center gap-2 text-amber-700 font-bold text-xs">
-                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-                  <span>حالة المتجر: بانتظار المراجعة والاعتماد النهائي من الإدارة</span>
+                <div className="flex items-center gap-2 text-amber-800 font-bold text-xs">
+                  <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>تأكيد سياسة الأمان والاعتماد:</span>
                 </div>
-                <p className="text-[11px] text-slate-500 leading-relaxed pr-6">
-                  يمكنك الدخول مباشرة إلى لوحة التحكم الخاصة بك للبدء في تجهيز متجرك، وإضافة المنتجات، والصور، والأسعار. ستصبح منتجاتك مرئية للجميع فور اعتماد الإدارة.
+                <p className="text-[11px] text-slate-600 leading-relaxed pr-6">
+                  حفاظاً على أمان المعاملات وموثوقية السوق، <strong>لا تفتح لوحة تحكم التاجر إلا بعد الموافقة الرسمية</strong> من قبل إدارة غيم سبيس. سنقوم بالتواصل معك وإشعارك فور تدقيق الحساب واعتماده.
                 </p>
               </div>
 
               <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <button
-                  onClick={handleFinishAndGoToDashboard}
-                  className="w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm shadow-md transition transform hover:scale-105 inline-flex items-center justify-center gap-2"
+                  onClick={handleFinishAndReturn}
+                  className="w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-[#172A46] to-[#1F3A60] hover:from-[#112036] hover:to-[#172A46] text-white font-bold text-sm shadow-md transition transform hover:scale-105 inline-flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>الانتقال إلى لوحة تحكم متجرك الآن</span>
-                  <ArrowLeft className="w-4 h-4" />
+                  <span>العودة إلى المنصة الرئيسية (السوق)</span>
+                  <ArrowRight className="w-4 h-4 rotate-180" />
                 </button>
               </div>
             </div>

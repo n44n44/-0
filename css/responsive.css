@@ -314,6 +314,7 @@
     font-size: 14px;
   }
 
+  .hotel-card-rtl .btn-book-now,
   .hotel-card-rtl .btn-view-details {
     padding: 6px 14px;
     font-size: 11px;

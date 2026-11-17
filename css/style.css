@@ -1934,10 +1934,10 @@ img {
 .hotel-v2-container {
   display: flex;
   flex-direction: column;
-  background: #f8f6f0;
+  background: #f3eee8;
   min-height: 100%;
   position: relative;
-  padding-bottom: 90px;
+  padding-bottom: 20px;
 }
 
 .hotel-v2-hero {
@@ -2164,16 +2164,16 @@ img {
   margin-right: 4px;
 }
 
-/* Hotel Card (صور الفنادق ع اليمين - In RTL Arabic: Image is placed on the RIGHT side!) */
+/* Hotel Card matching Reference Screenshot (media_1794919696475_609b2b41.jpg) */
 .hotel-card-rtl {
-  background: #ffffff;
+  background: #faf7f2;
   border-radius: 24px;
-  padding: 10px;
+  padding: 8px 10px 8px 8px;
   margin: 0 14px 14px;
-  box-shadow: 0 4px 16px rgba(13, 43, 39, 0.06);
-  border: 1px solid #f0ede6;
+  box-shadow: 0 4px 14px rgba(27, 69, 61, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
   display: flex;
-  flex-direction: row; /* In RTL: first element is on the right, second on the left */
+  flex-direction: row; /* In RTL: Child 1 (Details) on RIGHT, Child 2 (Photo) on LEFT */
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -2187,10 +2187,104 @@ img {
   border-color: #1b4b43;
 }
 
-/* Hotel Image on the RIGHT */
+/* Hotel Details on the RIGHT in RTL */
+.hotel-card-rtl .card-details-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 108px;
+  padding: 4px 2px;
+  text-align: right;
+}
+
+.hotel-card-rtl .card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.hotel-card-rtl .hotel-name {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #1c2d27;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.hotel-card-rtl .hotel-rating-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-full);
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #1e293b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+}
+
+.hotel-card-rtl .hotel-rating-chip .star-icon {
+  color: #eab308;
+  font-size: 11px;
+}
+
+.hotel-card-rtl .hotel-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #475569;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.hotel-card-rtl .hotel-location svg {
+  width: 13px;
+  height: 13px;
+  color: #1b4b43;
+  fill: #1b4b43;
+  flex-shrink: 0;
+}
+
+.hotel-card-rtl .hotel-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: auto;
+}
+
+.hotel-card-rtl .btn-book-now,
+.hotel-card-rtl .btn-view-details {
+  background: #1c453d;
+  color: #ffffff;
+  padding: 6.5px 18px;
+  border-radius: var(--radius-full);
+  font-size: 11.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(28, 69, 61, 0.22);
+  transition: var(--transition-fast);
+}
+
+.hotel-card-rtl .btn-book-now:hover,
+.hotel-card-rtl .btn-view-details:hover {
+  background: #13332c;
+  transform: translateX(-2px);
+}
+
+/* Hotel Image on the LEFT in RTL */
 .hotel-card-rtl .card-photo-box {
-  width: 135px;
-  height: 105px;
+  width: 48%;
+  max-width: 190px;
+  height: 108px;
   border-radius: 18px;
   overflow: hidden;
   flex-shrink: 0;
@@ -2205,95 +2299,23 @@ img {
 }
 
 .hotel-card-rtl:hover .card-photo-box img {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
-/* Hotel Details on the LEFT */
-.hotel-card-rtl .card-details-box {
-  flex: 1;
+.phone-home-indicator-bar {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 105px;
-  padding: 2px 0;
-  text-align: right;
-}
-
-.hotel-card-rtl .card-top-row {
-  display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
+  padding: 8px 0 12px;
+  background: transparent;
 }
 
-.hotel-card-rtl .hotel-name {
-  font-size: 15px;
-  font-weight: 800;
-  color: #1e293b;
-  line-height: 1.25;
-}
-
-.hotel-card-rtl .hotel-rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 12px;
-  font-weight: 800;
-  color: #d97706;
-  white-space: nowrap;
-}
-
-.hotel-card-rtl .hotel-rating svg {
-  width: 13px;
-  height: 13px;
-  fill: #d97706;
-}
-
-.hotel-card-rtl .hotel-location {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: #64748b;
-  font-weight: 600;
-  margin-top: 3px;
-}
-
-.hotel-card-rtl .hotel-location svg {
-  width: 13px;
-  height: 13px;
-  color: #1b4b43;
-}
-
-.hotel-card-rtl .hotel-bottom-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: auto;
-}
-
-.hotel-card-rtl .btn-view-details {
-  background: #1b4b43;
-  color: #ffffff;
-  padding: 7px 18px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: var(--transition-fast);
-}
-
-.hotel-card-rtl .btn-view-details:hover {
-  background: #143832;
-  transform: translateX(-2px);
-}
-
-.hotel-card-rtl .hotel-price-hint {
-  font-size: 12px;
-  font-weight: 700;
-  color: #1b4b43;
+.phone-home-indicator-pill {
+  width: 135px;
+  height: 4.5px;
+  background: #111827;
+  border-radius: 999px;
+  opacity: 0.85;
 }
 
 /* Bottom Wave Promotional Banner matching Image 1 */

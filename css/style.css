@@ -1943,7 +1943,7 @@ img {
 .hotel-v2-hero {
   position: relative;
   min-height: 380px;
-  background: url('../assets/images/hotel-night-hero.jpg') center top / cover no-repeat;
+  background: url('../assets/images/exact-hotel-hero.jpg') center top / cover no-repeat;
   border-bottom-left-radius: 36px;
   border-bottom-right-radius: 36px;
   padding: 16px 20px 48px;
@@ -2319,10 +2319,10 @@ img {
   top: 0;
   bottom: 0;
   width: 55%;
-  background: url('../assets/images/plane-flight.jpg') center center / cover no-repeat;
-  opacity: 0.85;
-  mask-image: linear-gradient(90deg, #000 60%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, #000 60%, transparent 100%);
+  background: url('../assets/images/exact-plane-banner.jpg') center center / cover no-repeat;
+  opacity: 0.95;
+  mask-image: linear-gradient(90deg, #000 65%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 65%, transparent 100%);
   pointer-events: none;
 }
 
@@ -2371,7 +2371,7 @@ img {
   min-height: 850px;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(180deg, #0f3530 0%, #17453f 30%, #295f56 50%, #74998e 70%, #d8baa5 85%, #edd2be 100%);
+  background: url('../assets/images/exact-welcome-bg.jpg') center top / cover no-repeat, linear-gradient(180deg, #0f3530 0%, #17453f 30%, #295f56 50%, #74998e 70%, #d8baa5 85%, #edd2be 100%);
   display: flex;
   flex-direction: column;
   justify-content: space-between;

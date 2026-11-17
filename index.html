@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مساري | Masari - واجهة البداية</title>
-  <link rel="stylesheet" href="css/style.css?v=3">
-  <link rel="stylesheet" href="css/responsive.css?v=3">
+  <title>مساري | Masari - رحلتك أسهل معنا</title>
+  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="stylesheet" href="css/responsive.css?v=4">
   <link rel="icon" type="image/svg+xml" href="assets/logo/masari-logo.svg">
 </head>
 <body>
 
-  <!-- Top Device & Navigation Toolbar -->
+  <!-- Top Device Toolbar (Single row on mobile & desktop) -->
   <header class="device-toolbar">
     <div class="toolbar-brand">
       <strong>مساري | Masari</strong>
@@ -47,9 +47,9 @@
 
   <main class="app-viewport">
     <div class="app-screen" id="appScreen">
-      <!-- Status Notch Bar -->
+      <!-- Status Notch Bar on Dark Teal -->
       <div class="phone-notch-bar on-dark">
-        <span id="notchTime">9:41</span>
+        <span id="notchTime">10:55</span>
         <div class="notch-icons">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 22l7.03-4.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"/></svg>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.66-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
@@ -57,28 +57,92 @@
         </div>
       </div>
 
-      <!-- Welcome Screen Content matching reference design -->
-      <div class="welcome-screen-wrapper">
-        <div class="welcome-top-content">
-          <div class="welcome-logo-container">
-            <!-- Stylized White Logo for Dark Sky Background -->
-            <img src="assets/logo/masari-logo-white.svg" alt="مساري" style="height: 64px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));">
-          </div>
-          <div class="welcome-tagline">رحلتك.. أسهل معنا</div>
+      <!-- Welcome Screen Content matching Image 2 (media_1794919708062_7abc3bd8.jpg) -->
+      <div class="welcome-v2-container">
+        <!-- Top Bar with Language Pill -->
+        <div class="welcome-v2-top-bar">
+          <button type="button" class="welcome-lang-btn" onclick="MasariApp.toast('اللغة العربية هي اللغة الافتراضية للتطبيق', 'info')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span>اللغة</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
         </div>
 
-        <div class="welcome-bottom-content">
-          <a href="login.html" class="btn-white welcome-btn-start">
-            <span>ابدأ</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
+        <!-- Brand Area: Logo, Slogan, and Trajectory -->
+        <div class="welcome-v2-brand-area">
+          <!-- Stylized Masari Logo with airplane arc -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 85" fill="none" class="welcome-v2-logo-svg">
+            <!-- Trajectory arc -->
+            <path d="M 25 70 C 15 35, 60 12, 165 14" stroke="#8ce4ce" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.9" />
+            <path d="M 40 74 C 30 45, 70 22, 160 22" stroke="#8ce4ce" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.4" />
+            
+            <!-- Airplane icon taking off -->
+            <g transform="translate(172, 8) rotate(32) scale(0.95)">
+              <path d="M12 2L15 9L22 11L15 14L14 21L12 16L10 21L9 14L2 11L9 9Z" fill="#8ce4ce" />
+            </g>
+
+            <!-- Modern Arabic Typography "مساري" -->
+            <text x="110" y="65" text-anchor="middle" font-family="'Cairo', 'Tajawal', sans-serif" font-weight="900" font-size="42" fill="#cbeae2" letter-spacing="1">مساري</text>
+          </svg>
+
+          <!-- Divider: ابدأ رحلتك من هنا -->
+          <div class="welcome-v2-step-label">
+            <span>ابدأ رحلتك من هنا</span>
+          </div>
+
+          <!-- Main Heading: رحلتك.. أسهل معنا -->
+          <h1 class="welcome-v2-main-heading">
+            رحلتك.. <span class="highlight-mint">أسهل</span> معنا
+          </h1>
+
+          <!-- Sub Heading: كل وجهة تبدأ بخطوة -->
+          <div class="welcome-v2-sub-heading">
+            كل وجهة تبدأ بخطوة
+          </div>
+        </div>
+
+        <!-- Airplane in flight center stage -->
+        <div class="welcome-v2-plane-stage">
+          <img src="assets/images/plane-flight.jpg" alt="طائرة مساري في السحب" style="border-radius: 20px; max-height: 160px; object-fit: cover; width: 90%;">
+        </div>
+
+        <!-- Bottom Action Cards & Button matching Image 2 -->
+        <div>
+          <!-- Two Glass Action Cards: تسجيل الدخول / انشاء حساب جديد -->
+          <div class="welcome-v2-auth-grid">
+            <!-- تسجيل الدخول -->
+            <a href="login.html" class="welcome-v2-glass-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              <span>تسجيل الدخول</span>
+            </a>
+
+            <!-- انشاء حساب جديد -->
+            <a href="register.html" class="welcome-v2-glass-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+              <span>انشاء حساب جديد</span>
+            </a>
+          </div>
+
+          <!-- Main Sage Action Button: ابدأ .. ← -->
+          <a href="home.html" class="welcome-v2-cta-btn">
+            <span class="arrow-bubble">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </span>
+            <span>ابدأ ..</span>
           </a>
 
-          <div class="welcome-dots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+          <!-- World Landmarks Silhouette Footer & Dots matching Image 2 -->
+          <div class="welcome-v2-skyline-footer">
+            <svg class="welcome-v2-silhouette-svg" viewBox="0 0 400 60" fill="currentColor">
+              <!-- Eiffel tower, Ferris wheel, Big Ben, Terminal tower vector silhouette -->
+              <path d="M10,60 L15,35 L20,35 L25,60 Z M50,60 L50,45 L60,40 L70,45 L70,60 Z M100,60 C100,45 115,35 130,35 C145,35 160,45 160,60 Z M190,60 L195,20 L200,10 L205,20 L210,60 Z M250,60 L250,30 L255,25 L260,30 L260,60 Z M300,60 C300,50 310,40 325,40 C340,40 350,50 350,60 Z M370,60 L375,35 L380,35 L385,60 Z"/>
+            </svg>
+
+            <!-- Dots Pagination -->
+            <div class="welcome-v2-dots-row">
+              <span class="dot-pill"></span>
+              <span class="dot-circle"></span>
+            </div>
           </div>
         </div>
       </div>

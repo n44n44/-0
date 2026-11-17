@@ -253,3 +253,77 @@
     max-width: 100% !important;
   }
 }
+
+
+/* Responsive Enhancements for New Hotel & Welcome Designs */
+@media (max-width: 540px) {
+  .hotel-v2-hero {
+    min-height: 350px;
+    padding: 14px 16px 44px;
+  }
+
+  .hotel-v2-hero-title {
+    font-size: 24px;
+  }
+
+  .hotel-v2-hero-subtitle {
+    font-size: 13px;
+  }
+
+  .hotel-v2-floating-filter {
+    margin: -26px 10px 14px;
+    padding: 6px 8px;
+    border-radius: 28px;
+  }
+
+  .hotel-filter-col {
+    padding: 2px 6px;
+  }
+
+  .hotel-filter-col .col-label {
+    font-size: 10px;
+  }
+
+  .hotel-filter-col .col-value {
+    font-size: 10px;
+  }
+
+  .hotel-filter-search-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .hotel-card-rtl {
+    margin: 0 10px 12px;
+    padding: 8px;
+    border-radius: 20px;
+    gap: 10px;
+  }
+
+  .hotel-card-rtl .card-photo-box {
+    width: 115px;
+    height: 95px;
+    border-radius: 16px;
+  }
+
+  .hotel-card-rtl .card-details-box {
+    height: 95px;
+  }
+
+  .hotel-card-rtl .hotel-name {
+    font-size: 14px;
+  }
+
+  .hotel-card-rtl .btn-view-details {
+    padding: 6px 14px;
+    font-size: 11px;
+  }
+
+  .welcome-v2-main-heading {
+    font-size: 26px;
+  }
+
+  .welcome-v2-plane-stage {
+    height: 150px;
+  }
+}

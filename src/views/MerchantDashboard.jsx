@@ -45,7 +45,8 @@ import {
   RefreshCw,
   Wallet,
   ArrowDownLeft,
-  Crown
+  Crown,
+  Info
 } from 'lucide-react';
 import { usePlatform, calculateDaysRemaining } from '../context/PlatformContext';
 import { LOGO_DATA_URI } from '../data/logoBase64';
@@ -94,41 +95,70 @@ export default function MerchantDashboard({ onBackToMarket }) {
   };
 
   /* ==========================================================================
-     1. CALCULATOR STATE (Screen 2: التسعير وحاسبة الربح)
+     1. CALCULATOR STATE (نموذج التسعير وحاسبة الربح التفاعلية - مثال العطر الشرقي)
      ========================================================================== */
-  const [calcCost, setCalcCost] = useState(15000);
-  const [calcPackaging, setCalcPackaging] = useState(1500);
-  const [calcProfitMargin, setCalcProfitMargin] = useState(25); // 25%
-  const [calcDiscount, setCalcDiscount] = useState(0);
+  const [calcCost, setCalcCost] = useState(12000); // 1. تكلفة شراء المنتج (عطر شرقي)
+  const [calcPackaging, setCalcPackaging] = useState(1500); // 2. تكلفة التغليف والعلبة
+  const [calcExpenses, setCalcExpenses] = useState(500); // 3. المصاريف الإضافية (نقل وهالك)
+  const [calcProfitMargin, setCalcProfitMargin] = useState(35.71); // 5. هامش الربح المستهدف %
+  const [calcCommissionRate, setCalcCommissionRate] = useState(5); // 6. عمولة المنصة % (5% شفافة ومحددة)
+
+  const resetToPerfumeExample = () => {
+    setCalcCost(12000);
+    setCalcPackaging(1500);
+    setCalcExpenses(500);
+    setCalcProfitMargin(35.71);
+    setCalcCommissionRate(5);
+  };
 
   const calcResults = useMemo(() => {
-    const cost = Number(calcCost) || 0;
-    const packaging = Number(calcPackaging) || 0;
-    const margin = Number(calcProfitMargin) || 0;
-    const discount = Number(calcDiscount) || 0;
+    const cost = Math.max(0, Number(calcCost) || 0);
+    const packaging = Math.max(0, Number(calcPackaging) || 0);
+    const expenses = Math.max(0, Number(calcExpenses) || 0);
+    const marginPercent = Math.max(0, Number(calcProfitMargin) || 0);
+    const commissionPercent = Math.max(0, Number(calcCommissionRate) || 5);
 
-    const baseCost = cost + packaging;
-    const desiredProfit = baseCost * (margin / 100);
-    // Platform commission is 2% of the selling price
-    // finalPrice = (baseCost + desiredProfit) / (1 - 0.02)
-    const rawPrice = baseCost + desiredProfit;
-    const platformCommission = rawPrice * 0.02;
-    const suggestedPrice = Math.round(rawPrice + platformCommission);
-    const finalPrice = discount > 0 ? suggestedPrice - discount : suggestedPrice;
-    const actualCommission = Math.round(finalPrice * 0.02);
-    const netProfit = Math.round(finalPrice - baseCost - actualCommission);
-    const actualMargin = finalPrice > 0 ? Math.round((netProfit / finalPrice) * 100) : 0;
+    // 4. إجمالي التكلفة = شراء + تغليف + مصاريف
+    const totalCost = cost + packaging + expenses;
+
+    // 5. هامش ربح التاجر المستهدف (بالمبلغ)
+    const merchantProfit = Math.round(totalCost * (marginPercent / 100));
+
+    // المبلغ الأساسي المستحق للتاجر (استرداد التكلفة كاملة + صافي الربح)
+    const merchantSubtotal = totalCost + merchantProfit;
+
+    // 7. سعر البيع النهائي للعميل
+    // يُحسب بحيث تغطي عمولة المنصة نسبة commissionPercent من السعر النهائي لمرة واحدة فقط
+    const commFraction = commissionPercent / 100;
+    const finalPrice = commFraction < 1 ? Math.round(merchantSubtotal / (1 - commFraction)) : merchantSubtotal;
+
+    // 6. عمولة المنصة (تُحسب على سعر البيع النهائي لمرة واحدة فقط)
+    const platformCommission = Math.round(finalPrice * commFraction);
+
+    // 8. صافي ربح التاجر = سعر البيع - إجمالي التكلفة - عمولة المنصة
+    const netProfit = finalPrice - totalCost - platformCommission;
+
+    // النسب المئوية لتوزيع كل ريال في الشريط البصري
+    const costRatio = finalPrice > 0 ? Math.round((totalCost / finalPrice) * 100) : 0;
+    const profitRatio = finalPrice > 0 ? Math.round((netProfit / finalPrice) * 100) : 0;
+    const commissionRatio = finalPrice > 0 ? Math.max(0, 100 - costRatio - profitRatio) : 0;
 
     return {
-      baseCost,
-      desiredProfit: Math.round(desiredProfit),
-      suggestedPrice,
-      platformCommission: actualCommission,
-      netProfit,
-      actualMargin,
+      cost,
+      packaging,
+      expenses,
+      totalCost,
+      merchantProfit,
+      platformCommission,
       finalPrice,
+      netProfit,
+      marginPercent,
+      commissionPercent,
+      costRatio,
+      profitRatio,
+      commissionRatio,
     };
-  }, [calcCost, calcPackaging, calcProfitMargin, calcDiscount]);
+  }, [calcCost, calcPackaging, calcExpenses, calcProfitMargin, calcCommissionRate]);
 
   /* ==========================================================================
      2. STORE PROFILE STATE (Screens 1 & 3: معلومات المتجر & الحسابات البنكية)
@@ -1134,209 +1164,613 @@ export default function MerchantDashboard({ onBackToMarket }) {
               TAB 3: PRICING & PROFIT CALCULATOR (Screen 2: التسعير وحاسبة الربح)
               ================================================================== */}
           {activeTab === 'pricing' && (
-            <div className="space-y-8">
+            <div className="space-y-8" dir="rtl">
               
-              {/* Header Card with 3D Calculator Style */}
-              <div className="rounded-3xl bg-gradient-to-r from-[#0d223f] via-[#15345d] to-[#1e40af] text-white p-8 md:p-10 shadow-xl border border-blue-400/20">
-                <div className="max-w-2xl">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold mb-3">
-                    <Calculator className="w-3.5 h-3.5 text-amber-300" />
-                    <span>أداة التسعير الذكي وحاسبة هامش الربح</span>
+              {/* Header Hero Banner with Cloud Identity */}
+              <div className="rounded-3xl bg-gradient-to-l from-[#07132B] via-[#0E2248] to-[#122A56] text-white p-6 sm:p-8 md:p-10 shadow-xl border border-sky-500/20 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-80 h-80 bg-sky-400/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="absolute bottom-0 right-1/4 w-72 h-40 bg-blue-500/15 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div className="relative z-10 max-w-3xl space-y-3">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-bold text-amber-300">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <span>منهجية التسعير الذكي وحاسبة الأرباح في غيم سبيس</span>
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-black mb-3 leading-snug">
-                    احسب تسعيرة منتجاتك وصافي ربحك بدقة متناهية
+
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight">
+                    كيف تسعّر منتجك وتضمن صافي ربحك الحقيقي؟ 💎
                   </h2>
-                  <p className="text-blue-100 text-sm leading-relaxed">
-                    حدد تكاليف المواد والتغليف ونسبة ربحك المطلوبة، وستقوم الحاسبة تلقائياً باحتساب سعر البيع النهائي للزبون مع احتساب عمولة غيم سبيس المخفضة (2% فقط).
+
+                  <p className="text-xs sm:text-sm text-sky-100/90 leading-relaxed font-normal">
+                    نظام تسعير شفاف وواضح يضمن استرداد تكاليفك كاملة (شراء + تغليف + مصاريف تشغيلية)، وتحقيق هامش ربحك الصافي المستهدف، مع احتساب عمولة المنصة لمرة واحدة فقط وبدون أي خصم مكرر.
                   </p>
+
+                  <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-bold">
+                    <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>عمولة منصة ثابتة وشفافة (5% فقط)</span>
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-sky-500/20 text-sky-200 border border-sky-400/30 flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>بدون أي خصم مكرر أو رسوم خفية</span>
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center gap-1.5">
+                      <Wallet className="w-3.5 h-3.5" />
+                      <span>صافي ربحك يصل لمحفظتك بالكامل</span>
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Calculator Inputs and Outputs Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* ==================================================================
+                  VISUAL INNOVATION 1: REALISTIC PRODUCT EXAMPLE (ORIENTAL PERFUME 50ML)
+                  A creative, visual value pipeline replacing the traditional table
+                  ================================================================== */}
+              <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/90 shadow-md space-y-6">
                 
-                {/* Inputs Column */}
-                <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
-                  <h3 className="text-base font-black text-slate-900 border-b border-slate-100 pb-4 flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-blue-600" />
-                    <span>مدخلات التكلفة والربح</span>
-                  </h3>
-
-                  <div className="space-y-5">
-                    
-                    {/* Cost of product */}
+                {/* Example Title & Context */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#92400e] via-[#d97706] to-[#fde68a] text-white flex items-center justify-center shadow-md shrink-0">
+                      <i className="fa-solid fa-spray-can-sparkles text-2xl text-amber-950"></i>
+                    </div>
                     <div>
-                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-2">
-                        <span>تكلفة إنتاج / شراء المنتج الأساسية (ريال يمني)</span>
-                        <span className="text-blue-600 font-black">{Number(calcCost).toLocaleString()} ريال</span>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base sm:text-lg font-black text-slate-900">
+                          النموذج الإرشادي المعتمد: عطر شرقي فاخر (50 مل)
+                        </h3>
+                        <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold border border-amber-200">
+                          مثال واقعي موحد
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        دراسة واقعية لكيفية تحويل التكاليف إلى سعر بيع 20,000 ريال يمني مع تحقيق 5,000 ريال ربح صافي للتاجر
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={resetToPerfumeExample}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold border border-sky-200 transition cursor-pointer self-start sm:self-auto"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>تطبيق أرقام هذا المثال في الحاسبة</span>
+                  </button>
+                </div>
+
+                {/* VISUAL PIPELINE: 8 Core Elements clearly categorized */}
+                <div className="space-y-6">
+                  
+                  {/* Phase 1: Total Costs Breakdown (1, 2, 3 -> 4) */}
+                  <div className="bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200/80 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+                        <Package className="w-4 h-4 text-blue-600" />
+                        <span>أولاً: تكاليف المنتج المباشرة (رأس المال المسترد بالكامل)</span>
+                      </span>
+                      <span className="text-xs font-bold text-slate-500">تمثل 70% من سعر البيع</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {/* 1. Purchase cost */}
+                      <div className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-xs flex flex-col justify-between">
+                        <div className="flex items-center justify-between text-slate-500 text-[11px] font-semibold mb-1">
+                          <span>1. تكلفة شراء / خلط العطر</span>
+                          <span className="text-base">🧴</span>
+                        </div>
+                        <div className="text-base sm:text-lg font-black text-slate-900 font-mono">
+                          12,000 <span className="text-xs font-medium text-slate-500">ر.ي</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-1">الزيوت العطرية والكحول المعتق</div>
+                      </div>
+
+                      {/* 2. Packaging cost */}
+                      <div className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-xs flex flex-col justify-between">
+                        <div className="flex items-center justify-between text-slate-500 text-[11px] font-semibold mb-1">
+                          <span>2. تكلفة التغليف والعلبة</span>
+                          <span className="text-base">📦</span>
+                        </div>
+                        <div className="text-base sm:text-lg font-black text-slate-900 font-mono">
+                          1,500 <span className="text-xs font-medium text-slate-500">ر.ي</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-1">زجاجة فاخرة، غطاء، وعلبة مطبوعة</div>
+                      </div>
+
+                      {/* 3. Additional expenses */}
+                      <div className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-xs flex flex-col justify-between">
+                        <div className="flex items-center justify-between text-slate-500 text-[11px] font-semibold mb-1">
+                          <span>3. المصاريف الإضافية</span>
+                          <span className="text-base">🚚</span>
+                        </div>
+                        <div className="text-base sm:text-lg font-black text-slate-900 font-mono">
+                          500 <span className="text-xs font-medium text-slate-500">ر.ي</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-1">شحن للمكلا، ملصق، وهالك تشغيلي</div>
+                      </div>
+                    </div>
+
+                    {/* 4. Total Cost Badge */}
+                    <div className="p-3.5 rounded-xl bg-blue-900 text-white flex items-center justify-between shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-blue-700 flex items-center justify-center font-bold text-xs">4</span>
+                        <div>
+                          <span className="text-xs font-bold block">إجمالي التكلفة التشغيلية (رأس مالك):</span>
+                          <span className="text-[10px] text-blue-200">مجموع (شراء 12,000 + تغليف 1,500 + مصاريف 500)</span>
+                        </div>
+                      </div>
+                      <div className="text-lg sm:text-xl font-black text-amber-300 font-mono">
+                        14,000 <span className="text-xs font-normal text-white">ر.ي</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Phase 2 & 3: Profit Margin (5), Platform Commission (6) & Final Price (7) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    
+                    {/* 5. Profit Margin */}
+                    <div className="bg-emerald-50/70 rounded-2xl p-4 border border-emerald-200 flex flex-col justify-between shadow-xs">
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[11px] font-bold text-emerald-800">5. هامش ربح التاجر</span>
+                          <span className="w-5 h-5 rounded-full bg-emerald-200 text-emerald-800 text-[10px] font-black flex items-center justify-center">5</span>
+                        </div>
+                        <div className="text-xl font-black text-emerald-700 font-mono">
+                          +5,000 <span className="text-xs font-bold">ر.ي</span>
+                        </div>
+                      </div>
+                      <div className="pt-2 mt-2 border-t border-emerald-200/60 text-[10px] text-emerald-700 font-medium">
+                        هامش ربح مستهدف بنسبة (+35.7% فوق التكلفة)
+                      </div>
+                    </div>
+
+                    {/* 6. Platform Commission */}
+                    <div className="bg-sky-50/70 rounded-2xl p-4 border border-sky-200 flex flex-col justify-between shadow-xs">
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[11px] font-bold text-sky-800">6. عمولة منصة غيم سبيس</span>
+                          <span className="w-5 h-5 rounded-full bg-sky-200 text-sky-800 text-[10px] font-black flex items-center justify-center">6</span>
+                        </div>
+                        <div className="text-xl font-black text-sky-700 font-mono">
+                          +1,000 <span className="text-xs font-bold">ر.ي</span>
+                        </div>
+                      </div>
+                      <div className="pt-2 mt-2 border-t border-sky-200/60 text-[10px] text-sky-700 font-medium">
+                        (5% ثابتة) تشمل التسويق، الربط والتقنية
+                      </div>
+                    </div>
+
+                    {/* 7. Final Selling Price */}
+                    <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-[#07132B] rounded-2xl p-4 shadow-md flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5 text-amber-950">
+                          <span className="text-[11px] font-black">7. سعر البيع النهائي للزبون</span>
+                          <span className="w-5 h-5 rounded-full bg-amber-400/80 text-amber-950 text-[10px] font-black flex items-center justify-center">7</span>
+                        </div>
+                        <div className="text-2xl font-black text-[#07132B] font-mono tracking-tight">
+                          20,000 <span className="text-xs font-bold">ر.ي</span>
+                        </div>
+                      </div>
+                      <div className="pt-2 mt-2 border-t border-amber-600/30 text-[10px] text-amber-950 font-bold">
+                        السعر المعروض في متجرك على المنصة
+                      </div>
+                    </div>
+
+                    {/* 8. Net Merchant Profit */}
+                    <div className="bg-gradient-to-br from-[#07132B] to-[#122A56] text-white rounded-2xl p-4 shadow-md border border-emerald-500/30 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5 text-emerald-300">
+                          <span className="text-[11px] font-black">8. صافي ربح التاجر الفعلي</span>
+                          <span className="w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center">8</span>
+                        </div>
+                        <div className="text-2xl font-black text-emerald-400 font-mono tracking-tight">
+                          5,000 <span className="text-xs font-normal text-white">ر.ي</span>
+                        </div>
+                      </div>
+                      <div className="pt-2 mt-2 border-t border-white/10 text-[10px] text-emerald-300 font-bold flex items-center gap-1">
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span>صافي 100% في جيبك بلا أي نقص</span>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* VISUAL INNOVATION 2: VALUE PROPORTION RIBBON (شريط توزيع كل ريال) */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                        <TrendingUp className="w-4 h-4 text-sky-600" />
+                        <span>الابتكار البصري: أين يذهب كل ريال يدفعه العميل (20,000 ر.ي)؟</span>
+                      </span>
+                      <span className="font-mono font-bold text-slate-500">مجموع النسب = 100%</span>
+                    </div>
+
+                    {/* Proportional Multi-Segment Ribbon */}
+                    <div className="w-full h-8 sm:h-9 rounded-xl overflow-hidden flex shadow-inner border border-slate-200 text-white font-bold text-xs select-none">
+                      <div
+                        style={{ width: '70%' }}
+                        className="bg-[#0E2248] flex items-center justify-center transition-all duration-500 group relative cursor-pointer"
+                        title="إجمالي التكلفة المستردة: 14,000 ر.ي (70%)"
+                      >
+                        <span className="truncate px-2 text-[11px] sm:text-xs">
+                          70% التكلفة المستردة (14,000 ر.ي)
+                        </span>
+                      </div>
+                      <div
+                        style={{ width: '25%' }}
+                        className="bg-emerald-600 flex items-center justify-center transition-all duration-500 group relative cursor-pointer"
+                        title="صافي ربح التاجر: 5,000 ر.ي (25%)"
+                      >
+                        <span className="truncate px-2 text-[11px] sm:text-xs text-white">
+                          25% ربحك (5,000 ر.ي)
+                        </span>
+                      </div>
+                      <div
+                        style={{ width: '5%' }}
+                        className="bg-sky-400 flex items-center justify-center transition-all duration-500 group relative cursor-pointer text-[#07132B]"
+                        title="عمولة منصة غيم سبيس: 1,000 ر.ي (5%)"
+                      >
+                        <span className="truncate px-1 text-[10px] font-black">
+                          5%
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Ribbon Legend */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] pt-1">
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full bg-[#0E2248]"></span>
+                        <span className="text-slate-600"><strong>70%</strong> تغطية التكاليف كاملة (14,000 ر.ي)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full bg-emerald-600"></span>
+                        <span className="text-slate-600"><strong>25%</strong> صافي ربح التاجر المباشر (5,000 ر.ي)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full bg-sky-400"></span>
+                        <span className="text-slate-600"><strong>5%</strong> عمولة المنصة فقط (1,000 ر.ي)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Clarification Callout Note */}
+                  <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200/80 flex items-start gap-3">
+                    <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="text-xs text-slate-700 leading-relaxed space-y-1">
+                      <p>
+                        <strong className="text-blue-900 font-bold">طريقة احتساب عمولة المنصة ومنع الخصم المكرر:</strong>
+                      </p>
+                      <p>
+                        تُحسب عمولة المنصة (5%) كنسبة مباشرة من سعر البيع النهائي للزبون (<span className="font-mono font-bold text-blue-900">20,000 × 5% = 1,000 ر.ي</span>). وتُخصم لمرة واحدة فقط عند نجاح تسليم الطلب للعميل. لا تُخصم أي مبالغ من رأس مالك أو تكلفة الشراء أو التغليف، وبذلك تضمن استلام رأس مالك (14,000 ر.ي) وصافي ربحك (5,000 ر.ي) بدقة متناهية.
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* ==================================================================
+                  INTERACTIVE PRICING CALCULATOR (حاسبة التسعير التفاعلية الحية)
+                  Allows the merchant to customize any product's cost & margin
+                  ================================================================== */}
+              <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/90 shadow-md space-y-6">
+                
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200 mb-1">
+                      <Calculator className="w-3.5 h-3.5" />
+                      <span>الحاسبة التفاعلية المباشرة</span>
+                    </div>
+                    <h3 className="text-base sm:text-lg font-black text-slate-900">
+                      جرّب تسعير منتجك الخاص واحسب أرباحك لحظياً
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      عدّل تكلفة الشراء، التغليف، والمصاريف الإضافية وهامش ربحك لترى النتائج تتحدث تلقائياً
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={resetToPerfumeExample}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer self-start sm:self-auto"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>إعادة ضبط لمثال العطر (12,000)</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  
+                  {/* Left (RTL Right): Controls and Inputs (7 Cols) */}
+                  <div className="lg:col-span-7 space-y-5">
+                    
+                    {/* Input 1: Product purchase cost */}
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <span>1. تكلفة شراء / إنتاج المنتج (ريال يمني)</span>
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <span className="font-mono font-black text-sm text-blue-700">
+                          {Number(calcCost).toLocaleString()} ر.ي
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min="0"
+                          step="500"
+                          value={calcCost}
+                          onChange={(e) => setCalcCost(Math.max(0, Number(e.target.value) || 0))}
+                          className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setCalcCost((prev) => Math.max(0, Number(prev) - 1000))}
+                          className="px-2.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 font-bold text-xs cursor-pointer"
+                        >
+                          -1000
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCalcCost((prev) => Number(prev) + 1000)}
+                          className="px-2.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 font-bold text-xs cursor-pointer"
+                        >
+                          +1000
+                        </button>
                       </div>
                       <input
-                        type="number"
-                        min="0"
+                        type="range"
+                        min="1000"
+                        max="50000"
                         step="500"
                         value={calcCost}
-                        onChange={(e) => setCalcCost(e.target.value)}
-                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold text-slate-800"
+                        onChange={(e) => setCalcCost(Number(e.target.value))}
+                        className="w-full accent-blue-600 cursor-pointer"
                       />
                     </div>
 
-                    {/* Cost of packaging */}
-                    <div>
-                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-2">
-                        <span>تكلفة التغليف والعلب والملصقات (ريال يمني)</span>
-                        <span className="text-blue-600 font-black">{Number(calcPackaging).toLocaleString()} ريال</span>
+                    {/* Input 2: Packaging cost */}
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <span>2. تكلفة التغليف والعلب والملصقات (ريال يمني)</span>
+                        </label>
+                        <span className="font-mono font-black text-sm text-blue-700">
+                          {Number(calcPackaging).toLocaleString()} ر.ي
+                        </span>
                       </div>
-                      <input
-                        type="number"
-                        min="0"
-                        step="100"
-                        value={calcPackaging}
-                        onChange={(e) => setCalcPackaging(e.target.value)}
-                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold text-slate-800"
-                      />
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min="0"
+                          step="100"
+                          value={calcPackaging}
+                          onChange={(e) => setCalcPackaging(Math.max(0, Number(e.target.value) || 0))}
+                          className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setCalcPackaging(500)}
+                          className="px-2.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+                        >
+                          500
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCalcPackaging(1500)}
+                          className="px-2.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+                        >
+                          1500
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCalcPackaging(3000)}
+                          className="px-2.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+                        >
+                          3000
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Desired profit margin */}
-                    <div>
-                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-2">
-                        <span>نسبة الربح المستهدفة للتاجر (%)</span>
-                        <span className="text-emerald-600 font-black">{calcProfitMargin}%</span>
+                    {/* Input 3: Additional expenses */}
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <span>3. المصاريف الإضافية والتشغيلية (نقل / تخزين / هالك)</span>
+                        </label>
+                        <span className="font-mono font-black text-sm text-blue-700">
+                          {Number(calcExpenses).toLocaleString()} ر.ي
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min="0"
+                          step="100"
+                          value={calcExpenses}
+                          onChange={(e) => setCalcExpenses(Math.max(0, Number(e.target.value) || 0))}
+                          className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setCalcExpenses(0)}
+                          className="px-2.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+                        >
+                          0
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCalcExpenses(500)}
+                          className="px-2.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+                        >
+                          500
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCalcExpenses(1000)}
+                          className="px-2.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-xs font-bold cursor-pointer"
+                        >
+                          1000
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Input 4: Target profit margin */}
+                    <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/80 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                          <span>5. هامش الربح المطلوب للتاجر (%)</span>
+                        </label>
+                        <span className="font-mono font-black text-sm text-emerald-700">
+                          {Math.round(calcResults.marginPercent)}% (+{calcResults.merchantProfit.toLocaleString()} ر.ي)
+                        </span>
                       </div>
                       <input
                         type="range"
                         min="5"
                         max="100"
-                        step="5"
+                        step="1"
                         value={calcProfitMargin}
-                        onChange={(e) => setCalcProfitMargin(e.target.value)}
-                        className="w-full accent-blue-600 cursor-pointer"
+                        onChange={(e) => setCalcProfitMargin(Number(e.target.value))}
+                        className="w-full accent-emerald-600 cursor-pointer"
                       />
-                      <div className="flex justify-between text-[11px] text-slate-400 mt-1">
-                        <span>5% (ربح سريع)</span>
-                        <span>25% (متوسط)</span>
-                        <span>50%</span>
-                        <span>100% (مضاعف)</span>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {[
+                          { label: '20% سريع', val: 20 },
+                          { label: '35% عطر شرقي', val: 35.71 },
+                          { label: '50% قياسي', val: 50 },
+                          { label: '75% حصري', val: 75 },
+                        ].map((p, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setCalcProfitMargin(p.val)}
+                            className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                              Math.abs(calcProfitMargin - p.val) < 1
+                                ? 'bg-emerald-600 text-white shadow-xs'
+                                : 'bg-white text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
+                            }`}
+                          >
+                            {p.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
 
-                    {/* Promotional Discount */}
-                    <div>
-                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-2">
-                        <span>خصم ترويجي للعميل (اختياري - ريال يمني)</span>
-                        <span className="text-amber-600 font-black">{Number(calcDiscount).toLocaleString()} ريال</span>
-                      </div>
-                      <input
-                        type="number"
-                        min="0"
-                        step="500"
-                        value={calcDiscount}
-                        onChange={(e) => setCalcDiscount(e.target.value)}
-                        className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm font-semibold text-slate-800"
-                      />
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* Results Column (Screen 2 Layout) */}
-                <div className="lg:col-span-5 bg-gradient-to-br from-[#0f2444] to-[#132c54] text-white rounded-3xl p-6 md:p-8 shadow-xl flex flex-col justify-between border border-blue-500/30">
-                  <div>
-                    <h3 className="text-base font-black text-white border-b border-white/10 pb-4 mb-6 flex items-center justify-between">
-                      <span>النتيجة المالية والتسعير</span>
-                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                        عمولة 2% فقط
+                    {/* Platform commission explanation row */}
+                    <div className="p-3.5 rounded-xl bg-slate-100 text-xs flex items-center justify-between text-slate-700">
+                      <span className="font-bold flex items-center gap-1.5">
+                        <ShieldCheck className="w-4 h-4 text-sky-600" />
+                        <span>نسبة عمولة منصة غيم سبيس:</span>
                       </span>
-                    </h3>
+                      <span className="font-mono font-black text-sky-800 bg-white px-2.5 py-0.5 rounded-md border border-slate-200">
+                        {calcCommissionRate}% (ثابتة وشفافة)
+                      </span>
+                    </div>
 
-                    {/* Final Selling Price Display */}
-                    <div className="p-5 rounded-2xl bg-white/[0.08] border border-white/10 text-center mb-6">
-                      <div className="text-xs text-blue-200 font-semibold mb-1">سعر البيع المقترح النهائي للعميل</div>
-                      <div className="text-3xl md:text-4xl font-black text-amber-300 tracking-tight">
-                        {calcResults.finalPrice.toLocaleString()} <span className="text-sm font-normal text-white">ريال</span>
+                  </div>
+
+                  {/* Right (RTL Left): Live Results & Cards (5 Cols) */}
+                  <div className="lg:col-span-5 space-y-4">
+                    
+                    {/* Main Gold Card: Final Customer Price (7) */}
+                    <div className="rounded-3xl bg-gradient-to-br from-[#07132B] via-[#0E2248] to-[#122A56] text-white p-6 shadow-xl border border-amber-400/30 text-center relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                      <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-bold mb-2">
+                        <Tag className="w-3.5 h-3.5" />
+                        <span>7. سعر البيع النهائي للزبون في المتجر</span>
                       </div>
-                      {calcDiscount > 0 && (
-                        <div className="text-[11px] text-emerald-400 mt-1">
-                          يشمل خصماً قدره {Number(calcDiscount).toLocaleString()} ريال
+
+                      <div className="text-4xl sm:text-5xl font-black text-amber-300 font-mono tracking-tight my-2">
+                        {calcResults.finalPrice.toLocaleString()}
+                        <span className="text-base font-normal text-white mr-1.5">ريال يمني</span>
+                      </div>
+
+                      <p className="text-[11px] text-blue-200/80">
+                        هذا هو السعر الذي يدفعه الزبون عند الشراء شاملاً كافة البنود
+                      </p>
+                    </div>
+
+                    {/* Emerald Card: Net Merchant Profit (8) */}
+                    <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white p-5 shadow-md flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <span className="text-xs font-bold text-emerald-100 block">8. صافي ربحك في جيبك (Net Profit):</span>
+                        <div className="text-2xl font-black font-mono">
+                          +{calcResults.netProfit.toLocaleString()} <span className="text-xs font-normal">ر.ي</span>
                         </div>
-                      )}
-                    </div>
-
-                    {/* Detailed Breakdown */}
-                    <div className="space-y-3.5 text-xs">
-                      <div className="flex justify-between text-blue-200">
-                        <span>إجمالي التكلفة (المنتج + التغليف):</span>
-                        <span className="font-bold text-white font-mono">{calcResults.baseCost.toLocaleString()} ريال</span>
-                      </div>
-
-                      <div className="flex justify-between text-blue-200">
-                        <span>إجمالي الربح الإجمالي للتاجر:</span>
-                        <span className="font-bold text-emerald-300 font-mono">+{calcResults.desiredProfit.toLocaleString()} ريال</span>
-                      </div>
-
-                      <div className="flex justify-between text-blue-200 border-t border-white/10 pt-3">
-                        <span className="flex items-center gap-1">
-                          <span>عمولة منصة غيم سبيس (2%):</span>
+                        <span className="text-[10px] text-emerald-100 block">
+                          عائد ربحي فعلي بنسبة ({calcResults.profitRatio}% من سعر البيع)
                         </span>
-                        <span className="font-bold text-blue-300 font-mono">-{calcResults.platformCommission.toLocaleString()} ريال</span>
                       </div>
-
-                      <div className="flex justify-between text-sm font-black text-white border-t border-white/15 pt-3">
-                        <span>صافي ربحك الفعلي المستلم:</span>
-                        <span className="text-emerald-400 text-base font-mono">+{calcResults.netProfit.toLocaleString()} ريال</span>
+                      <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center font-bold text-2xl shrink-0">
+                        💰
                       </div>
                     </div>
+
+                    {/* Breakdown Breakdown Cards */}
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
+                      <div className="flex justify-between items-center text-slate-700">
+                        <span>4. إجمالي التكلفة المستردة لك:</span>
+                        <span className="font-mono font-bold text-slate-900">
+                          {calcResults.totalCost.toLocaleString()} ر.ي
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-slate-500 text-[11px] pr-3 border-r-2 border-slate-300">
+                        <span>شراء ({calcResults.cost.toLocaleString()}) + تغليف ({calcResults.packaging.toLocaleString()}) + مصاريف ({calcResults.expenses.toLocaleString()})</span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-emerald-700 pt-2 border-t border-slate-200 font-bold">
+                        <span>5. هامش ربحك المستهدف المضاف:</span>
+                        <span className="font-mono font-black">
+                          +{calcResults.merchantProfit.toLocaleString()} ر.ي
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-sky-700 pt-2 border-t border-slate-200 font-bold">
+                        <span>6. عمولة منصة غيم سبيس ({calcResults.commissionPercent}%):</span>
+                        <span className="font-mono font-black">
+                          +{calcResults.platformCommission.toLocaleString()} ر.ي
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Dynamic Mini-Ribbon for this custom calculation */}
+                    <div className="p-3.5 rounded-xl bg-white border border-slate-200 space-y-2">
+                      <div className="flex justify-between text-[11px] font-bold text-slate-700">
+                        <span>توزيع ريال هذا الحساب:</span>
+                        <span className="text-slate-400 font-mono">100%</span>
+                      </div>
+                      <div className="w-full h-5 rounded-lg overflow-hidden flex shadow-xs border border-slate-100 text-[10px] text-white font-bold text-center">
+                        <div style={{ width: `${calcResults.costRatio}%` }} className="bg-[#0E2248] flex items-center justify-center truncate" title={`التكلفة: ${calcResults.costRatio}%`}>
+                          {calcResults.costRatio > 15 ? `${calcResults.costRatio}% تكلفة` : ''}
+                        </div>
+                        <div style={{ width: `${calcResults.profitRatio}%` }} className="bg-emerald-600 flex items-center justify-center truncate" title={`الربح: ${calcResults.profitRatio}%`}>
+                          {calcResults.profitRatio > 15 ? `${calcResults.profitRatio}% ربحك` : ''}
+                        </div>
+                        <div style={{ width: `${calcResults.commissionRatio}%` }} className="bg-sky-400 flex items-center justify-center text-[#07132B] truncate" title={`العمولة: ${calcResults.commissionRatio}%`}>
+                          {calcResults.commissionRatio > 4 ? `${calcResults.commissionRatio}%` : ''}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mathematical Integrity Guarantee */}
+                    <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900 leading-relaxed">
+                      <div className="flex items-center gap-1.5 font-bold mb-1">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>تأكيد المعادلة الحسابية الصافية:</span>
+                      </div>
+                      <p className="font-mono text-[10px] text-emerald-800 dir-ltr text-right">
+                        {calcResults.finalPrice.toLocaleString()} (سعر الزبون) = {calcResults.totalCost.toLocaleString()} (تكاليفك) + {calcResults.netProfit.toLocaleString()} (ربحك الصافي) + {calcResults.platformCommission.toLocaleString()} (عمولة المنصة)
+                      </p>
+                    </div>
+
                   </div>
 
-                  <div className="mt-8 pt-4 border-t border-white/10 text-[11px] text-blue-200/70 text-center">
-                    💡 عمولة غيم سبيس تخصم تلقائياً فقط عند تسليم الطلب للزبيل ونجاح العملية.
-                  </div>
                 </div>
 
-              </div>
-
-              {/* Ready Examples Table (Screen 2) */}
-              <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-4">
-                <h3 className="text-base font-black text-slate-900">أمثلة ونماذج تسعير شائعة في السوق الحضرمي</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-right text-xs">
-                    <thead>
-                      <tr className="text-slate-400 border-b border-slate-100">
-                        <th className="pb-3 font-semibold">نوع المنتج</th>
-                        <th className="pb-3 font-semibold">التكلفة الإجمالية</th>
-                        <th className="pb-3 font-semibold">نسبة الربح</th>
-                        <th className="pb-3 font-semibold">سعر البيع المقترح</th>
-                        <th className="pb-3 font-semibold">عمولة المنصة (2%)</th>
-                        <th className="pb-3 font-semibold">صافي ربح التاجر</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50 font-medium">
-                      <tr>
-                        <td className="py-3 font-bold text-slate-800">بخور مكلاوي ملكي (تولة)</td>
-                        <td className="py-3 text-slate-600">8,000 ريال</td>
-                        <td className="py-3 text-blue-600">30%</td>
-                        <td className="py-3 font-bold text-slate-900">10,600 ريال</td>
-                        <td className="py-3 text-slate-500">212 ريال</td>
-                        <td className="py-3 font-bold text-emerald-600">+2,388 ريال</td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 font-bold text-slate-800">عطر شرقي خاص (50 مل)</td>
-                        <td className="py-3 text-slate-600">14,000 ريال</td>
-                        <td className="py-3 text-blue-600">35%</td>
-                        <td className="py-3 font-bold text-slate-900">19,250 ريال</td>
-                        <td className="py-3 text-slate-500">385 ريال</td>
-                        <td className="py-3 font-bold text-emerald-600">+4,865 ريال</td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 font-bold text-slate-800">شموع معطرة باللبان الحوجري</td>
-                        <td className="py-3 text-slate-600">5,500 ريال</td>
-                        <td className="py-3 text-blue-600">40%</td>
-                        <td className="py-3 font-bold text-slate-900">7,850 ريال</td>
-                        <td className="py-3 text-slate-500">157 ريال</td>
-                        <td className="py-3 font-bold text-emerald-600">+2,193 ريال</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
               </div>
 
             </div>

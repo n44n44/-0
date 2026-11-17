@@ -476,3 +476,104 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- =========================================================================
+-- 10. COUPONS TABLE (كوبونات الخصم والعروض الخاصة بكل تاجر)
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS public.coupons (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  store_id TEXT NOT NULL REFERENCES public.stores(id) ON DELETE CASCADE,
+  code TEXT NOT NULL,
+  name TEXT NOT NULL,
+  discount_type TEXT NOT NULL CHECK (discount_type IN ('percentage', 'fixed')),
+  discount_value NUMERIC(12,2) NOT NULL,
+  min_order NUMERIC(12,2) DEFAULT 0,
+  max_discount NUMERIC(12,2),
+  start_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  end_date DATE NOT NULL,
+  usage_limit INTEGER DEFAULT 100,
+  usage_per_customer INTEGER DEFAULT 1,
+  included_products JSONB DEFAULT '"all"'::jsonb,
+  can_combine BOOLEAN DEFAULT FALSE,
+  is_active BOOLEAN DEFAULT TRUE,
+  usage_count INTEGER DEFAULT 0,
+  total_discount_given NUMERIC(12,2) DEFAULT 0,
+  total_revenue_generated NUMERIC(12,2) DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(store_id, code)
+);
+
+ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
+
+-- Public can view active unexpired coupons to validate them during checkout
+CREATE POLICY "Public can view active coupons"
+  ON public.coupons FOR SELECT
+  USING (is_active = TRUE AND end_date >= CURRENT_DATE);
+
+-- Merchants can manage coupons for their own store only
+CREATE POLICY "Merchants manage own coupons"
+  ON public.coupons FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.stores 
+      WHERE stores.id = coupons.store_id 
+      AND (stores.owner_id = auth.uid() OR stores.owner_id IS NULL)
+    )
+    OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+-- =========================================================================
+-- 11. PRODUCT REVIEWS TABLE (نظام تقييمات ومراجعات المنتجات للمشترين المؤكدين)
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS public.product_reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id TEXT NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
+  store_id TEXT NOT NULL REFERENCES public.stores(id) ON DELETE CASCADE,
+  customer_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  order_id TEXT NOT NULL,
+  customer_name TEXT NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment TEXT NOT NULL,
+  image_url TEXT,
+  is_verified_purchase BOOLEAN DEFAULT TRUE,
+  merchant_reply TEXT,
+  merchant_replied_at TIMESTAMPTZ,
+  is_reported BOOLEAN DEFAULT FALSE,
+  report_reason TEXT,
+  likes_count INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(order_id, product_id)
+);
+
+ALTER TABLE public.product_reviews ENABLE ROW LEVEL SECURITY;
+
+-- Public can view all product reviews
+CREATE POLICY "Public can view product reviews"
+  ON public.product_reviews FOR SELECT
+  USING (true);
+
+-- Customers can submit review ONLY if they purchased the product
+CREATE POLICY "Verified purchasers insert reviews"
+  ON public.product_reviews FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.orders 
+      WHERE orders.id = product_reviews.order_id 
+      AND (orders.customer_id = auth.uid() OR auth.uid() IS NULL)
+    )
+  );
+
+-- Merchants can reply to reviews for their store's products
+CREATE POLICY "Merchants reply to own store reviews"
+  ON public.product_reviews FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.stores 
+      WHERE stores.id = product_reviews.store_id 
+      AND (stores.owner_id = auth.uid() OR stores.owner_id IS NULL)
+    )
+    OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+

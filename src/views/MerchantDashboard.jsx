@@ -46,7 +46,17 @@ import {
   Wallet,
   ArrowDownLeft,
   Crown,
-  Info
+  Info,
+  Copy,
+  MessageSquare,
+  Star,
+  ToggleLeft,
+  ToggleRight,
+  Calendar,
+  CheckSquare,
+  Square,
+  Layers,
+  BadgeCheck
 } from 'lucide-react';
 import { usePlatform, calculateDaysRemaining } from '../context/PlatformContext';
 import { LOGO_DATA_URI } from '../data/logoBase64';
@@ -73,6 +83,13 @@ export default function MerchantDashboard({ onBackToMarket }) {
     merchantPayments = [],
     notifications = [],
     markAllNotificationsAsRead,
+    merchantCoupons = [],
+    addCoupon,
+    updateCoupon,
+    deleteCoupon,
+    toggleCouponStatus,
+    merchantReviews = [],
+    merchantReplyToReview,
   } = usePlatform();
 
   // Navigation tab matching Stitch screens:
@@ -403,6 +420,159 @@ export default function MerchantDashboard({ onBackToMarket }) {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
 
+  /* ==========================================================================
+     6. COUPONS & OFFERS STATE (قسم كوبونات الخصم والعروض الترويجية)
+     ========================================================================== */
+  const [couponSearch, setCouponSearch] = useState('');
+  const [couponFilter, setCouponFilter] = useState('all'); // 'all' | 'active' | 'expired' | 'paused'
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState(null);
+  const [replyModalReview, setReplyModalReview] = useState(null);
+  const [replyInputText, setReplyInputText] = useState('');
+
+  const defaultCouponForm = {
+    code: '',
+    name: '',
+    discountType: 'percentage', // 'percentage' | 'fixed'
+    discountValue: 20,
+    minOrder: 10000,
+    maxDiscount: 5000,
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    usageLimit: 100,
+    usagePerCustomer: 1,
+    includedProducts: 'all', // 'all' or array of product IDs
+    canCombine: false,
+    isActive: true,
+  };
+
+  const [couponForm, setCouponForm] = useState(defaultCouponForm);
+
+  const couponStats = useMemo(() => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const active = merchantCoupons.filter((c) => c.isActive && (!c.endDate || c.endDate >= todayStr));
+    const expired = merchantCoupons.filter((c) => c.endDate && c.endDate < todayStr);
+    const paused = merchantCoupons.filter((c) => !c.isActive);
+    const totalUses = merchantCoupons.reduce((sum, c) => sum + (Number(c.usageCount) || 0), 0);
+    const totalDiscounts = merchantCoupons.reduce((sum, c) => sum + (Number(c.totalDiscountGiven) || 0), 0);
+    const totalSales = merchantCoupons.reduce((sum, c) => sum + (Number(c.totalRevenueGenerated) || 0), 0);
+
+    return {
+      activeCount: active.length,
+      expiredCount: expired.length,
+      pausedCount: paused.length,
+      totalUses,
+      totalDiscounts,
+      totalSales,
+    };
+  }, [merchantCoupons]);
+
+  const filteredCoupons = useMemo(() => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    return merchantCoupons.filter((c) => {
+      const matchSearch =
+        !couponSearch ||
+        (c.code || '').toLowerCase().includes(couponSearch.toLowerCase()) ||
+        (c.name || '').toLowerCase().includes(couponSearch.toLowerCase());
+      if (!matchSearch) return false;
+
+      if (couponFilter === 'active') {
+        return c.isActive && (!c.endDate || c.endDate >= todayStr);
+      }
+      if (couponFilter === 'expired') {
+        return c.endDate && c.endDate < todayStr;
+      }
+      if (couponFilter === 'paused') {
+        return !c.isActive;
+      }
+      return true;
+    });
+  }, [merchantCoupons, couponSearch, couponFilter]);
+
+  const handleOpenCreateCoupon = () => {
+    setEditingCoupon(null);
+    setCouponForm({
+      ...defaultCouponForm,
+      code: `GHAYM${Math.floor(10 + Math.random() * 90)}`,
+    });
+    setIsCouponModalOpen(true);
+  };
+
+  const handleOpenEditCoupon = (coupon) => {
+    setEditingCoupon(coupon);
+    setCouponForm({
+      code: coupon.code,
+      name: coupon.name,
+      discountType: coupon.discountType || 'percentage',
+      discountValue: coupon.discountValue,
+      minOrder: coupon.minOrder || 0,
+      maxDiscount: coupon.maxDiscount || '',
+      startDate: coupon.startDate || new Date().toISOString().split('T')[0],
+      endDate: coupon.endDate || '',
+      usageLimit: coupon.usageLimit || 100,
+      usagePerCustomer: coupon.usagePerCustomer || 1,
+      includedProducts: coupon.includedProducts || 'all',
+      canCombine: Boolean(coupon.canCombine),
+      isActive: coupon.isActive !== false,
+    });
+    setIsCouponModalOpen(true);
+  };
+
+  const handleSaveCoupon = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingCoupon) {
+        await updateCoupon(editingCoupon.id, couponForm);
+        showToast('تم تحديث بيانات الكوبون بنجاح ✅');
+      } else {
+        await addCoupon(couponForm);
+        showToast('تم إنشاء كوبون الخصم وتفعيله بنجاح 🎉');
+      }
+      setIsCouponModalOpen(false);
+    } catch (err) {
+      showToast(err.message || 'حدث خطأ أثناء حفظ الكوبون', 'error');
+    }
+  };
+
+  const handleDeleteCouponItem = async (id, code) => {
+    if (window.confirm(`هل أنت متأكد من حذف الكوبون "${code}" نهائياً؟`)) {
+      try {
+        await deleteCoupon(id);
+        showToast(`تم حذف الكوبون "${code}" بنجاح.`);
+      } catch (err) {
+        showToast('فشل حذف الكوبون', 'error');
+      }
+    }
+  };
+
+  const handleToggleCouponItem = async (id) => {
+    try {
+      await toggleCouponStatus(id);
+      showToast('تم تغيير حالة الكوبون بنجاح');
+    } catch (err) {
+      showToast('تعذر تغيير حالة الكوبون', 'error');
+    }
+  };
+
+  const handleCopyCode = (code) => {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(code);
+      showToast(`تم نسخ الرمز "${code}" إلى الحافظة 📋`);
+    }
+  };
+
+  const handleSendMerchantReply = async () => {
+    if (!replyModalReview || !replyInputText.trim()) return;
+    try {
+      await merchantReplyToReview(replyModalReview.id, replyInputText.trim());
+      showToast('تم إرسال رد المتجر الرسمي على العميل بنجاح ✨');
+      setReplyModalReview(null);
+      setReplyInputText('');
+    } catch (err) {
+      showToast(err.message || 'فشل إرسال الرد', 'error');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f3f7fb] text-slate-800 font-['Cairo',sans-serif] flex flex-col md:flex-row antialiased selection:bg-blue-600 selection:text-white" dir="rtl">
       
@@ -460,12 +630,14 @@ export default function MerchantDashboard({ onBackToMarket }) {
           </div>
 
           {/* Navigation Links (Matching Stitch order & icons) */}
-          <nav className="p-4 space-y-1.5">
+          <nav className="p-4 space-y-1.5 overflow-x-auto md:overflow-visible flex md:flex-col gap-1 md:gap-0 scrollbar-none">
             {[
               { id: 'dashboard', label: 'الرئيسية', icon: LayoutDashboard },
               { id: 'store-profile', label: 'معلومات المتجر', icon: Store },
               { id: 'pricing', label: 'التسعير وحاسبة الربح', icon: Calculator },
               { id: 'products', label: 'المنتجات', icon: Package },
+              { id: 'coupons', label: 'كوبونات الخصم والعروض', icon: Tag, badge: merchantCoupons.filter(c => c.isActive).length },
+              { id: 'reviews', label: 'تقييمات ومراجعات العملاء', icon: Star, badge: merchantReviews.length },
               { id: 'orders', label: 'الطلبات', icon: ShoppingBag, badge: merchantOrders.length },
               { id: 'sales', label: 'المبيعات والتقارير', icon: TrendingUp },
               { id: 'settings', label: 'الإعدادات', icon: Settings },
@@ -531,6 +703,8 @@ export default function MerchantDashboard({ onBackToMarket }) {
               {activeTab === 'store-profile' && 'إدارة وتحديث معلومات المتجر'}
               {activeTab === 'pricing' && 'التسعير الذكي وحاسبة الأرباح'}
               {activeTab === 'products' && 'إدارة المنتجات والمخزون'}
+              {activeTab === 'coupons' && 'كوبونات الخصم والعروض الترويجية'}
+              {activeTab === 'reviews' && 'تقييمات ومراجعات العملاء للمنتجات'}
               {activeTab === 'add-product' && (editingProductId ? 'تعديل بيانات المنتج' : 'إضافة منتج جديد')}
               {activeTab === 'orders' && 'سجل وطلبات العملاء'}
               {activeTab === 'sales' && 'المبيعات والتقارير المالية'}
@@ -2364,6 +2538,493 @@ export default function MerchantDashboard({ onBackToMarket }) {
           )}
 
           {/* ==================================================================
+              TAB: COUPONS & OFFERS (قسم كوبونات الخصم والعروض)
+              ================================================================== */}
+          {activeTab === 'coupons' && (
+            <div className="space-y-8" dir="rtl">
+              
+              {/* Header Hero Banner */}
+              <div className="rounded-3xl bg-gradient-to-l from-[#07132B] via-[#0E2248] to-[#173d6e] text-white p-6 sm:p-8 shadow-xl border border-sky-500/20 relative overflow-hidden">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="space-y-2 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-bold text-amber-300">
+                      <Tag className="w-3.5 h-3.5 text-amber-400" />
+                      <span>نظام العروض والحملات الترويجية الذكي</span>
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white">
+                      كوبونات الخصم والعروض الترويجية 🏷️
+                    </h2>
+                    <p className="text-xs sm:text-sm text-sky-100/90 leading-relaxed font-normal">
+                      أنشئ قسائم خصم مخصصة لعملائك لزيادة المبيعات والولاء. حدد شروط الكوبون بدقة، تحكم في فترات الصلاحية، وتتبع أداء المبيعات المحققة بكل شفافية.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleOpenCreateCoupon}
+                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] cursor-pointer self-start md:self-auto shrink-0"
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span>إنشاء كوبون جديد</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 5 KPI Stat Cards for Coupons (المبيعات، الخصومات، الاستخدام، النشطة، المنتهية) */}
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+                {/* Active Coupons */}
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <CheckCircle2 className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">ساري</span>
+                  </div>
+                  <div className="text-xl sm:text-2xl font-black text-slate-900">{couponStats.activeCount}</div>
+                  <p className="text-[11px] text-slate-500 font-semibold mt-0.5">الكوبونات النشطة</p>
+                </div>
+
+                {/* Expired / Paused Coupons */}
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                      <Clock className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">متوقف/منتهي</span>
+                  </div>
+                  <div className="text-xl sm:text-2xl font-black text-slate-900">
+                    {couponStats.expiredCount + couponStats.pausedCount}
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-semibold mt-0.5">منتهية أو موقوفة</p>
+                </div>
+
+                {/* Total Usage Count */}
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                      <ShoppingBag className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">طلب</span>
+                  </div>
+                  <div className="text-xl sm:text-2xl font-black text-slate-900">{couponStats.totalUses}</div>
+                  <p className="text-[11px] text-slate-500 font-semibold mt-0.5">عدد مرات الاستخدام</p>
+                </div>
+
+                {/* Total Discounts Given */}
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                      <Percent className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">مقدم للعملاء</span>
+                  </div>
+                  <div className="text-lg sm:text-xl font-black text-slate-900 truncate">
+                    {couponStats.totalDiscounts.toLocaleString()} <span className="text-xs font-normal text-slate-500">ر.ي</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-semibold mt-0.5">إجمالي الخصومات</p>
+                </div>
+
+                {/* Total Revenue Generated */}
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow col-span-2 lg:col-span-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">عائد مبيعات</span>
+                  </div>
+                  <div className="text-lg sm:text-xl font-black text-emerald-600 truncate">
+                    {couponStats.totalSales.toLocaleString()} <span className="text-xs font-normal text-slate-500">ر.ي</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-semibold mt-0.5">المبيعات الناتجة</p>
+                </div>
+              </div>
+
+              {/* Filters & Search Toolbar */}
+              <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                {/* Filter Tabs */}
+                <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto scrollbar-none pb-1 sm:pb-0">
+                  {[
+                    { id: 'all', label: 'الكل', count: merchantCoupons.length },
+                    { id: 'active', label: 'النشطة فقط', count: couponStats.activeCount },
+                    { id: 'expired', label: 'المنتهية', count: couponStats.expiredCount },
+                    { id: 'paused', label: 'الموقوفة', count: couponStats.pausedCount },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setCouponFilter(tab.id)}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                        couponFilter === tab.id
+                          ? 'bg-[#07132B] text-white shadow-xs'
+                          : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200'
+                      }`}
+                    >
+                      <span>{tab.label}</span>
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${couponFilter === tab.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                        {tab.count}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Search Input */}
+                <div className="relative w-full sm:w-64">
+                  <Search className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={couponSearch}
+                    onChange={(e) => setCouponSearch(e.target.value)}
+                    placeholder="ابحث بالرمز أو اسم العرض..."
+                    className="w-full pr-9 pl-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+              </div>
+
+              {/* Coupons List / Grid */}
+              {filteredCoupons.length === 0 ? (
+                <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/80 space-y-4">
+                  <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-inner">
+                    <Tag className="w-8 h-8" />
+                  </div>
+                  <h3 className="font-black text-slate-900 text-lg">لا توجد كوبونات مطابقة</h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    لم تقم بإنشاء كوبونات في هذا التصنيف بعد، أو لا توجد نتائج لعملية البحث الحالية.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleOpenCreateCoupon}
+                    className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs inline-flex items-center gap-2 cursor-pointer shadow-md"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>إنشاء أول كوبون لمتجرك</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {filteredCoupons.map((coupon) => {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const isExpired = coupon.endDate && coupon.endDate < todayStr;
+                    const isLive = coupon.isActive && !isExpired;
+
+                    const usagePct = coupon.usageLimit
+                      ? Math.min(100, Math.round(((coupon.usageCount || 0) / coupon.usageLimit) * 100))
+                      : 0;
+
+                    return (
+                      <div
+                        key={coupon.id}
+                        className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4 relative overflow-hidden"
+                      >
+                        {/* Decorative top strip */}
+                        <div
+                          className={`absolute top-0 inset-x-0 h-1.5 ${
+                            isLive ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : isExpired ? 'bg-red-400' : 'bg-slate-300'
+                          }`}
+                        />
+
+                        {/* Coupon Header */}
+                        <div>
+                          <div className="flex items-start justify-between gap-2 mb-2 pt-1">
+                            <div>
+                              <span
+                                className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                                  isLive
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : isExpired
+                                    ? 'bg-red-50 text-red-700 border border-red-200'
+                                    : 'bg-slate-100 text-slate-600 border border-slate-200'
+                                }`}
+                              >
+                                {isLive ? 'نشط وسارٍ' : isExpired ? 'منتهي الصلاحية' : 'موقوف مؤقتاً'}
+                              </span>
+                              <h3 className="font-black text-slate-900 text-sm mt-1.5 line-clamp-1">{coupon.name}</h3>
+                            </div>
+
+                            {/* Discount Value Badge */}
+                            <div className="bg-gradient-to-br from-[#07132B] to-[#173d6e] text-white px-3 py-1.5 rounded-xl text-center shrink-0 shadow-xs">
+                              <span className="font-black text-sm block">
+                                {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `${Number(coupon.discountValue).toLocaleString()}`}
+                              </span>
+                              <span className="text-[9px] text-sky-200 block font-medium">
+                                {coupon.discountType === 'percentage' ? 'خصم مئوي' : 'ريال يمني'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Coupon Code Pill with Copy Action */}
+                          <div className="p-2.5 rounded-xl bg-slate-50 border border-dashed border-slate-300 flex items-center justify-between gap-2 mt-3">
+                            <div className="flex items-center gap-2">
+                              <Tag className="w-4 h-4 text-blue-600" />
+                              <span className="font-mono font-black text-sm tracking-wider text-[#07132B]">
+                                {coupon.code}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyCode(coupon.code)}
+                              className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer"
+                              title="نسخ الرمز"
+                            >
+                              <Copy className="w-3 h-3 text-blue-600" />
+                              <span>نسخ</span>
+                            </button>
+                          </div>
+
+                          {/* Conditions & Details */}
+                          <div className="space-y-1.5 text-[11px] text-slate-600 mt-3 pt-2 border-t border-slate-100">
+                            <div className="flex justify-between">
+                              <span className="text-slate-400">الحد الأدنى للطلب:</span>
+                              <span className="font-bold text-slate-800">
+                                {coupon.minOrder ? `${Number(coupon.minOrder).toLocaleString()} ر.ي` : 'بدون حد أدنى'}
+                              </span>
+                            </div>
+
+                            {coupon.maxDiscount && (
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">الحد الأقصى للخصم:</span>
+                                <span className="font-bold text-slate-800">
+                                  {Number(coupon.maxDiscount).toLocaleString()} ر.ي
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="flex justify-between">
+                              <span className="text-slate-400">فترة الصلاحية:</span>
+                              <span className="font-mono text-slate-700 text-[10px]">
+                                {coupon.startDate} ⬅️ {coupon.endDate || 'مستمر'}
+                              </span>
+                            </div>
+
+                            <div className="flex justify-between">
+                              <span className="text-slate-400">المنتجات المشمولة:</span>
+                              <span className="font-semibold text-slate-800">
+                                {coupon.includedProducts === 'all' || !coupon.includedProducts
+                                  ? 'كافة منتجات المتجر'
+                                  : `محدد (${Array.isArray(coupon.includedProducts) ? coupon.includedProducts.length : 1} منتج)`}
+                              </span>
+                            </div>
+
+                            <div className="flex justify-between">
+                              <span className="text-slate-400">الجمع مع عروض أخرى:</span>
+                              <span className={`font-bold ${coupon.canCombine ? 'text-emerald-600' : 'text-slate-500'}`}>
+                                {coupon.canCombine ? 'مسموح' : 'غير متاح'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Usage Progress Bar */}
+                          <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-slate-500 font-semibold">معدل الاستخدام:</span>
+                              <span className="font-mono font-bold text-slate-800">
+                                {coupon.usageCount || 0} / {coupon.usageLimit || 100} ({usagePct}%)
+                              </span>
+                            </div>
+                            <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                  usagePct >= 90 ? 'bg-red-500' : usagePct >= 50 ? 'bg-amber-400' : 'bg-blue-600'
+                                }`}
+                                style={{ width: `${usagePct}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Sales & Discounts Generated Pill */}
+                          <div className="grid grid-cols-2 gap-2 mt-3 p-2 rounded-xl bg-slate-50 text-[10px]">
+                            <div>
+                              <span className="text-slate-400 block">إجمالي الخصم:</span>
+                              <span className="font-bold text-purple-700 font-mono text-[11px]">
+                                {(coupon.totalDiscountGiven || 0).toLocaleString()} ر.ي
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block">مبيعات الكوبون:</span>
+                              <span className="font-bold text-emerald-700 font-mono text-[11px]">
+                                {(coupon.totalRevenueGenerated || 0).toLocaleString()} ر.ي
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleCouponItem(coupon.id)}
+                            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                              coupon.isActive
+                                ? 'bg-amber-50 hover:bg-amber-100 text-amber-800'
+                                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800'
+                            }`}
+                          >
+                            {coupon.isActive ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                            <span>{coupon.isActive ? 'إيقاف مؤقت' : 'تفعيل الكوبون'}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditCoupon(coupon)}
+                            className="p-2 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 border border-slate-200 transition cursor-pointer"
+                            title="تعديل الكوبون"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCouponItem(coupon.id, coupon.code)}
+                            className="p-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 transition cursor-pointer"
+                            title="حذف الكوبون"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ==================================================================
+              TAB: PRODUCT REVIEWS & MERCHANT REPLIES (تقييمات ومراجعات العملاء)
+              ================================================================== */}
+          {activeTab === 'reviews' && (
+            <div className="space-y-8" dir="rtl">
+              
+              {/* Header Hero Banner */}
+              <div className="rounded-3xl bg-gradient-to-l from-[#07132B] via-[#0E2248] to-[#122A56] text-white p-6 sm:p-8 shadow-xl border border-sky-500/20 relative overflow-hidden">
+                <div className="space-y-2 max-w-2xl">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-bold text-amber-300">
+                    <Star className="w-3.5 h-3.5 fill-current text-amber-400" />
+                    <span>آراء العملاء والمراجعات الموثقة</span>
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-black text-white">
+                    تقييمات المشترين ومراجعات المنتجات ⭐
+                  </h2>
+                  <p className="text-xs sm:text-sm text-sky-100/90 leading-relaxed font-normal">
+                    تابع انطباعات عملائك الحقيقيين الذين اشتروا منتجاتك، وتفاعل معهم بالرد الرسمي كمتجر لتعزيز الثقة وتقديم تجربة تسوق استثنائية.
+                  </p>
+                </div>
+              </div>
+
+              {/* Reviews List */}
+              {merchantReviews.length === 0 ? (
+                <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/80 space-y-4">
+                  <div className="w-16 h-16 rounded-3xl bg-amber-50 text-amber-500 flex items-center justify-center mx-auto shadow-inner">
+                    <Star className="w-8 h-8 fill-current" />
+                  </div>
+                  <h3 className="font-black text-slate-900 text-lg">لا توجد تقييمات حتى الآن</h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    عندما يقوم المشترون الموثّقون بتقييم منتجاتك بعد استلام طلباتهم، ستظهر جميع المراجعات والتقييمات هنا.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {merchantReviews.map((rev) => (
+                    <div
+                      key={rev.id}
+                      className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs hover:shadow-md transition-all space-y-4"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#07132B] to-blue-600 text-white font-black flex items-center justify-center text-sm shadow-md">
+                            {rev.customerName ? rev.customerName.charAt(0) : 'ع'}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-black text-slate-900 text-sm">{rev.customerName}</h4>
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                                <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>مشترٍ موثّق</span>
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-2">
+                              <span>المنتج: <strong className="text-slate-700 font-semibold">{rev.productName}</strong></span>
+                              <span>•</span>
+                              <span>طلب رقم: <strong className="text-blue-600 font-mono">{rev.orderId}</strong></span>
+                              <span>•</span>
+                              <span>{rev.customerCity || 'المكلا'}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Rating Stars & Date */}
+                        <div className="flex items-center gap-3 self-end sm:self-center">
+                          <div className="flex text-amber-400">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${i < (rev.rating || 5) ? 'fill-current' : 'text-slate-200'}`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-[11px] text-slate-400 font-mono">
+                            {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString('ar-YE') : 'مؤخراً'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Comment text */}
+                      <p className="text-xs sm:text-sm text-slate-700 leading-relaxed pr-2">
+                        {rev.comment}
+                      </p>
+
+                      {/* Customer Attached Photo if any */}
+                      {rev.imageUrl && (
+                        <div className="pt-1">
+                          <span className="text-[10px] text-slate-400 block mb-1">صورة مرفقة من العميل:</span>
+                          <a href={rev.imageUrl} target="_blank" rel="noopener noreferrer" className="inline-block group">
+                            <img
+                              src={rev.imageUrl}
+                              alt="صورة التقييم"
+                              className="w-24 h-24 object-cover rounded-2xl border border-slate-200 group-hover:opacity-90 shadow-xs"
+                            />
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Official Merchant Reply Box */}
+                      {rev.merchantReply ? (
+                        <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200/70 space-y-1.5 mt-3">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-bold text-blue-900 flex items-center gap-1.5">
+                              <ShieldCheck className="w-4 h-4 text-blue-600" />
+                              <span>رد المتجر الرسمي:</span>
+                            </span>
+                            <span className="text-[10px] text-blue-500 font-mono">
+                              {rev.merchantRepliedAt ? new Date(rev.merchantRepliedAt).toLocaleDateString('ar-YE') : 'مؤخراً'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-blue-800 leading-relaxed font-medium">
+                            {rev.merchantReply}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="pt-2 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setReplyModalReview(rev);
+                              setReplyInputText('');
+                            }}
+                            className="px-4 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            <span>الرد على العميل كمتجر رسمي</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ==================================================================
               TAB 6: ORDERS (Screen 4: الطلبات)
               ================================================================== */}
           {activeTab === 'orders' && (
@@ -2862,6 +3523,416 @@ export default function MerchantDashboard({ onBackToMarket }) {
             showToast('تم إرسال طلب تجديد الاشتراك بنجاح ✨');
           }}
         />
+      )}
+
+      {/* 4. Complete 14-Field Coupon Creation & Edit Modal */}
+      {isCouponModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-100 space-y-6 my-8 max-h-[90vh] overflow-y-auto" dir="rtl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                  <Tag className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-900 text-lg">
+                    {editingCoupon ? 'تعديل كوبون الخصم' : 'إنشاء كوبون خصم جديد'}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    حدد تفاصيل العرض الترويجي والقيود بدقة وفق سياسة متجرك
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCouponModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCoupon} className="space-y-5">
+              {/* Row 1: Code (1) & Offer Name (2) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    1. رمز الكوبون <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      required
+                      value={couponForm.code}
+                      onChange={(e) => setCouponForm({ ...couponForm, code: e.target.value.toUpperCase().replace(/\s+/g, '') })}
+                      placeholder="مثال: GHAYM20"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono font-bold uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setCouponForm({ ...couponForm, code: `GHAYM${Math.floor(10 + Math.random() * 90)}` })}
+                      className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold whitespace-nowrap cursor-pointer"
+                      title="توليد رمز تلقائي"
+                    >
+                      توليد
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    2. اسم العرض الترويجي <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={couponForm.name}
+                    onChange={(e) => setCouponForm({ ...couponForm, name: e.target.value })}
+                    placeholder="مثال: خصم خاص لعملاء المكلا"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+              </div>
+
+              {/* Row 2: Discount Type (3) & Discount Value (4) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50/80 border border-slate-100">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    3. نوع الخصم <span className="text-red-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCouponForm({ ...couponForm, discountType: 'percentage' })}
+                      className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                        couponForm.discountType === 'percentage'
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'bg-white text-slate-600 border border-slate-200'
+                      }`}
+                    >
+                      <Percent className="w-3.5 h-3.5" />
+                      <span>نسبة مئوية (%)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCouponForm({ ...couponForm, discountType: 'fixed', maxDiscount: null })}
+                      className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                        couponForm.discountType === 'fixed'
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'bg-white text-slate-600 border border-slate-200'
+                      }`}
+                    >
+                      <DollarSign className="w-3.5 h-3.5" />
+                      <span>مبلغ ثابت (ر.ي)</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    4. قيمة الخصم <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      required
+                      value={couponForm.discountValue}
+                      onChange={(e) => setCouponForm({ ...couponForm, discountValue: e.target.value })}
+                      placeholder={couponForm.discountType === 'percentage' ? 'مثال: 20' : 'مثال: 2000'}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                      {couponForm.discountType === 'percentage' ? '%' : 'ر.ي'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 3: Minimum Order (5) & Max Discount (6) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    5. الحد الأدنى للطلب (ر.ي)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={couponForm.minOrder}
+                    onChange={(e) => setCouponForm({ ...couponForm, minOrder: e.target.value })}
+                    placeholder="0 إذا لم يكن هناك حد أدنى"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-1 block">قيمة السلة قبل احتساب التوصيل</span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    6. الحد الأقصى للخصم (ر.ي)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    disabled={couponForm.discountType === 'fixed'}
+                    value={couponForm.maxDiscount || ''}
+                    onChange={(e) => setCouponForm({ ...couponForm, maxDiscount: e.target.value })}
+                    placeholder={couponForm.discountType === 'fixed' ? 'غير مطلوب للمبلغ الثابت' : 'مثال: 5000'}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-slate-100 disabled:text-slate-400"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-1 block">سقف الخصم الأعلى لنسبة الخصم</span>
+                </div>
+              </div>
+
+              {/* Row 4: Start Date (7) & End Date (8) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    7. تاريخ بداية الكوبون <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={couponForm.startDate}
+                    onChange={(e) => setCouponForm({ ...couponForm, startDate: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    8. تاريخ انتهاء الكوبون <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={couponForm.endDate}
+                    onChange={(e) => setCouponForm({ ...couponForm, endDate: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+              </div>
+
+              {/* Row 5: Total Limit (9) & Per Customer Limit (10) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    9. عدد مرات الاستخدام الإجمالي
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={couponForm.usageLimit}
+                    onChange={(e) => setCouponForm({ ...couponForm, usageLimit: e.target.value })}
+                    placeholder="مثال: 100"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-1 block">إجمالي عدد مرات استخدام الكوبون للجميع</span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    10. عدد مرات الاستخدام لكل عميل
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={couponForm.usagePerCustomer}
+                    onChange={(e) => setCouponForm({ ...couponForm, usagePerCustomer: e.target.value })}
+                    placeholder="مثال: 1"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-1 block">الحد المسموح لنفس العميل</span>
+                </div>
+              </div>
+
+              {/* Row 6: Included Products (11 & 12) */}
+              <div className="space-y-2 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <label className="block text-xs font-bold text-slate-700">
+                  11 و 12. المنتجات المشمولة بالكوبون
+                </label>
+                <div className="flex gap-4 mb-2">
+                  <label className="inline-flex items-center gap-2 text-xs font-bold cursor-pointer">
+                    <input
+                      type="radio"
+                      name="productScope"
+                      checked={couponForm.includedProducts === 'all'}
+                      onChange={() => setCouponForm({ ...couponForm, includedProducts: 'all' })}
+                      className="accent-blue-600"
+                    />
+                    <span>تطبيق على جميع منتجات المتجر</span>
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-xs font-bold cursor-pointer">
+                    <input
+                      type="radio"
+                      name="productScope"
+                      checked={couponForm.includedProducts !== 'all'}
+                      onChange={() => setCouponForm({ ...couponForm, includedProducts: [] })}
+                      className="accent-blue-600"
+                    />
+                    <span>تطبيق على منتجات محددة فقط</span>
+                  </label>
+                </div>
+
+                {couponForm.includedProducts !== 'all' && (
+                  <div className="mt-3 max-h-36 overflow-y-auto space-y-1.5 bg-white p-3 rounded-xl border border-slate-200">
+                    <span className="text-[11px] text-slate-500 block mb-1">اختر المنتجات المشمولة بالعرض:</span>
+                    {merchantProducts.map((p) => {
+                      const isSelected = Array.isArray(couponForm.includedProducts) && couponForm.includedProducts.includes(p.id);
+                      return (
+                        <label key={p.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 cursor-pointer text-xs">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={(e) => {
+                                const current = Array.isArray(couponForm.includedProducts) ? [...couponForm.includedProducts] : [];
+                                if (e.target.checked) {
+                                  setCouponForm({ ...couponForm, includedProducts: [...current, p.id] });
+                                } else {
+                                  setCouponForm({ ...couponForm, includedProducts: current.filter((id) => id !== p.id) });
+                                }
+                              }}
+                              className="accent-blue-600"
+                            />
+                            <span className="font-semibold text-slate-800">{p.name}</span>
+                          </div>
+                          <span className="text-slate-400 text-[11px] font-mono">{Number(p.price).toLocaleString()} ر.ي</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Row 7: Combine (13) & Active (14) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <label className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={couponForm.canCombine}
+                    onChange={(e) => setCouponForm({ ...couponForm, canCombine: e.target.checked })}
+                    className="w-4 h-4 accent-blue-600"
+                  />
+                  <div>
+                    <span className="text-xs font-bold text-slate-800 block">13. الجمع بينه وبين عروض أخرى</span>
+                    <span className="text-[10px] text-slate-400 block">السماح بتطبيقه إذا كان هناك تخفيض آخر</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={couponForm.isActive}
+                    onChange={(e) => setCouponForm({ ...couponForm, isActive: e.target.checked })}
+                    className="w-4 h-4 accent-emerald-600"
+                  />
+                  <div>
+                    <span className="text-xs font-bold text-slate-800 block">14. تفعيل الكوبون فوراً</span>
+                    <span className="text-[10px] text-slate-400 block">جعله جاهزاً للاستخدام من قبل العملاء</span>
+                  </div>
+                </label>
+              </div>
+
+              {/* Modal Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsCouponModalOpen(false)}
+                  className="px-5 py-2.5 rounded-xl text-slate-600 font-bold text-xs hover:bg-slate-100 cursor-pointer"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  className="px-7 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md transition-all hover:scale-[1.02] cursor-pointer flex items-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{editingCoupon ? 'حفظ التعديلات' : 'تأكيد ونشر الكوبون'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Official Merchant Reply Modal */}
+      {replyModalReview && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 space-y-5" dir="rtl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-900 text-base">الرد على تقييم العميل</h3>
+                  <p className="text-[11px] text-slate-500">{replyModalReview.customerName} • {replyModalReview.productName}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReplyModalReview(null)}
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Original review snapshot */}
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-800">{replyModalReview.customerName}</span>
+                <div className="flex text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-3.5 h-3.5 ${i < (replyModalReview.rating || 5) ? 'fill-current' : 'text-slate-200'}`}
+                    />
+                  ))}
+                </div>
+              </div>
+              <p className="text-slate-600 italic">"{replyModalReview.comment}"</p>
+            </div>
+
+            {/* Merchant response input */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-800">
+                نص الرد الرسمي للمتجر:
+              </label>
+              <textarea
+                rows={4}
+                required
+                value={replyInputText}
+                onChange={(e) => setReplyInputText(e.target.value)}
+                placeholder="اكتب ردك اللبق والاحترافي للعميل هنا..."
+                className="w-full p-3.5 rounded-2xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 leading-relaxed"
+              />
+              <span className="text-[10px] text-slate-400 block">
+                سيظهر هذا الرد أسفل مراجعة العميل في صفحة تفاصيل المنتج للجميع كـ «رد المتجر الرسمي».
+              </span>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setReplyModalReview(null)}
+                className="px-4 py-2 rounded-xl text-slate-600 font-bold text-xs hover:bg-slate-100 cursor-pointer"
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                onClick={handleSendMerchantReply}
+                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md transition-all hover:scale-[1.02] cursor-pointer flex items-center gap-1.5"
+              >
+                <Check className="w-4 h-4" />
+                <span>إرسال ونشر الرد</span>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>

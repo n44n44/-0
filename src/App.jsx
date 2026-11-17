@@ -435,6 +435,18 @@ function AppContent() {
         switchPortal('marketplace');
         setCurrentMarketView('stores');
       }
+      else if (hash.startsWith('#/cart') || hash.includes('view=cart')) {
+        switchPortal('marketplace');
+        setCurrentMarketView('cart');
+      }
+      else if (hash.startsWith('#/checkout') || hash.includes('view=checkout')) {
+        switchPortal('marketplace');
+        setCurrentMarketView('checkout');
+      }
+      else if (hash.startsWith('#/product-details') || hash.includes('view=product-details')) {
+        switchPortal('marketplace');
+        setCurrentMarketView('product-details');
+      }
       else if (hash === '#/' || !hash) switchPortal('marketplace');
     };
     handleHash();

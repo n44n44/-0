@@ -1091,3 +1091,185 @@ export async function supabaseVerifyAdminRole(userId) {
     return false;
   }
 }
+
+// =========================================================================
+// 10. COUPONS OPERATIONS (Supabase Backend)
+// =========================================================================
+
+export async function supabaseCreateCoupon(coupon) {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  try {
+    const payload = {
+      store_id: coupon.storeId,
+      code: coupon.code.trim().toUpperCase(),
+      name: coupon.name.trim(),
+      discount_type: coupon.discountType,
+      discount_value: Number(coupon.discountValue),
+      min_order: Number(coupon.minOrder) || 0,
+      max_discount: coupon.maxDiscount ? Number(coupon.maxDiscount) : null,
+      start_date: coupon.startDate || new Date().toISOString().split('T')[0],
+      end_date: coupon.endDate,
+      usage_limit: Number(coupon.usageLimit) || 100,
+      usage_per_customer: Number(coupon.usagePerCustomer) || 1,
+      included_products: coupon.includedProducts || 'all',
+      can_combine: Boolean(coupon.canCombine),
+      is_active: coupon.isActive !== false,
+      usage_count: Number(coupon.usageCount) || 0,
+      total_discount_given: Number(coupon.totalDiscountGiven) || 0,
+      total_revenue_generated: Number(coupon.totalRevenueGenerated) || 0,
+    };
+
+    const { data, error } = await client.from('coupons').insert([payload]).select().single();
+    if (error) {
+      console.warn('supabaseCreateCoupon notice:', error.message);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.warn('supabaseCreateCoupon exception:', err);
+    return null;
+  }
+}
+
+export async function supabaseFetchStoreCoupons(storeId) {
+  const client = getSupabaseClient();
+  if (!client || !storeId) return [];
+
+  try {
+    const { data, error } = await client
+      .from('coupons')
+      .select('*')
+      .eq('store_id', storeId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('supabaseFetchStoreCoupons error:', error.message);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    console.warn('supabaseFetchStoreCoupons exception:', err);
+    return [];
+  }
+}
+
+export async function supabaseUpdateCoupon(couponId, updates) {
+  const client = getSupabaseClient();
+  if (!client || !couponId) return false;
+
+  try {
+    const { error } = await client.from('coupons').update(updates).eq('id', couponId);
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+export async function supabaseDeleteCoupon(couponId) {
+  const client = getSupabaseClient();
+  if (!client || !couponId) return false;
+
+  try {
+    const { error } = await client.from('coupons').delete().eq('id', couponId);
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+// =========================================================================
+// 11. PRODUCT REVIEWS OPERATIONS (Supabase Backend)
+// =========================================================================
+
+export async function supabaseSubmitProductReview(reviewData) {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  try {
+    const payload = {
+      product_id: reviewData.productId,
+      store_id: reviewData.storeId,
+      customer_id: reviewData.customerId || null,
+      order_id: reviewData.orderId,
+      customer_name: reviewData.customerName,
+      rating: Math.min(5, Math.max(1, Number(reviewData.rating) || 5)),
+      comment: reviewData.comment.trim(),
+      image_url: reviewData.imageUrl || null,
+      is_verified_purchase: true,
+      created_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await client.from('product_reviews').insert([payload]).select().single();
+    if (error) {
+      console.warn('supabaseSubmitProductReview notice:', error.message);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.warn('supabaseSubmitProductReview exception:', err);
+    return null;
+  }
+}
+
+export async function supabaseFetchProductReviews(productId) {
+  const client = getSupabaseClient();
+  if (!client || !productId) return [];
+
+  try {
+    const { data, error } = await client
+      .from('product_reviews')
+      .select('*')
+      .eq('product_id', productId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('supabaseFetchProductReviews error:', error.message);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    console.warn('supabaseFetchProductReviews exception:', err);
+    return [];
+  }
+}
+
+export async function supabaseReplyProductReview(reviewId, replyText) {
+  const client = getSupabaseClient();
+  if (!client || !reviewId) return false;
+
+  try {
+    const { error } = await client
+      .from('product_reviews')
+      .update({
+        merchant_reply: replyText.trim(),
+        merchant_replied_at: new Date().toISOString(),
+      })
+      .eq('id', reviewId);
+
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+export async function supabaseReportProductReview(reviewId, reason) {
+  const client = getSupabaseClient();
+  if (!client || !reviewId) return false;
+
+  try {
+    const { error } = await client
+      .from('product_reviews')
+      .update({
+        is_reported: true,
+        report_reason: reason,
+      })
+      .eq('id', reviewId);
+
+    return !error;
+  } catch {
+    return false;
+  }
+}
+

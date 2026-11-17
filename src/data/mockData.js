@@ -476,6 +476,14 @@ export const SAMPLE_ORDERS = [
         quantity: 2,
         image: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=400&auto=format&fit=crop&q=80',
       },
+      {
+        id: 'prod-ref-1',
+        name: 'فازة ورد طبيعي وردي',
+        storeName: 'متجر وردة الأناقة',
+        price: 30000,
+        quantity: 1,
+        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDgDvxXGGn15lBOwIJxJHHt_80VjPhAj0j3VADUvykxEHOm-pmTLVFBEuF8FUH_FXkIkHpq9ZmI9Yel-pA_QfOopBHB0bXpf4Gq8XlLUWl7qnBGVex-Amhr7JQ7FLL82mJ-Zh3umkHCFFeuxgcC1NXRQ-kpv65q_KyrTzyYWxcHengXEImvM0DsV27NEIwcYcZGBzPlET-tejnRC1FlyTQvULC5GJNfMq_0pKPCNpQ',
+      },
     ],
   },
   {

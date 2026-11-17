@@ -8,6 +8,7 @@ import {
   Headphones,
   Lock,
 } from 'lucide-react';
+import { usePlatform } from '../context/PlatformContext';
 
 export default function CartPage({
   cartItems = [],
@@ -16,9 +17,14 @@ export default function CartPage({
   onClearCart,
   onNavigate,
 }) {
+  const { validateAndApplyCoupon } = usePlatform();
   const [couponCode, setCouponCode] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
   const [discountPercent, setDiscountPercent] = useState(0);
+  const [couponMessage, setCouponMessage] = useState('');
+  const [couponError, setCouponError] = useState('');
 
   // Subtotal calculation
   const subtotal = cartItems.reduce(
@@ -26,17 +32,40 @@ export default function CartPage({
     0
   );
   const shippingFee = subtotal > 0 ? 2000 : 0;
-  const discountAmount = Math.round((subtotal * discountPercent) / 100);
   const grandTotal = Math.max(0, subtotal - discountAmount + shippingFee);
 
   const handleApplyCoupon = (e) => {
     e.preventDefault();
-    if (couponCode.trim().toUpperCase() === 'GHAYM20') {
-      setCouponApplied(true);
-      setDiscountPercent(20);
-    } else if (couponCode.trim()) {
-      setCouponApplied(true);
-      setDiscountPercent(10);
+    setCouponError('');
+    setCouponMessage('');
+
+    if (!couponCode.trim()) {
+      setCouponError('يرجى إدخال رمز الكوبون');
+      return;
+    }
+
+    if (validateAndApplyCoupon) {
+      const res = validateAndApplyCoupon(couponCode, cartItems, subtotal);
+      if (res.isValid) {
+        setCouponApplied(true);
+        setAppliedCoupon(res.coupon);
+        setDiscountAmount(res.discountAmount);
+        setDiscountPercent(res.discountPercent || 0);
+        setCouponMessage(res.message);
+      } else {
+        setCouponApplied(false);
+        setAppliedCoupon(null);
+        setDiscountAmount(0);
+        setDiscountPercent(0);
+        setCouponError(res.message);
+      }
+    } else {
+      if (couponCode.trim().toUpperCase() === 'GHAYM20') {
+        setCouponApplied(true);
+        setDiscountPercent(20);
+        setDiscountAmount(Math.round((subtotal * 20) / 100));
+        setCouponMessage('تم تطبيق كود الخصم بنجاح! 🎉');
+      }
     }
   };
 
@@ -260,9 +289,14 @@ export default function CartPage({
                     تطبيق
                   </button>
                 </div>
-                {couponApplied && (
-                  <p className="text-[11px] text-emerald-600 font-bold mt-1.5 text-center">
-                    تم تطبيق كود الخصم بنجاح! 🎉
+                {couponApplied && couponMessage && (
+                  <p className="text-[11px] text-emerald-600 font-bold mt-2 text-center bg-emerald-50 py-1.5 px-3 rounded-lg border border-emerald-200">
+                    {couponMessage}
+                  </p>
+                )}
+                {couponError && (
+                  <p className="text-[11px] text-red-600 font-bold mt-2 text-center bg-red-50 py-1.5 px-3 rounded-lg border border-red-200">
+                    {couponError}
                   </p>
                 )}
               </form>

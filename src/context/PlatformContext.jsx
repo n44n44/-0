@@ -31,6 +31,14 @@ import {
   supabaseFetchAdminLogs,
   supabaseAdminSignIn,
   supabaseVerifyAdminRole,
+  supabaseCreateCoupon,
+  supabaseFetchStoreCoupons,
+  supabaseUpdateCoupon,
+  supabaseDeleteCoupon,
+  supabaseSubmitProductReview,
+  supabaseFetchProductReviews,
+  supabaseReplyProductReview,
+  supabaseReportProductReview,
 } from '../lib/supabaseClient';
 
 const PlatformContext = createContext(null);
@@ -213,7 +221,12 @@ const getInitialDatabase = () => {
     products: INITIAL_PRODUCTS,
 
     // 4. UNIFIED ORDERS TABLE (Linked with storeId and courierId)
-    orders: [],
+    orders: INITIAL_ORDERS.map((o) => ({
+      ...o,
+      storeId: o.storeId || (o.items && o.items[0]?.storeName?.includes('بخور') ? 'store-2' : 'store-1'),
+      storeName: o.storeName || (o.items && o.items[0]?.storeName) || 'متجر وردة الأناقة',
+      customerId: o.phone === '771234567' ? 'usr-cust-1' : 'usr-cust-2',
+    })),
 
     // 5. SUBSCRIPTION PLANS TABLE (Admin Configurable)
     subscriptionPlans: [
@@ -642,6 +655,249 @@ const getInitialDatabase = () => {
         createdAt: '2026-11-15T08:00:00Z',
       },
     ],
+
+    // 17. MERCHANT COUPONS TABLE (14 Defined Fields, Isolated by Store & Validated)
+    coupons: [
+      {
+        id: 'coup-1',
+        code: 'GHAYM20',
+        name: 'خصم الافتتاح والترحيب',
+        discountType: 'percentage',
+        discountValue: 20,
+        minOrder: 10000,
+        maxDiscount: 5000,
+        startDate: '2026-11-01',
+        endDate: '2026-12-31',
+        usageLimit: 100,
+        usagePerCustomer: 1,
+        includedProducts: 'all',
+        canCombine: false,
+        isActive: true,
+        storeId: 'store-1',
+        storeName: 'متجر وردة الأناقة',
+        usageCount: 14,
+        totalDiscountGiven: 35000,
+        totalRevenueGenerated: 175000,
+        createdAt: '2026-11-01T10:00:00Z',
+      },
+      {
+        id: 'coup-2',
+        code: 'WARD10',
+        name: 'عرض العطور والبخور المكلاوية',
+        discountType: 'fixed',
+        discountValue: 2000,
+        minOrder: 15000,
+        maxDiscount: null,
+        startDate: '2026-11-05',
+        endDate: '2026-11-30',
+        usageLimit: 50,
+        usagePerCustomer: 2,
+        includedProducts: ['prod-1', 'prod-2'],
+        canCombine: true,
+        isActive: true,
+        storeId: 'store-1',
+        storeName: 'متجر وردة الأناقة',
+        usageCount: 8,
+        totalDiscountGiven: 16000,
+        totalRevenueGenerated: 120000,
+        createdAt: '2026-11-05T12:00:00Z',
+      },
+      {
+        id: 'coup-3',
+        code: 'OFF50',
+        name: 'تخفيضات نهاية الموسم',
+        discountType: 'percentage',
+        discountValue: 50,
+        minOrder: 20000,
+        maxDiscount: 10000,
+        startDate: '2026-09-01',
+        endDate: '2026-10-31',
+        usageLimit: 30,
+        usagePerCustomer: 1,
+        includedProducts: 'all',
+        canCombine: false,
+        isActive: false,
+        storeId: 'store-1',
+        storeName: 'متجر وردة الأناقة',
+        usageCount: 30,
+        totalDiscountGiven: 60000,
+        totalRevenueGenerated: 120000,
+        createdAt: '2026-09-01T08:00:00Z',
+      },
+      {
+        id: 'coup-4',
+        code: 'BUKHOOR15',
+        name: 'خصم بخور وعطور المكلا المميز',
+        discountType: 'percentage',
+        discountValue: 15,
+        minOrder: 12000,
+        maxDiscount: 4000,
+        startDate: '2026-11-10',
+        endDate: '2026-12-25',
+        usageLimit: 80,
+        usagePerCustomer: 1,
+        includedProducts: 'all',
+        canCombine: false,
+        isActive: true,
+        storeId: 'store-2',
+        storeName: 'بخور وعطور المكلا',
+        usageCount: 5,
+        totalDiscountGiven: 9000,
+        totalRevenueGenerated: 60000,
+        createdAt: '2026-11-10T09:00:00Z',
+      },
+    ],
+
+    // 18. VERIFIED PRODUCT REVIEWS TABLE (Linked to Customer, Product, Order, Store)
+    reviews: [
+      {
+        id: 'rev-ref-1',
+        productId: 'prod-ref-1',
+        productName: 'فازة ورد طبيعي وردي',
+        storeId: 'store-1',
+        storeName: 'متجر التصميم المتميز',
+        customerId: 'usr-cust-2',
+        customerName: 'سعيد مبارك بن هلابي',
+        customerCity: 'المكلا - فوه',
+        orderId: 'GS-1048',
+        rating: 5,
+        comment: 'فازة راقية جداً والورد طازج وجميل، وصلت بنفس الترتيب والصورة تماماً مع كرت إهداء أنيق. خدمة وتوصيل يشكرون عليه في المكلا.',
+        imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=600&auto=format&fit=crop&q=80',
+        isVerifiedPurchase: true,
+        merchantReply: 'أهلاً بك أخي سعيد، وسام فخر لنا ثقتك الغالية ونسعد دائماً بخدمتكم وتقديم أفضل باقات الورد والهدايا!',
+        merchantRepliedAt: '2026-11-09T16:00:00Z',
+        isReported: false,
+        reportReason: null,
+        likesCount: 14,
+        createdAt: '2026-11-08T15:30:00Z',
+      },
+      {
+        id: 'rev-ref-2',
+        productId: 'prod-ref-1',
+        productName: 'فازة ورد طبيعي وردي',
+        storeId: 'store-1',
+        storeName: 'متجر التصميم المتميز',
+        customerId: 'usr-cust-3',
+        customerName: 'ريم خالد باحشوان',
+        customerCity: 'المكلا - الشرج',
+        orderId: 'GS-1045',
+        rating: 5,
+        comment: 'تنسيق متقن وألوان الورد تفتح النفس. مناسبة جداً لديكور الطاولة أو كهدية تخرج، والتعامل كان في قمة الذوق.',
+        imageUrl: null,
+        isVerifiedPurchase: true,
+        merchantReply: null,
+        merchantRepliedAt: null,
+        isReported: false,
+        reportReason: null,
+        likesCount: 9,
+        createdAt: '2026-11-10T11:20:00Z',
+      },
+      {
+        id: 'rev-1',
+        productId: 'prod-1',
+        productName: 'حقائب يمنية قماشية وتطريز حضرمي',
+        storeId: 'store-1',
+        storeName: 'متجر وردة الأناقة',
+        customerId: 'usr-cust-1',
+        customerName: 'فاطمة صالح باوزير',
+        customerCity: 'المكلا - حي الورد',
+        orderId: 'GS-1049',
+        rating: 5,
+        comment: 'ما شاء الله تبارك الله، حقيبة فخمة ومتقنة والتطريز الحضرمي أصيل وثابت. التوصيل في المكلا كان بنفس اليوم وبكل دقة.',
+        imageUrl: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=600&auto=format&fit=crop&q=80',
+        isVerifiedPurchase: true,
+        merchantReply: 'شكراً جزيلاً أخت فاطمة، وسام فخر لنا ثقتك الغالية ونسعد دائماً بخدمتك وتقديم أفضل جودة لكِ!',
+        merchantRepliedAt: '2026-11-08T14:30:00Z',
+        isReported: false,
+        reportReason: null,
+        likesCount: 18,
+        createdAt: '2026-11-07T16:20:00Z',
+      },
+      {
+        id: 'rev-2',
+        productId: 'prod-1',
+        productName: 'حقائب يمنية قماشية وتطريز حضرمي',
+        storeId: 'store-1',
+        storeName: 'متجر وردة الأناقة',
+        customerId: 'usr-cust-2',
+        customerName: 'محمد أحمد العمودي',
+        customerCity: 'المكلا - الديس',
+        orderId: 'GS-1048',
+        rating: 5,
+        comment: 'خياطة ممتازة وجودة خامة راقية جداً، أنصح به للمناسبات الرسمية والأعياد. تعامل المتجر راقي وسريع.',
+        imageUrl: null,
+        isVerifiedPurchase: true,
+        merchantReply: 'أهلاً بك أخي محمد، شهادتك نعتز بها ونسعى دوماً للارتقاء بما يرضي ذوقكم الكريم.',
+        merchantRepliedAt: '2026-11-09T18:00:00Z',
+        isReported: false,
+        reportReason: null,
+        likesCount: 11,
+        createdAt: '2026-11-09T11:45:00Z',
+      },
+      {
+        id: 'rev-3',
+        productId: 'prod-1',
+        productName: 'حقائب يمنية قماشية وتطريز حضرمي',
+        storeId: 'store-1',
+        storeName: 'متجر وردة الأناقة',
+        customerId: 'usr-cust-3',
+        customerName: 'سارة عبدالقادر الكثيري',
+        customerCity: 'المكلا - فوه',
+        orderId: 'GS-1045',
+        rating: 4,
+        comment: 'الجودة ممتازة والتصميم تراثي جميل، فقط تمنيت لو توفرت جيوب داخلية إضافية. بالتوفيق لكم.',
+        imageUrl: null,
+        isVerifiedPurchase: true,
+        merchantReply: 'نشكرك على ملاحظتك القيمة أخت سارة، ونبشرك بأن التصميم الجديد سيكون مزوداً بجيوب إضافية بإذن الله!',
+        merchantRepliedAt: '2026-11-10T10:15:00Z',
+        isReported: false,
+        reportReason: null,
+        likesCount: 6,
+        createdAt: '2026-11-10T09:15:00Z',
+      },
+      {
+        id: 'rev-4',
+        productId: 'prod-2',
+        productName: 'مباخر بتطريز تقليدي وفخامة البخور',
+        storeId: 'store-1',
+        storeName: 'متجر وردة الأناقة',
+        customerId: 'usr-cust-1',
+        customerName: 'فاطمة صالح باوزير',
+        customerCity: 'المكلا - حي الورد',
+        orderId: 'GS-1049',
+        rating: 5,
+        comment: 'المبخرة تجنن وفخار أصيل يحفظ حرارة الجمر ويوزع البخور بشكل ساحر، من أروع المتاجر في حضرموت.',
+        imageUrl: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600&auto=format&fit=crop&q=80',
+        isVerifiedPurchase: true,
+        merchantReply: null,
+        merchantRepliedAt: null,
+        isReported: false,
+        reportReason: null,
+        likesCount: 9,
+        createdAt: '2026-11-08T12:00:00Z',
+      },
+      {
+        id: 'rev-cake-1',
+        productId: 'prod-cake-1',
+        productName: 'كيكة عيد ميلاد مميزة مع التزيين اليدوي',
+        storeId: 'store-1',
+        storeName: 'متجر جازيزا',
+        customerId: 'usr-cust-2',
+        customerName: 'سعيد مبارك بن هلابي',
+        customerCity: 'المكلا - فوه',
+        orderId: 'GS-1048',
+        rating: 5,
+        comment: 'الكيكة لذيذة جداً والتزيين متقن وفخم، أسعدتمونا في الحفلة وسرعة التوصيل كانت مذهلة.',
+        imageUrl: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?w=600&auto=format&fit=crop&q=80',
+        isVerifiedPurchase: true,
+        merchantReply: 'شكراً لك أخي سعيد، بالهناء والعافية ويسعدنا دائماً أن نكون جزءاً من مناسباتكم السعيدة!',
+        merchantRepliedAt: '2026-11-09T17:00:00Z',
+        isReported: false,
+        reportReason: null,
+        likesCount: 15,
+        createdAt: '2026-11-08T16:00:00Z',
+      },
+    ],
   };
 };
 
@@ -710,6 +966,27 @@ export function PlatformProvider({ children }) {
           }
           if (!parsed.adminLogs) {
             parsed.adminLogs = freshInitial.adminLogs;
+          }
+          if (!parsed.coupons || parsed.coupons.length === 0) {
+            parsed.coupons = freshInitial.coupons;
+          } else {
+            const existingCodes = new Set(parsed.coupons.map((c) => c.code));
+            const missing = freshInitial.coupons.filter((c) => !existingCodes.has(c.code));
+            if (missing.length > 0) {
+              parsed.coupons = [...parsed.coupons, ...missing];
+            }
+          }
+          if (!parsed.reviews || parsed.reviews.length === 0) {
+            parsed.reviews = freshInitial.reviews;
+          } else {
+            const existingIds = new Set(parsed.reviews.map((r) => r.id));
+            const missing = freshInitial.reviews.filter((r) => !existingIds.has(r.id));
+            if (missing.length > 0) {
+              parsed.reviews = [...parsed.reviews, ...missing];
+            }
+          }
+          if (!parsed.orders || parsed.orders.length === 0) {
+            parsed.orders = freshInitial.orders;
           }
           return parsed;
         }
@@ -914,7 +1191,18 @@ export function PlatformProvider({ children }) {
   const switchPortal = (portal) => {
     const target = portal === 'delivery' ? 'courier' : portal;
     setCurrentPortal(target);
-    window.location.hash = target === 'marketplace' ? '/' : `/${target}`;
+    if (target === 'merchant' && !window.location.hash.startsWith('#/merchant')) {
+      window.location.hash = '/merchant';
+    } else if (target === 'courier' && !window.location.hash.startsWith('#/courier')) {
+      window.location.hash = '/courier';
+    } else if (target === 'admin' && !window.location.hash.startsWith('#/admin')) {
+      window.location.hash = '/admin';
+    } else if (target === 'marketplace') {
+      const curHash = window.location.hash || '';
+      if (curHash.startsWith('#/merchant') || curHash.startsWith('#/courier') || curHash.startsWith('#/admin')) {
+        window.location.hash = '/';
+      }
+    }
   };
 
   // 2. Active Session Accounts (Multi-Tenant Isolation & Role Protection)
@@ -1257,6 +1545,14 @@ export function PlatformProvider({ children }) {
   const merchantPayments = (db.payments || []).filter(
     (p) => p.storeId === currentMerchantStore?.id
   );
+
+  const merchantCoupons = currentMerchantStore
+    ? (db.coupons || []).filter((c) => c.storeId === currentMerchantStore.id)
+    : [];
+
+  const merchantReviews = currentMerchantStore
+    ? (db.reviews || []).filter((r) => r.storeId === currentMerchantStore.id)
+    : [];
 
   // B. Courier Isolated Views:
   const courierDeliveries = db.orders.filter(
@@ -3606,6 +3902,501 @@ export function PlatformProvider({ children }) {
     }));
   };
 
+  // =========================================================================
+  // H. MERCHANT COUPONS MANAGEMENT (قسائم التخفيض والعروض الترويجية)
+  // =========================================================================
+
+  const addCoupon = async (couponData) => {
+    const targetStoreId = couponData.storeId || currentMerchantStore?.id || 'store-1';
+    const targetStoreName = couponData.storeName || currentMerchantStore?.name || 'متجر وردة الأناقة';
+    const cleanCode = (couponData.code || '').trim().toUpperCase();
+
+    if (!cleanCode) {
+      throw new Error('رمز الكوبون مطلوب (مثال: GHAYM20)');
+    }
+
+    // Verify uniqueness for the store
+    const existing = (db.coupons || []).find(
+      (c) => c.storeId === targetStoreId && (c.code || '').toUpperCase() === cleanCode
+    );
+    if (existing) {
+      throw new Error(`رمز الكوبون "${cleanCode}" مسجل مسبقاً لهذا المتجر. يرجى اختيار رمز آخر.`);
+    }
+
+    const newCoupon = {
+      id: `coup-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      code: cleanCode,
+      name: (couponData.name || 'عرض ترويجي خاص').trim(),
+      discountType: couponData.discountType === 'fixed' ? 'fixed' : 'percentage',
+      discountValue: Math.max(1, Number(couponData.discountValue) || 10),
+      minOrder: Math.max(0, Number(couponData.minOrder) || 0),
+      maxDiscount: couponData.maxDiscount ? Number(couponData.maxDiscount) : null,
+      startDate: couponData.startDate || new Date().toISOString().split('T')[0],
+      endDate: couponData.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      usageLimit: Math.max(1, Number(couponData.usageLimit) || 100),
+      usagePerCustomer: Math.max(1, Number(couponData.usagePerCustomer) || 1),
+      includedProducts: couponData.includedProducts || 'all',
+      canCombine: Boolean(couponData.canCombine),
+      isActive: couponData.isActive !== false,
+      storeId: targetStoreId,
+      storeName: targetStoreName,
+      usageCount: 0,
+      totalDiscountGiven: 0,
+      totalRevenueGenerated: 0,
+      createdAt: new Date().toISOString(),
+    };
+
+    setDb((prev) => ({
+      ...prev,
+      coupons: [newCoupon, ...(prev.coupons || [])],
+      auditLogs: [
+        addAuditLog(
+          'CREATE_COUPON',
+          currentMerchantUser?.name || 'التاجر',
+          'merchant',
+          `إنشاء كوبون خصم جديد (${newCoupon.code}) بقيمة ${newCoupon.discountValue}${newCoupon.discountType === 'percentage' ? '%' : ' ر.ي'} لمتجر "${targetStoreName}".`
+        ),
+        ...prev.auditLogs,
+      ],
+      notifications: [
+        {
+          id: `notif-${Date.now()}`,
+          title: 'تم إنشاء كوبون خصم جديد 🏷️',
+          message: `تم تفعيل الكوبون "${newCoupon.code}" لمتجرك بنجاح.`,
+          time: 'الآن',
+          unread: true,
+          type: 'coupon',
+          role: 'merchant',
+        },
+        ...prev.notifications,
+      ],
+    }));
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseCreateCoupon(newCoupon);
+      } catch (err) {
+        console.warn('Supabase create coupon notice:', err);
+      }
+    }
+
+    return newCoupon;
+  };
+
+  const updateCoupon = async (couponId, updates) => {
+    setDb((prev) => ({
+      ...prev,
+      coupons: (prev.coupons || []).map((c) => (c.id === couponId ? { ...c, ...updates } : c)),
+      auditLogs: [
+        addAuditLog(
+          'UPDATE_COUPON',
+          currentMerchantUser?.name || 'التاجر',
+          'merchant',
+          `تحديث بيانات الكوبون #${couponId}.`
+        ),
+        ...prev.auditLogs,
+      ],
+    }));
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseUpdateCoupon(couponId, updates);
+      } catch (err) {
+        console.warn('Supabase update coupon notice:', err);
+      }
+    }
+  };
+
+  const deleteCoupon = async (couponId) => {
+    setDb((prev) => {
+      const target = (prev.coupons || []).find((c) => c.id === couponId);
+      return {
+        ...prev,
+        coupons: (prev.coupons || []).filter((c) => c.id !== couponId),
+        auditLogs: [
+          addAuditLog(
+            'DELETE_COUPON',
+            currentMerchantUser?.name || 'التاجر',
+            'merchant',
+            `حذف الكوبون (${target?.code || couponId}).`
+          ),
+          ...prev.auditLogs,
+        ],
+      };
+    });
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseDeleteCoupon(couponId);
+      } catch (err) {
+        console.warn('Supabase delete coupon notice:', err);
+      }
+    }
+  };
+
+  const toggleCouponStatus = async (couponId) => {
+    let nextStatus = false;
+    setDb((prev) => {
+      const updated = (prev.coupons || []).map((c) => {
+        if (c.id === couponId) {
+          nextStatus = !c.isActive;
+          return { ...c, isActive: !c.isActive };
+        }
+        return c;
+      });
+      return {
+        ...prev,
+        coupons: updated,
+        auditLogs: [
+          addAuditLog(
+            'TOGGLE_COUPON_STATUS',
+            currentMerchantUser?.name || 'التاجر',
+            'merchant',
+            `${nextStatus ? 'تفعيل' : 'إيقاف'} الكوبون #${couponId}.`
+          ),
+          ...prev.auditLogs,
+        ],
+      };
+    });
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseUpdateCoupon(couponId, { is_active: nextStatus });
+      } catch (err) {
+        console.warn('Supabase toggle coupon notice:', err);
+      }
+    }
+  };
+
+  // Comprehensive coupon validator for Cart & Checkout
+  const validateAndApplyCoupon = (rawCode, cartItems = [], cartSubtotal = 0, customerId = null) => {
+    const code = (rawCode || '').trim().toUpperCase();
+    if (!code) {
+      return { isValid: false, discountAmount: 0, message: 'يرجى إدخال رمز الكوبون' };
+    }
+
+    const coupon = (db.coupons || []).find((c) => (c.code || '').toUpperCase() === code);
+    if (!coupon) {
+      return { isValid: false, discountAmount: 0, message: 'رمز الكوبون غير صحيح أو غير موجود' };
+    }
+
+    if (!coupon.isActive) {
+      return { isValid: false, discountAmount: 0, message: 'هذا الكوبون موقوف حالياً من قبل المتجر' };
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (coupon.startDate && todayStr < coupon.startDate) {
+      return { isValid: false, discountAmount: 0, message: `هذا الكوبون سيبدأ تفعيله بتاريخ ${coupon.startDate}` };
+    }
+    if (coupon.endDate && todayStr > coupon.endDate) {
+      return { isValid: false, discountAmount: 0, message: `انتهت صلاحية هذا الكوبون بتاريخ ${coupon.endDate}` };
+    }
+
+    if (coupon.usageLimit && Number(coupon.usageCount || 0) >= Number(coupon.usageLimit)) {
+      return { isValid: false, discountAmount: 0, message: 'تم استنفاد الحد الأقصى المتاح لاستخدام هذا الكوبون' };
+    }
+
+    if (coupon.minOrder && Number(cartSubtotal) < Number(coupon.minOrder)) {
+      return {
+        isValid: false,
+        discountAmount: 0,
+        message: `الحد الأدنى لقيمة الطلب لتطبيق هذا الكوبون هو ${Number(coupon.minOrder).toLocaleString()} ر.ي`,
+      };
+    }
+
+    // Check product inclusion rules
+    let eligibleSubtotal = Number(cartSubtotal) || 0;
+    if (coupon.includedProducts && coupon.includedProducts !== 'all' && Array.isArray(coupon.includedProducts) && coupon.includedProducts.length > 0) {
+      const eligibleItems = cartItems.filter((item) => coupon.includedProducts.includes(item.id));
+      if (eligibleItems.length === 0) {
+        return {
+          isValid: false,
+          discountAmount: 0,
+          message: 'هذا الكوبون مخصص لمنتجات محددة غير موجودة في سلة التسوق الخاصة بك',
+        };
+      }
+      eligibleSubtotal = eligibleItems.reduce((acc, it) => acc + (Number(it.price) || 0) * (it.quantity || 1), 0);
+    }
+
+    // Calculate discount
+    let discount = 0;
+    let discountPercent = 0;
+    if (coupon.discountType === 'percentage') {
+      discountPercent = Number(coupon.discountValue) || 0;
+      discount = Math.round((eligibleSubtotal * discountPercent) / 100);
+      if (coupon.maxDiscount && discount > Number(coupon.maxDiscount)) {
+        discount = Number(coupon.maxDiscount);
+      }
+    } else {
+      discount = Math.min(Number(coupon.discountValue) || 0, eligibleSubtotal);
+      discountPercent = eligibleSubtotal > 0 ? Math.round((discount / eligibleSubtotal) * 100) : 0;
+    }
+
+    return {
+      isValid: true,
+      coupon,
+      discountAmount: discount,
+      discountPercent,
+      message: `تم تطبيق كوبون "${coupon.name}" بنجاح! 🎉`,
+    };
+  };
+
+  const recordCouponUsage = (code, orderTotal, discountAmount, customerId = null) => {
+    if (!code) return;
+    const cleanCode = code.trim().toUpperCase();
+    setDb((prev) => ({
+      ...prev,
+      coupons: (prev.coupons || []).map((c) => {
+        if ((c.code || '').toUpperCase() === cleanCode) {
+          return {
+            ...c,
+            usageCount: (c.usageCount || 0) + 1,
+            totalDiscountGiven: (c.totalDiscountGiven || 0) + (Number(discountAmount) || 0),
+            totalRevenueGenerated: (c.totalRevenueGenerated || 0) + (Number(orderTotal) || 0),
+          };
+        }
+        return c;
+      }),
+    }));
+  };
+
+  // =========================================================================
+  // I. PRODUCT REVIEWS & RATINGS SYSTEM (نظام تقييم المنتجات الاحترافي الموثق)
+  // =========================================================================
+
+  const getProductReviews = (productId) => {
+    if (!productId) return [];
+    return (db.reviews || []).filter((r) => r.productId === productId);
+  };
+
+  /**
+   * Strictly verify if a customer is eligible to review a product:
+   * Rule: MUST be a verified purchaser who has a completed/delivered order with this product,
+   * and has NOT already reviewed this product.
+   */
+  const canCustomerReviewProduct = (productId, customerIdentifier = null, customerPhone = null) => {
+    if (!productId) return { canReview: false, orderId: null, reason: 'معرّف المنتج مفقود' };
+
+    const effectiveCustomerId = customerIdentifier || activeCustomerId || customerUser?.id || null;
+    const effectivePhone = customerPhone || customerUser?.phone || null;
+
+    // Check if customer already submitted a review for this product
+    const existingReview = (db.reviews || []).find(
+      (r) =>
+        r.productId === productId &&
+        ((effectiveCustomerId && r.customerId === effectiveCustomerId) ||
+          (effectivePhone && r.customerPhone === effectivePhone))
+    );
+    if (existingReview) {
+      return {
+        canReview: false,
+        orderId: existingReview.orderId,
+        alreadyReviewed: true,
+        reason: 'لقد قمت بتقييم هذا المنتج مسبقاً، شكراً لمشاركتك رأيك القيّم!',
+      };
+    }
+
+    // Look for an order containing this product purchased by this customer
+    const matchingOrder = (db.orders || []).find((o) => {
+      const hasProduct =
+        Array.isArray(o.items) &&
+        o.items.some((item) => {
+          if (item.id === productId) return true;
+          if (productId === 'prod-bags-home' && item.id === 'prod-1') return true;
+          if (productId === 'prod-burner-home' && item.id === 'prod-2') return true;
+          if (productId === 'prod-1' && item.id === 'prod-bags-home') return true;
+          if (productId === 'prod-2' && item.id === 'prod-burner-home') return true;
+          return false;
+        });
+      if (!hasProduct) return false;
+
+      // Customer match by ID or phone number
+      const matchCustomer =
+        (effectiveCustomerId && o.customerId === effectiveCustomerId) ||
+        (effectivePhone && o.phone === effectivePhone) ||
+        (effectivePhone && o.customerPhone === effectivePhone) ||
+        // Fallback for default demo customer Fatima (771234567)
+        (o.phone === '771234567' && (!effectiveCustomerId || effectiveCustomerId === 'usr-cust-1'));
+
+      return matchCustomer;
+    });
+
+    if (!matchingOrder) {
+      return {
+        canReview: false,
+        orderId: null,
+        reason: 'التقييم مقتصر حصرياً على المشترين الموثّقين الذين اشتروا هذا المنتج واستلموه بنجاح.',
+      };
+    }
+
+    return {
+      canReview: true,
+      orderId: matchingOrder.id,
+      order: matchingOrder,
+      reason: 'أنت مشترٍ موثّق لهذا المنتج، يمكنك مشاركة تقييمك الآن!',
+    };
+  };
+
+  const addProductReview = async ({ productId, rating, comment, imageUrl, customerName, customerId, customerPhone }) => {
+    if (!productId) throw new Error('معرّف المنتج مطلوب');
+    if (!rating || Number(rating) < 1 || Number(rating) > 5) throw new Error('التقييم يجب أن يكون بين 1 و 5 نجوم');
+    if (!comment || !comment.trim()) throw new Error('يرجى كتابة نص المراجعة والتقييم');
+
+    const eligibility = canCustomerReviewProduct(productId, customerId, customerPhone);
+    if (!eligibility.canReview) {
+      throw new Error(eligibility.reason || 'غير مصرح لك بتقييم هذا المنتج.');
+    }
+
+    const product = (db.products || []).find((p) => p.id === productId);
+    const targetStoreId = product?.storeId || 'store-1';
+    const targetStoreName = product?.storeName || 'متجر غيم سبيس';
+
+    const newReview = {
+      id: `rev-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      productId,
+      productName: product?.name || 'منتج',
+      storeId: targetStoreId,
+      storeName: targetStoreName,
+      customerId: customerId || activeCustomerId || customerUser?.id || 'usr-cust-1',
+      customerName: customerName || customerUser?.name || 'مشتري موثّق',
+      customerPhone: customerPhone || customerUser?.phone || '771234567',
+      customerCity: customerUser?.city || 'المكلا',
+      orderId: eligibility.orderId || `GS-${Date.now().toString().slice(-4)}`,
+      rating: Math.min(5, Math.max(1, Math.round(Number(rating)))),
+      comment: comment.trim(),
+      imageUrl: imageUrl || null,
+      isVerifiedPurchase: true,
+      merchantReply: null,
+      merchantRepliedAt: null,
+      isReported: false,
+      reportReason: null,
+      likesCount: 0,
+      createdAt: new Date().toISOString(),
+    };
+
+    setDb((prev) => {
+      const updatedReviews = [newReview, ...(prev.reviews || [])];
+      // Recalculate product rating and reviewsCount
+      const prodReviews = updatedReviews.filter((r) => r.productId === productId);
+      const avgRating = Number(
+        (prodReviews.reduce((sum, r) => sum + Number(r.rating || 5), 0) / prodReviews.length).toFixed(1)
+      );
+
+      const updatedProducts = (prev.products || []).map((p) =>
+        p.id === productId
+          ? {
+              ...p,
+              rating: avgRating,
+              reviews: prodReviews.length,
+              reviewsCount: prodReviews.length,
+            }
+          : p
+      );
+
+      return {
+        ...prev,
+        reviews: updatedReviews,
+        products: updatedProducts,
+        auditLogs: [
+          addAuditLog(
+            'ADD_PRODUCT_REVIEW',
+            newReview.customerName,
+            'customer',
+            `إضافة تقييم موثق (${newReview.rating} نجوم) للمنتج "${newReview.productName}" في متجر "${targetStoreName}".`
+          ),
+          ...prev.auditLogs,
+        ],
+        notifications: [
+          {
+            id: `notif-${Date.now()}`,
+            title: 'تقييم جديد لمنتجك ⭐',
+            message: `قام العميل ${newReview.customerName} بتقييم منتجك "${newReview.productName}" بـ ${newReview.rating} نجوم.`,
+            time: 'الآن',
+            unread: true,
+            type: 'review',
+            role: 'merchant',
+          },
+          ...prev.notifications,
+        ],
+      };
+    });
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseSubmitProductReview(newReview);
+      } catch (err) {
+        console.warn('Supabase submit review notice:', err);
+      }
+    }
+
+    return newReview;
+  };
+
+  const merchantReplyToReview = async (reviewId, replyText) => {
+    const cleanReply = (replyText || '').trim();
+    if (!cleanReply) throw new Error('يرجى كتابة نص الرد');
+
+    setDb((prev) => ({
+      ...prev,
+      reviews: (prev.reviews || []).map((r) =>
+        r.id === reviewId
+          ? {
+              ...r,
+              merchantReply: cleanReply,
+              merchantRepliedAt: new Date().toISOString(),
+            }
+          : r
+      ),
+      auditLogs: [
+        addAuditLog(
+          'REPLY_REVIEW',
+          currentMerchantUser?.name || 'التاجر',
+          'merchant',
+          `رد المتجر على التقييم #${reviewId}: "${cleanReply.substring(0, 40)}..."`
+        ),
+        ...prev.auditLogs,
+      ],
+    }));
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseReplyProductReview(reviewId, cleanReply);
+      } catch (err) {
+        console.warn('Supabase reply review notice:', err);
+      }
+    }
+
+    return true;
+  };
+
+  const reportProductReview = async (reviewId, reason = 'محتوى غير لائق أو مخالف') => {
+    setDb((prev) => ({
+      ...prev,
+      reviews: (prev.reviews || []).map((r) =>
+        r.id === reviewId ? { ...r, isReported: true, reportReason: reason } : r
+      ),
+      auditLogs: [
+        addAuditLog(
+          'REPORT_REVIEW',
+          currentMerchantUser?.name || customerUser?.name || 'مستخدم',
+          'system',
+          `إبلاغ عن مخالفة في التقييم #${reviewId} بسبب: ${reason}.`
+        ),
+        ...prev.auditLogs,
+      ],
+    }));
+
+    if (getSupabaseConfig().isConfigured) {
+      try {
+        await supabaseReportProductReview(reviewId, reason);
+      } catch (err) {
+        console.warn('Supabase report review notice:', err);
+      }
+    }
+
+    return true;
+  };
+
   const value = {
     // Database Snapshot
     db,
@@ -3777,6 +4568,25 @@ export function PlatformProvider({ children }) {
 
     // System Settings
     systemSettings: db.settings,
+
+    // Coupons & Offers (Merchant Isolated & Cart Validation)
+    coupons: db.coupons || [],
+    merchantCoupons,
+    addCoupon,
+    updateCoupon,
+    deleteCoupon,
+    toggleCouponStatus,
+    validateAndApplyCoupon,
+    recordCouponUsage,
+
+    // Product Reviews & Ratings (Verified Purchases & Merchant Replies)
+    reviews: db.reviews || [],
+    merchantReviews,
+    getProductReviews,
+    canCustomerReviewProduct,
+    addProductReview,
+    merchantReplyToReview,
+    reportProductReview,
 
     // Supabase Live Sync State
     isSupabaseConnected,

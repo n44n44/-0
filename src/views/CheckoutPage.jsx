@@ -10,14 +10,17 @@ import {
   DollarSign,
   ShieldCheck,
   CheckCircle,
+  Tag,
 } from 'lucide-react';
 import OtpVerificationModal from '../components/OtpVerificationModal';
+import { usePlatform } from '../context/PlatformContext';
 
 export default function CheckoutPage({
   cartItems = [],
   onConfirmOrder,
   onNavigate,
 }) {
+  const { validateAndApplyCoupon, recordCouponUsage, customerUser, activeCustomerId } = usePlatform();
   const [fullName, setFullName] = useState('سارة عبد العزيز');
   const [phone, setPhone] = useState('770123456');
   const [city, setCity] = useState('المكلا');
@@ -25,6 +28,11 @@ export default function CheckoutPage({
   const [address, setAddress] = useState('بجوار حديقة المكلا - عمارة الأمل، شقة 4');
   const [paymentMethod, setPaymentMethod] = useState('cash'); // 'cash' | 'jawali' | 'card'
   const [couponCode, setCouponCode] = useState('');
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [couponMessage, setCouponMessage] = useState('');
+  const [couponError, setCouponError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOtpOpen, setIsOtpOpen] = useState(false);
 
@@ -33,7 +41,31 @@ export default function CheckoutPage({
     ? cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (item.quantity || 1), 0)
     : 38000;
   const shippingFee = 2000;
-  const grandTotal = subtotal + shippingFee;
+  const grandTotal = Math.max(0, subtotal - discountAmount + shippingFee);
+
+  const handleApplyCoupon = (e) => {
+    if (e) e.preventDefault();
+    setCouponError('');
+    setCouponMessage('');
+    if (!couponCode.trim()) {
+      setCouponError('يرجى إدخال رمز الكوبون');
+      return;
+    }
+    if (validateAndApplyCoupon) {
+      const res = validateAndApplyCoupon(couponCode, cartItems, subtotal, customerUser?.id || activeCustomerId);
+      if (res.isValid) {
+        setCouponApplied(true);
+        setDiscountAmount(res.discountAmount);
+        setDiscountPercent(res.discountPercent || 0);
+        setCouponMessage(res.message);
+      } else {
+        setCouponApplied(false);
+        setDiscountAmount(0);
+        setDiscountPercent(0);
+        setCouponError(res.message);
+      }
+    }
+  };
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
@@ -81,11 +113,17 @@ export default function CheckoutPage({
         },
       ],
       subtotal,
+      discount: discountAmount,
+      couponCode: couponApplied ? couponCode.trim().toUpperCase() : null,
       shippingFee,
       total: grandTotal,
       status: 'pending',
       date: new Date().toISOString(),
     };
+
+    if (couponApplied && couponCode && recordCouponUsage) {
+      recordCouponUsage(couponCode, grandTotal, discountAmount, customerUser?.id || activeCustomerId);
+    }
 
     setTimeout(() => {
       setIsSubmitting(false);
@@ -375,12 +413,44 @@ export default function CheckoutPage({
                 ))}
               </div>
 
+              {/* Coupon Code Section */}
+              <div className="pt-2 border-t border-slate-100">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="كود الخصم (GHAYM20)"
+                    className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono uppercase focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 text-xs font-bold transition cursor-pointer"
+                  >
+                    تطبيق
+                  </button>
+                </div>
+                {couponApplied && couponMessage && (
+                  <p className="text-[11px] text-emerald-600 font-bold mt-1.5">{couponMessage}</p>
+                )}
+                {couponError && (
+                  <p className="text-[11px] text-red-600 font-bold mt-1.5">{couponError}</p>
+                )}
+              </div>
+
               {/* Price Breakdown */}
               <div className="space-y-2.5 text-body-md pt-2 border-t border-slate-100">
                 <div className="flex justify-between text-on-surface-variant text-xs">
                   <span>المجموع الفرعي</span>
                   <span className="font-bold text-[#07132B]">{subtotal.toLocaleString()} ر.ي</span>
                 </div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-600 text-xs font-bold">
+                    <span>خصم الكوبون ({discountPercent}%)</span>
+                    <span>-{discountAmount.toLocaleString()} ر.ي</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-on-surface-variant text-xs">
                   <span>الشحن والتوصيل (المكلا)</span>
                   <span className="font-bold text-[#07132B]">{shippingFee.toLocaleString()} ر.ي</span>
